@@ -1,0 +1,26 @@
+
+module m;
+
+import n;
+
+
+func f(x : int const&)
+func f(const ref x : int)
+
+func f(x : int) -> int
+{
+  x = 5; // Nope...
+
+  var a : int = x; // alloca; store
+  val b : int = a; // load
+  ref d : int = a; // also no-op
+
+  f(b - 1);
+}
+
+func g(var first : int*, last : int*) {
+  while (first != last) {
+    // Do stuff
+    first += 1;
+  }
+}
