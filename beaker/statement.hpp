@@ -24,8 +24,13 @@ namespace beaker
   public:
     virtual ~Statement();
 
+    // Kind
+
     /// Returns the kind of declaration.
     Kind get_kind() const { return m_kind; }
+
+    /// Returns a textual representation of the kind.
+    const char* get_kind_name() const;
 
     /// Returns the start location of the this statement.
     virtual Location get_start_location() const { return Location(); }

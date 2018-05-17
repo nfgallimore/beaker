@@ -1,9 +1,24 @@
 #include "declaration.hpp"
 #include "type.hpp"
 #include "type_specifier.hpp"
+#include "dump.hpp"
+
+#include <iostream>
   
 namespace beaker
 {
+  const char*
+  Declaration::get_kind_name() const
+  {
+    switch (m_kind) {
+    case tu_kind: return "translation-unit";
+    case func_kind: return "function-declaration";
+    case val_kind: return "value-declaration";
+    case var_kind: return "variable-declaration";
+    case parm_kind: return "parameter";
+    }
+  }
+
   bool 
   Declaration::is_scoped() const
   {
@@ -38,6 +53,13 @@ namespace beaker
     default:
       __builtin_unreachable();
     }
+  }
+
+  void
+  Declaration::dump() const
+  {
+    Dump_context dc(std::cerr);
+    beaker::dump(dc, this);
   }
 
   void
@@ -102,6 +124,13 @@ namespace beaker
     assert(!m_ts);
     m_ts = ts;
     set_type(ts->get_type());
+  }
+
+  void 
+  Data_declaration::set_initializer(Expression* e)
+  {
+    assert(!m_init);
+    m_init = e;
   }
 
   Parameter::Parameter(Named_declaration* d)

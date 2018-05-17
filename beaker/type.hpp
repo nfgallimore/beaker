@@ -25,8 +25,13 @@ namespace beaker
     Type(Kind k) : m_kind(k) { }
 
   public:
+    // Kind
+
     /// Returns the kind of type.
     Kind get_kind() const { return m_kind; }
+
+    ///  Returns a textual representation of the kind.
+    const char* get_kind_name() const;
 
     /// Returns true if this is the type `unit`.
     bool is_unit() const { return m_kind == unit_kind; }
@@ -42,6 +47,12 @@ namespace beaker
 
     /// Returns true if this is the type `auto`.
     bool is_auto() const { return m_kind == auto_kind; }
+
+    /// Returns true if this is a function type.
+    bool is_function() const { return m_kind == func_kind; }
+
+    /// Returns true if this is a reference type.
+    bool is_reference() const { return m_kind == ref_kind; }
   
   private:
     Kind m_kind;
@@ -134,7 +145,7 @@ namespace beaker
     Type_seq& get_parameter_types() { return m_parms; }
 
     /// Returns the return type.
-    Type* get_return_type() { return m_ret; }
+    Type* get_return_type() const { return m_ret; }
 
   private:
     /// The types of parameters.
@@ -145,9 +156,19 @@ namespace beaker
   };
 
 
-  // class Reference_type : Type
-  // {
+  /// Represents reference types.
+  class Reference_type : public Type
+  {
+  public:
+    Reference_type(Type* t)
+      : Type(ref_kind), m_obj(t)
+    { }
 
-  // };
+    Type* get_object_type() const { return m_obj; }
+
+  private:
+    /// The referred-to object type.
+    Type* m_obj;
+  };
 
 } // namespace beaker

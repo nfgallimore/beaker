@@ -21,7 +21,9 @@ add_library(beaker.lang
   data_parser.cpp
   function_parser.cpp
 
-  semantics.cpp)
+  semantics.cpp
+  print.cpp
+  dump.cpp)
 
 add_executable(beaker.compile main.cpp)
 target_link_libraries(beaker.compile beaker.lang)

@@ -79,6 +79,9 @@ namespace beaker
     /// Returns the kind of declaration.
     Kind get_kind() const { return m_kind; }
 
+    /// Returns a textual representation of the kind.
+    const char* get_kind_name() const;
+
     /// Returns true if this is a translation unit.
     bool is_translation_unit() const { return m_kind == tu_kind; }
 
@@ -105,14 +108,21 @@ namespace beaker
     /// Returns this as a scoped declaration, or nullptr if it is not.
     Scoped_declaration* get_as_scoped() const;
 
-    /// Returns 
+    /// Returns this as a scoped declaration.
     Scoped_declaration* cast_as_scoped() const;
+
+    // Physical location.
 
     /// Returns the start location of the this statement.
     virtual Location get_start_location() const { return Location(); }
     
     /// Returns the end location of the this statement.
     virtual Location get_end_location() const { return Location(); }
+
+    // Debugging
+
+    // Emit a representation of the AST.
+    void dump() const;
 
   private:
     /// The kind of declaration.
@@ -157,6 +167,12 @@ namespace beaker
     Scoped_declaration* get_parent() const { return m_derived->get_scope(); }
 
     // Nested declarations
+
+    /// Returns the list of nested declarations.
+    const Declaration_seq& get_declarations() const { return m_decls; }
+
+    /// Returns the list of nested declarations.
+    Declaration_seq& get_declarations() { return m_decls; }
 
     /// Adds a declaration to the context, making it available for lookup.
     void add_visible_declaration(Named_declaration* d);
@@ -299,9 +315,19 @@ namespace beaker
     /// will also update the type.
     void set_type_specifier(Type_specifier* ts);
 
+    /// Returns the initializer.
+    Expression* get_initializer() const { return m_init; }
+
+    /// Sets the initializer.
+    void set_initializer(Expression* e);
+
   private:
     /// The type specifier of data declaration. This may be omitted.
     Type_specifier* m_ts;
+
+    /// The initializer for the data declaration. For parameters,
+    /// this is interpreted as the default argument.
+    Expression* m_init;
   };
 
 
@@ -345,8 +371,27 @@ namespace beaker
     /// Return the type of the declaration, if typed.
     Type* get_type() const;
 
+    // Position
+
+    /// Returns the depth of the parameter.
+    int get_depth() const { return m_depth; }
+    
+    /// Returns the index of the parameter.
+    int get_index() const { return m_index; }
+
+    /// Sets the depth and index of the parameter.
+    void set_position(int d, int n) { m_depth = d; m_index = n; }
+
   private:
+    /// The underlying data or type declaration.
     Named_declaration* m_decl;
+    
+    /// The 0-based depth of the parameter. This can be non-zero for nested
+    /// templates and lambda expressions.
+    int m_depth;
+    
+    /// The 0-based index of the parameter in its construct.
+    int m_index;
   };
 
   inline Type*

@@ -209,6 +209,10 @@ namespace beaker
     void declare(Typed_declaration* d);
     void declare(Named_declaration* d);
 
+    // Lookup
+
+    Declaration* unqualified_lookup(Symbol s);
+
   private:
     /// The translation context. This provides access to compiler resources.
     Context& m_cxt;

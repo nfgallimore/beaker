@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iosfwd>
 #include <string>
 #include <unordered_set>
 
@@ -8,6 +9,8 @@ namespace beaker
   /// Represents a symbol in the language. Because all symbols have unique
   /// values, the value of a symbol is its identity. 
   using Symbol = const std::string*;
+
+  std::ostream& operator<<(std::ostream& os, Symbol sym);
 
 
   /// Ensures that all symbols having the same spelling are unique.

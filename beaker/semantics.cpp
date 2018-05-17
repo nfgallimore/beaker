@@ -1,7 +1,8 @@
 #include "semantics.hpp"
 #include "declaration.hpp"
-#include "type_specifier.hpp"
 #include "type.hpp"
+#include "type_specifier.hpp"
+#include "expression.hpp"
 #include "context.hpp"
 
 #include <iostream>
@@ -186,26 +187,35 @@ namespace beaker
   {
     return nullptr;
   }
-  Expression*
-  Semantics::on_integer_literal(const Token& tok)
-  {
-    return nullptr;
-  }
+
   Expression*
   Semantics::on_boolean_literal(const Token& tok)
   {
-    return nullptr;
+    Type* type = m_cxt.get_bool_type();
+    bool val = tok.is(Token::true_kw);
+    return new Bool_literal(type, tok, val);
   }
+  
+  Expression*
+  Semantics::on_integer_literal(const Token& tok)
+  {
+    Type* type = m_cxt.get_int_type();
+    int val = 13; // FIXME
+    return new Int_literal(type, tok, val);
+  }
+  
   Expression*
   Semantics::on_float_literal(const Token& tok)
   {
     return nullptr;
   }
+  
   Expression*
   Semantics::on_character_literal(const Token& tok)
   {
     return nullptr;
   }
+  
   Expression*
   Semantics::on_string_literal(const Token& tok)
   {
@@ -215,7 +225,10 @@ namespace beaker
   Expression*
   Semantics::on_id_expression(const Token& id)
   {
-    return nullptr;
+    // FIXME: Implement name lookup.
+    Declaration* decl = nullptr;
+    Type* type = m_cxt.get_int_type();
+    return new Id_expression(type, decl);
   }
 
   Expression*
@@ -398,6 +411,8 @@ namespace beaker
                                     Expression* e, 
                                     const Token& semi)
   {
+    Data_declaration* data = static_cast<Data_declaration*>(d);
+    data->set_initializer(e);
     return d;
   }
 

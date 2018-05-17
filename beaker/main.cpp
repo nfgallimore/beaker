@@ -1,6 +1,7 @@
 #include <beaker/context.hpp>
 #include <beaker/file.hpp>
 #include <beaker/module_parser.hpp>
+#include <beaker/declaration.hpp>
 
 #include <iostream>
 
@@ -23,5 +24,7 @@ main(int argc, const char* argv[])
   // Run the parser.
   Parse_context pcxt(cxt, input);
   Module_parser mp(pcxt);
-  Declaration* module = mp.parse_module();
+  Declaration* tu = mp.parse_module();
+
+  tu->dump();
 }
