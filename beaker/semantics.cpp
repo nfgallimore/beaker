@@ -1,4 +1,5 @@
 #include "semantics.hpp"
+#include "scope.hpp"
 #include "declaration.hpp"
 #include "type.hpp"
 #include "type_specifier.hpp"
@@ -11,20 +12,27 @@
 namespace beaker
 {
   Semantics::Semantics(Context& cxt)
-    : m_cxt(cxt), m_sd()
+    : m_cxt(cxt), m_scope(), m_decl()
   { }
 
   Semantics::~Semantics()
   {
-    assert(!m_sd);
+    assert(!m_scope); // Imbalanced scope stack
+    assert(!m_decl); // Imbalanced declaration stack
   }
 
   void
   Semantics::enter_scope(Declaration* d)
   {
     assert(d->is_scoped());
-    assert(m_sd != d->cast_as_scoped()); // Already on the stack.
-    m_sd = d->cast_as_scoped();
+    assert(m_decl != d->cast_as_scoped()); // Already on the stack.
+    
+    // Make d the current declaration.
+    Scoped_declaration* sd = d->cast_as_scoped();
+    m_decl = sd;
+
+    // Push a new scope for the declaration.
+    m_scope = new Declaration_scope(sd, m_scope);
   }
 
   void
@@ -32,12 +40,23 @@ namespace beaker
   {
     __builtin_unreachable();
   }
+
   void
   Semantics::leave_scope(Declaration* d)
   {
     assert(d->is_scoped());
-    assert(m_sd == d->cast_as_scoped()); // Imbalanced stack
-    m_sd = d->get_scope();
+    assert(m_decl == d->cast_as_scoped()); // Imbalanced stack
+
+    // Pop the current scope.
+    Scope* prev = m_scope;
+    m_scope = m_scope->get_parent();
+    delete prev;
+
+    // Make d's owner the current scope.
+    //
+    // Equivalently, this should be declaration associated with
+    // the current scope.
+    m_decl = d->get_owner();
   }
 
   void
@@ -361,7 +380,7 @@ namespace beaker
   Semantics::on_data_identification(const Token& id, const Token& kw)
   {
     // Create the entity.
-    Data_declaration* data = make_data_decl(id, kw, m_sd);
+    Data_declaration* data = make_data_decl(id, kw, m_decl);
 
     // Identify the declaration.
     identify(data);
@@ -422,7 +441,7 @@ namespace beaker
   Semantics::on_function_identification(const Token& id, const Token& kw)
   {
     // Create the entity.
-    Function_declaration* fn = new Function_declaration(m_sd, id);
+    Function_declaration* fn = new Function_declaration(m_decl, id);
 
     // Identify the declaration
     identify(fn);
@@ -476,7 +495,7 @@ namespace beaker
                                    const Token& colon)
   {
     // Build underlying declaration.
-    Value_declaration* val = new Value_declaration(m_sd, id);
+    Value_declaration* val = new Value_declaration(m_decl, id);
     val->set_type_specifier(type);
 
     // Build the parameter.
@@ -511,7 +530,7 @@ namespace beaker
     //
     // FIXME: Allow multiple declarations of functions, although we have
     // to check them at the point of declaration.
-    Declaration_set decls = m_sd->lookup(d->get_name());
+    Declaration_set decls = m_decl->lookup(d->get_name());
     if (!decls.empty()) {
       std::stringstream ss;
       ss << "redeclaration of " << *d->get_name();
@@ -519,7 +538,7 @@ namespace beaker
     }
 
     // Make the declaration available for lookup.
-    m_sd->add_visible_declaration(d);
+    m_decl->add_visible_declaration(d);
   }
 
   // Verify that the declaration is valid.

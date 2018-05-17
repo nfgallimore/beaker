@@ -22,6 +22,7 @@ add_library(beaker.lang
   function_parser.cpp
 
   semantics.cpp
+  scope.cpp
   print.cpp
   dump.cpp)
 

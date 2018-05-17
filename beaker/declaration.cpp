@@ -7,6 +7,14 @@
   
 namespace beaker
 {
+  Declaration_set
+  Declaration_map::lookup(Symbol sym) const 
+  {
+    auto& map = const_cast<Declaration_map&>(*this);
+    auto range = map.equal_range(sym);
+    return Declaration_set(range.first, range.second);
+  }
+
   const char*
   Declaration::get_kind_name() const
   {
@@ -83,9 +91,7 @@ namespace beaker
   Declaration_set
   Scoped_declaration::lookup(Symbol sym) const 
   {
-    auto& map = const_cast<Declaration_map&>(m_lookup);
-    auto range = map.equal_range(sym);
-    return Declaration_set(range.first, range.second);
+    return m_lookup.lookup(sym);
   }
 
   Function_type*
@@ -134,7 +140,7 @@ namespace beaker
   }
 
   Parameter::Parameter(Named_declaration* d)
-    : Named_declaration(parm_kind, d->get_scope(), d->get_identifier()), m_decl(d)
+    : Named_declaration(parm_kind, d->get_owner(), d->get_identifier()), m_decl(d)
   { }
 
 } // namespace beaker

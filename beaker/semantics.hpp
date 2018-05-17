@@ -5,9 +5,7 @@
 
 namespace beaker
 {
-  class Declaration_context;
-  class Named_declaration;
-  class Typed_declaration;
+  class Scope;
 
   /// The semantics class implements the semantic actions of the parser.
   class Semantics
@@ -180,13 +178,8 @@ namespace beaker
     Parameter* on_variadic_parameter(const Token& ellipsis);
     Parameter* on_variadic_parameter(const Token& ellipsis, const Token& id);
 
-    // Declaration context
+    // Scope and declaration
 
-  private:
-    void enter_scope(Scoped_declaration* sd);
-    void leave_scope(Scoped_declaration* sd);
-
-  public:
     /// Make `d` the active declarative region.
     void enter_scope(Declaration* d);
 
@@ -201,7 +194,7 @@ namespace beaker
 
     /// Returns current scoped declaration. This provides lookup and
     /// declaration facilities for the current declarative region.
-    Scoped_declaration* get_current_declaration() const { return m_sd; }
+    Scoped_declaration* get_current_declaration() const { return m_decl; }
 
     // Declarations
 
@@ -217,8 +210,11 @@ namespace beaker
     /// The translation context. This provides access to compiler resources.
     Context& m_cxt;
 
-    /// The current declaration (i.e., scope).
-    Scoped_declaration* m_sd;
+    /// The current scope.
+    Scope* m_scope;
+
+    /// The current declaration.
+    Scoped_declaration* m_decl;
   };
 
 } // namespace beaker

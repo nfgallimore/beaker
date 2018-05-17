@@ -7,6 +7,8 @@
 
 namespace beaker
 {
+  class Declaration_set;
+  class Declaration_map;
   class Declaration;
   class Scoped_declaration;
   class Named_declaration;
@@ -16,7 +18,15 @@ namespace beaker
   /// Associates names with declarations.
   ///
   /// \todo A name is not just a symbol.
-  using Declaration_map = std::unordered_multimap<Symbol, Named_declaration*>;
+  class Declaration_map : public std::unordered_multimap<Symbol, Named_declaration*>
+  {
+    using Base = std::unordered_multimap<Symbol, Named_declaration*>;
+  public:
+    using Base::Base;
+
+    /// Returns the set of declarations in the lookup map.
+    Declaration_set lookup(Symbol sym) const;
+  };
 
 
   /// A set of declarations having the same name, but possibly denoting
@@ -103,7 +113,7 @@ namespace beaker
     // Scope
 
     /// Returns the scope (declaration) in which this is declared.
-    Scoped_declaration* get_scope() const { return m_scope; }
+    Scoped_declaration* get_owner() const { return m_scope; }
 
     /// Returns this as a scoped declaration, or nullptr if it is not.
     Scoped_declaration* get_as_scoped() const;
@@ -164,7 +174,7 @@ namespace beaker
     // Context
 
     /// Returns the parent context.
-    Scoped_declaration* get_parent() const { return m_derived->get_scope(); }
+    Scoped_declaration* get_parent() const { return m_derived->get_owner(); }
 
     // Nested declarations
 
