@@ -117,15 +117,15 @@ namespace beaker
   class Id_expression : public Expression
   {
   public:
-    Id_expression(Type* t, Declaration* d)
+    Id_expression(Type* t, Typed_declaration* d)
       : Expression(id_kind, t), m_decl(d)
     { }
 
     /// Returns the declaration named by the expression.
-    Declaration* get_declaration() const { return m_decl; }
+    Typed_declaration* get_declaration() const { return m_decl; }
   
   private:
-    Declaration* m_decl;
+    Typed_declaration* m_decl;
   };
 
 

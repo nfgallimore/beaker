@@ -6,6 +6,7 @@
 namespace beaker
 {
   class Scope;
+  class Declaration_set;
 
   /// The semantics class implements the semantic actions of the parser.
   class Semantics
@@ -192,19 +193,33 @@ namespace beaker
     /// Restore the previous declarative region. 
     void leave_scope(Statement* s);
 
+    /// Restores the scope for a declaration.
+    void restore_scope(Declaration* d);
+
+    /// Empties the scope stack after a restoration.
+    void empty_scope(Declaration* d);
+
     /// Returns current scoped declaration. This provides lookup and
     /// declaration facilities for the current declarative region.
     Scoped_declaration* get_current_declaration() const { return m_decl; }
 
     // Declarations
 
+    /// Register the declaration within its context.
     void identify(Named_declaration* d);
+
+    /// Bind a declared name to its type. This performs additional checks
+    /// to ensure that e.g., overloads are valid
     void declare(Typed_declaration* d);
+
+    /// Bind a declaration to additonal information.
     void declare(Named_declaration* d);
 
     // Lookup
 
-    Declaration* unqualified_lookup(Symbol s);
+    /// Perform unqualified lookup and return a set of declaraitons
+    /// corresponding to the given name.
+    Declaration_set unqualified_lookup(Symbol s);
 
   private:
     /// The translation context. This provides access to compiler resources.

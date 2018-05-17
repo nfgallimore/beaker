@@ -186,5 +186,20 @@ namespace beaker
     Construct m_cons;
   };
 
+  /// A helper class that reconstructs the scope around a declaration
+  /// during a defered parse.
+  class Restored_declarative_region
+  {
+  public:
+    Restored_declarative_region(Parser& p, Declaration* d);
+    ~Restored_declarative_region();
+
+  private:
+    /// The semantic actions for the parser.
+    Semantics& m_sema;
+
+    /// The construct associated with the declarative region.
+    Declaration* m_decl;
+  };
 
 } // namespace beaker

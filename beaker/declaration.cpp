@@ -14,6 +14,12 @@ namespace beaker
     auto range = map.equal_range(sym);
     return Declaration_set(range.first, range.second);
   }
+  
+  void
+  Declaration_map::declare(Named_declaration* d)
+  {
+    emplace(d->get_name(), d);
+  }
 
   const char*
   Declaration::get_kind_name() const
@@ -63,6 +69,12 @@ namespace beaker
     }
   }
 
+  Declaration*
+  Declaration::get_enclosing_declaration() const
+  {
+    return m_scope ? m_scope->cast_as_declaration() : nullptr;
+  }
+
   void
   Declaration::dump() const
   {
@@ -76,7 +88,7 @@ namespace beaker
     assert(m_lookup.find(d->get_name()) == m_lookup.end());
     
     // Add the declaration for lookup.
-    m_lookup.emplace(d->get_name(), d);
+    m_lookup.declare(d);
     
     // Add the declaration to the list.
     add_hidden_declaration(d);

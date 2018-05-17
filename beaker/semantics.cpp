@@ -6,6 +6,7 @@
 #include "expression.hpp"
 #include "context.hpp"
 
+#include <algorithm>
 #include <iostream>
 #include <sstream>
 
@@ -63,6 +64,37 @@ namespace beaker
   Semantics::leave_scope(Statement* s)
   {
     __builtin_unreachable();
+  }
+
+  void
+  Semantics::restore_scope(Declaration* d)
+  {
+    assert(!m_scope && !m_decl); // Must be in a pristine state.
+
+    // Compute the enclosing scopes of d.
+    Declaration_seq decls;
+    if (!d->is_scoped())
+      d = d->get_enclosing_declaration();
+    while (d) {
+      decls.push_back(d);
+      d = d->get_enclosing_declaration();
+    }
+    std::reverse(decls.begin(), decls.end());
+    
+    // Reconstruct the stack.
+    for (Declaration* d : decls)
+      enter_scope(d);
+  }
+
+  void
+  Semantics::empty_scope(Declaration* d)
+  {
+    if (!d->is_scoped())
+      d = d->get_enclosing_declaration();
+    while (m_scope) {
+      leave_scope(d);
+      d = d->get_enclosing_declaration();
+    }
   }
 
   Type_specifier*
@@ -244,10 +276,28 @@ namespace beaker
   Expression*
   Semantics::on_id_expression(const Token& id)
   {
-    // FIXME: Implement name lookup.
-    Declaration* decl = nullptr;
-    Type* type = m_cxt.get_int_type();
-    return new Id_expression(type, decl);
+    // Search for declarations with the given name.
+    Declaration_set found = unqualified_lookup(id.get_symbol());
+    if (found.is_empty()) {
+      std::stringstream ss;
+      ss << "no matching declaration for " << '\'' << id << '\'';
+      throw std::runtime_error(ss.str());
+    }
+    Named_declaration* nd = found.get_single_declaration();
+    
+    // Id-expressions must be types.
+    if (!nd->is_typed()) {
+      std::stringstream ss;
+      ss << "declaration " << '\'' << id << '\'' << " does not have a value";
+      throw std::runtime_error(ss.str());
+    }
+    Typed_declaration* td = static_cast<Typed_declaration*>(nd);
+    
+    // FIXME: Analyze the declaration to determine the type of
+    // the expression.
+    Type* type = td->get_type();
+    
+    return new Id_expression(type, td);
   }
 
   Expression*
@@ -530,15 +580,15 @@ namespace beaker
     //
     // FIXME: Allow multiple declarations of functions, although we have
     // to check them at the point of declaration.
-    Declaration_set decls = m_decl->lookup(d->get_name());
-    if (!decls.empty()) {
+    Declaration_set decls = m_scope->lookup(d->get_name());
+    if (!decls.is_empty()) {
       std::stringstream ss;
       ss << "redeclaration of " << *d->get_name();
       throw std::runtime_error(ss.str());
     }
 
     // Make the declaration available for lookup.
-    m_decl->add_visible_declaration(d);
+    m_scope->declare(d);
   }
 
   // Verify that the declaration is valid.
@@ -556,6 +606,19 @@ namespace beaker
     // a parameter, we should check its underlying declaration.
     //
     // FIXME: Do something interesting.
+  }
+
+  Declaration_set
+  Semantics::unqualified_lookup(Symbol sym)
+  {
+    Scope* s = m_scope;
+    while (s) {
+      Declaration_set decls = s->lookup(sym);
+      if (!decls.is_empty())
+        return decls;
+      s = s->get_parent();
+    }
+    return {};
   }
 
 

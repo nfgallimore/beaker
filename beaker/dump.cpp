@@ -74,8 +74,10 @@ namespace beaker
     int level = dc.get_indentation();
     if (level == 0)
       return;
-    else
-      dc.get_stream() << std::string(2 * level, ' ') << "\u2514\u2500";    
+
+    // FIXME: Draw cool box line.
+    std::ostream& os = dc.get_stream();
+    os << std::string(2 * (level - 1), ' ');
   }
 
   template<typename T>
@@ -168,8 +170,8 @@ namespace beaker
   static void
   dump_id_attributes(Dump_context& dc, const Id_expression* e)
   {
-    if (Declaration* d = e->get_declaration())
-      dc.get_stream() << " ref=" << (void*)d;
+    if (Typed_declaration* td = e->get_declaration()) 
+      dc.get_stream() << " decl=" << td->get_name() << " ref=" << (void*)td;
     else
       dc.get_stream() << " ref=<null>";
   }
@@ -281,7 +283,9 @@ namespace beaker
   dump_typed_attributes(Dump_context& dc, const Typed_declaration* d)
   {
     dump_named_attributes(dc, d);
-    dc.get_stream() << " type=" << *d->get_type();
+
+    if (Type* t = d->get_type())
+      dc.get_stream() << " type=" << *t;
   }
 
   static void 

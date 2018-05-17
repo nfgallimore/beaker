@@ -203,5 +203,17 @@ namespace beaker
       __builtin_unreachable();
   }
 
+  Restored_declarative_region::
+  Restored_declarative_region(Parser& p, Declaration* d)
+    : m_sema(p.get_semantics()), m_decl(d)
+  {
+    m_sema.restore_scope(m_decl);
+  }
+
+  Restored_declarative_region::
+  ~Restored_declarative_region()
+  {
+    m_sema.empty_scope(m_decl);
+  }
 
 } // namespace beaker

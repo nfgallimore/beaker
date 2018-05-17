@@ -26,6 +26,9 @@ namespace beaker
 
     /// Returns the set of declarations in the lookup map.
     Declaration_set lookup(Symbol sym) const;
+
+    /// Adds d to the map.
+    void declare(Named_declaration* d);
   };
 
 
@@ -45,10 +48,15 @@ namespace beaker
     { }
 
     /// Returns true if the set is empty.
-    bool empty() const { return m_first == m_last; }
+    bool is_empty() const { return m_first == m_last; }
 
     /// Returns true if this is a singleton set.
-    bool singleton() const { return !empty() && std::next(m_first) == m_last; }
+    bool is_singleton() const { return !is_empty() && std::next(m_first) == m_last; }
+
+    /// Returns the only found decalration. Use this only when a single
+    /// declaration is expected. Otherwise, the iterator interface should
+    /// be used to traverse the list of declarations.
+    Named_declaration* get_single_declaration() const;
 
     /// Returns an iterator to the first declaration.
     iterator begin() const { return m_first; }
@@ -60,6 +68,13 @@ namespace beaker
     iterator m_first;
     iterator m_last;
   };
+
+  inline Named_declaration* 
+  Declaration_set::get_single_declaration() const
+  {
+    assert(is_singleton());
+    return m_first->second;
+  }
   
 
   /// The base class of all declarations.
@@ -95,6 +110,10 @@ namespace beaker
     /// Returns true if this is a translation unit.
     bool is_translation_unit() const { return m_kind == tu_kind; }
 
+    /// Returns true if the declaration is typed, meaning that it has an
+    /// associated value.
+    bool is_typed() const { return is_function() || is_data(); }
+
     /// Returns true if this is a function.
     bool is_function() const { return m_kind == func_kind; }
 
@@ -112,8 +131,11 @@ namespace beaker
 
     // Scope
 
-    /// Returns the scope (declaration) in which this is declared.
+    /// Returns the scoped declaration in which this is declared.
     Scoped_declaration* get_owner() const { return m_scope; }
+
+    /// Returns the declaration in which this is declared.
+    Declaration* get_enclosing_declaration() const;
 
     /// Returns this as a scoped declaration, or nullptr if it is not.
     Scoped_declaration* get_as_scoped() const;

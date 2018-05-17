@@ -14,6 +14,7 @@ namespace beaker
   void
   Data_parser::parse_data_type(Declaration* d)
   {
+    Restored_declarative_region region(*this, d);
     if (Token colon = match_if(Token::colon)) {
       Type_specifier* type = parse_type_specifier();
       m_act.on_data_declaration(d, type);
@@ -31,6 +32,7 @@ namespace beaker
   void
   Data_parser::parse_data_initializer(Declaration* d)
   {
+    Restored_declarative_region region(*this, d);
     if (Token eq = match_if(Token::equal)) {
       Expression* expr = parse_expression();
       Token semi = match(Token::semicolon);
