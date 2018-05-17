@@ -15,4 +15,11 @@ namespace beaker
   Context::~Context()
   { }
 
+  Type*
+  Context::get_reference_type(Type* t)
+  {
+    // FIXME: Make this unique.
+    return new Reference_type(t);
+  }
+
 } // namespace beaker

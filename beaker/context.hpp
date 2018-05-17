@@ -46,6 +46,9 @@ namespace beaker
     /// Returns the type `auto`.
     Type* get_auto_type() const { return m_auto_type.get(); }
 
+    /// Returns a reference to the given type.
+    Type* get_reference_type(Type* t);
+
   private:
     /// The symbol table provides unique representations of symbols in the
     /// language. This is not used to associate information with identifiers.

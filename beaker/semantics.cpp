@@ -293,9 +293,10 @@ namespace beaker
     }
     Typed_declaration* td = static_cast<Typed_declaration*>(nd);
     
-    // FIXME: Analyze the declaration to determine the type of
-    // the expression.
+    // Analyze the declaration to determine the type of the expression.
     Type* type = td->get_type();
+    if (td->is_variable())
+      type = m_cxt.get_reference_type(type);
     
     return new Id_expression(type, td);
   }

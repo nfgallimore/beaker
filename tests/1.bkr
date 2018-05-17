@@ -1,0 +1,4 @@
+
+var b : bool = true;
+var x : int = 42;
+val y : int = x;

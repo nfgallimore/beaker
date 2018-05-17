@@ -75,9 +75,35 @@ namespace beaker
     if (level == 0)
       return;
 
-    // FIXME: Draw cool box line.
+    // FIXME: Draw cool box lines. This is hard to do without knowing, id
+    // advance how many children each node has. Right now we print this:
+    //
+    //    translation-unit
+    //    └─decl-1
+    //      └─type
+    //        └─int-type
+    //      └─init
+    //    └─decl-2
+    //      └─type
+    //        └─int-type
+    //    ...
+    //
+    // What we'd really like to do is drop lines to connect entries, and
+    // make sure that the entry is properly closed.
+    //
+    //    translation-unit
+    //    ├─decl-1
+    //    │ ├─type
+    //    │ │ └─int-type
+    //    │ └─init
+    //    └─decl-2
+    //      └─type
+    //        └─int-type
+    //
+    // Note that the lines stop after the last declaration.
     std::ostream& os = dc.get_stream();
     os << std::string(2 * (level - 1), ' ');
+    os << "\u2514\u2500";
   }
 
   template<typename T>
@@ -202,14 +228,12 @@ namespace beaker
     if (!e)
       return;
 
-#if 0
-    {
-      Indent_around indent1(dc);
-      dump_label(dc, "type");
-      Indent_around indent2(dc);
-      dump(dc, e->get_type());
-    }
-#endif
+    // {
+    //   Indent_around indent1(dc);
+    //   dump_label(dc, "type");
+    //   Indent_around indent2(dc);
+    //   dump(dc, e->get_type());
+    // }
 
     // FIXME: Implement me.
   }
