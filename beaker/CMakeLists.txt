@@ -10,6 +10,8 @@ add_library(beaker.lang
   type.cpp
   type_specifier.cpp
   expression.cpp
+  arithmetic_expression.cpp
+  logical_expression.cpp
   conversion.cpp
   statement.cpp
   declaration.cpp
@@ -23,6 +25,8 @@ add_library(beaker.lang
   function_parser.cpp
 
   semantics.cpp
+  expression_semantics.cpp
+  conversion_semantics.cpp
   scope.cpp
   print.cpp
   dump.cpp)
