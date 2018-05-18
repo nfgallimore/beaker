@@ -140,7 +140,7 @@ namespace beaker
     case bang_equal: return 2;
     case less_equal: return 2;
     case greater_equal: return 2;
-    case ampersand_ampersand: return 1;
+    case ampersand_ampersand: return 2;
     case bar_bar: return 2;
     case comma: return 1;
     case arrow: return 2;

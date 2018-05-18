@@ -14,6 +14,12 @@ namespace beaker
       bool_kind,
       int_kind,
       id_kind,
+
+      and_kind,
+      or_kind,
+      not_kind,
+
+      conv_kind,
     };
 
   protected:
@@ -128,5 +134,149 @@ namespace beaker
     Typed_declaration* m_decl;
   };
 
+  /// The base class of all unary expressions.
+  class Unary_expression : public Expression
+  {
+  protected:
+    Unary_expression(Kind k, Type* t, Expression* e)
+      : Expression(k, t), m_expr(e)
+    { }
+
+  public:
+    /// Returns the operand of the expression.
+    Expression* get_operand() const { return m_expr; }
+
+  private:
+    Expression* m_expr;
+  };
+
+
+  /// The base class of all binary expressions.
+  class Binary_expression : public Expression
+  {
+  protected:
+    Binary_expression(Kind k, Type* t, Expression* lhs, Expression* rhs)
+      : Expression(k, t), m_exprs{lhs, rhs}
+    { }
+
+  public:
+    /// Returns the left-hand operand.
+    Expression* get_lhs() const { return m_exprs[0]; }
+
+    /// Returns the right-hand operand.
+    Expression* get_rhs() const { return m_exprs[1]; }
+
+  private:
+    Expression* m_exprs[2];
+  };
+
+
+  /// The base class of all unary operator expressions.
+  class Unary_operator : public Unary_expression
+  {
+  protected:
+    Unary_operator(Kind k, Type* t, Expression* e, const Token& op)
+      : Unary_expression(k, t, e), m_op(op)
+    { }
+
+  public:
+    /// Returns the operator token.
+    const Token& get_operator() const { return m_op; }
+
+    /// Returns the start location of the expression. This is the location
+    /// of the operator token.
+    Location get_start_location() const override;
+    
+    /// Returns the end location of the expression. This is the end location
+    /// of the operand.
+    Location get_end_location() const override;
+
+  private:
+    Token m_op;
+  };
+
+  inline Location
+  Unary_operator::get_start_location() const
+  {
+    return m_op.get_location();
+  }
+  
+  inline Location
+  Unary_operator::get_end_location() const
+  {
+    return get_operand()->get_end_location();
+  }
+
+
+  /// The base class of all binary operator expressions. We assume that all
+  /// such operators are in infix notation.
+  class Binary_operator : public Binary_expression
+  {
+  protected:
+    Binary_operator(Kind k, Type* t, Expression* lhs, Expression* rhs, const Token& op)
+      : Binary_expression(k, t, lhs, rhs), m_op(op)
+    { }
+
+  public:
+    /// Returns the operator token.
+    const Token& get_operator() const { return m_op; }
+
+    /// Returns the start location of the expression. This is the start 
+    /// location of the left-hand operand.
+    Location get_start_location() const override;
+    
+    /// Returns the end location of the expression. This is the end location
+    /// of the right-hand operand.
+    Location get_end_location() const override;
+
+  private:
+    Token m_op;
+  };
+
+  inline Location
+  Binary_operator::get_start_location() const
+  {
+    return get_lhs()->get_start_location();
+  }
+  
+  inline Location
+  Binary_operator::get_end_location() const
+  {
+    return get_rhs()->get_end_location();
+  }
+
+  // Arithmetic operators
+
+  // Bitwise operators
+
+  // Logical operators
+
+  /// Represents logical and expressions.
+  class Logical_and_expression : public Binary_operator
+  {
+  public:
+    Logical_and_expression(Type* t, Expression* lhs, Expression* rhs, const Token& op)
+      : Binary_operator(and_kind, t, lhs, rhs, op)
+    { }
+  };
+
+  /// Represents logical and expressions.
+  class Logical_or_expression : public Binary_operator
+  {
+  public:
+    Logical_or_expression(Type* t, Expression* lhs, Expression* rhs, const Token& op)
+      : Binary_operator(or_kind, t, lhs, rhs, op)
+    { }
+  };
+
+
+  /// Represents logical not expressions.
+  class Logical_not_expression : public Unary_operator
+  {
+  public:
+    Logical_not_expression(Type* t, Expression* e, const Token& op)
+      : Unary_operator(not_kind, t, e, op)
+    { }
+  };
 
 } // namespace beaker

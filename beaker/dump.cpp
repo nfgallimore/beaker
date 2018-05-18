@@ -223,6 +223,21 @@ namespace beaker
   }
 
   static void
+  dump_unary_children(Dump_context& dc, const Unary_expression* e)
+  {
+    Indent_around indent(dc);
+    dump(dc, e->get_operand());
+  }
+
+  static void
+  dump_binary_children(Dump_context& dc, const Binary_expression* e)
+  {
+    Indent_around indent(dc);
+    dump(dc, e->get_lhs());
+    dump(dc, e->get_rhs());
+  }
+
+  static void
   dump_children(Dump_context& dc, const Expression* e)
   {
     if (!e)
@@ -235,7 +250,26 @@ namespace beaker
     //   dump(dc, e->get_type());
     // }
 
-    // FIXME: Implement me.
+    switch (e->get_kind()) {
+    case Expression::bool_kind:
+    case Expression::int_kind:
+    case Expression::id_kind:
+      // These nodes have no subexpressions.
+      return;
+    
+    case Expression::not_kind:
+    case Expression::conv_kind:
+      // Unary expressions
+      return dump_unary_children(dc, static_cast<const Unary_expression*>(e));
+    
+    case Expression::and_kind:
+    case Expression::or_kind:
+      // Binary expressions
+      return dump_binary_children(dc, static_cast<const Binary_expression*>(e));
+    
+    default:
+      __builtin_unreachable();
+    }
   }
 
   void 

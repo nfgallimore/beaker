@@ -31,10 +31,20 @@ namespace beaker
                                           const Token& question,
                                           const Token& colon);
     
-    Expression* on_logical_expression(Expression* e1, 
-                                      Expression* e2,
-                                      const Token& op);
+    /// Invoked to analyze a logical-or-expression.
+    Expression* on_logical_or_expression(Expression* e1, 
+                                         Expression* e2,
+                                         const Token& op);
+
+    /// Invoked to analyze a logical-and-expression.
+    Expression* on_logical_and_expression(Expression* e1, 
+                                          Expression* e2,
+                                          const Token& op);
     
+    /// Invoked to analyze a logical not unary-expression.
+    Expression* on_logical_not_expression(Expression* e,
+                                          const Token& op);
+
     Expression* on_bitwise_expression(Expression* e1, 
                                       Expression* e2,
                                       const Token& op);
@@ -212,14 +222,22 @@ namespace beaker
     /// to ensure that e.g., overloads are valid
     void declare(Typed_declaration* d);
 
-    /// Bind a declaration to additonal information.
+    /// Bind a declaration to additional information.
     void declare(Named_declaration* d);
 
     // Lookup
 
-    /// Perform unqualified lookup and return a set of declaraitons
+    /// Perform unqualified lookup and return a set of declarations
     /// corresponding to the given name.
     Declaration_set unqualified_lookup(Symbol s);
+
+    // Conversions
+
+    /// Returns `e` converted to a value.
+    Expression* convert_to_value(Expression* e);
+
+    /// Returns `e` converted to bool.
+    Expression* convert_to_bool(Expression* e);
 
   private:
     /// The translation context. This provides access to compiler resources.

@@ -10,6 +10,7 @@ add_library(beaker.lang
   type.cpp
   type_specifier.cpp
   expression.cpp
+  conversion.cpp
   statement.cpp
   declaration.cpp
 

@@ -336,7 +336,7 @@ namespace beaker
   {
   protected:
     Data_declaration(Kind k, Scoped_declaration* sd, const Token& id)
-      : Typed_declaration(k, sd, id), m_ts()
+      : Typed_declaration(k, sd, id), m_ts(), m_init()
     { }
 
   public:

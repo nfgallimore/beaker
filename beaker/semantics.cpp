@@ -4,7 +4,9 @@
 #include "type.hpp"
 #include "type_specifier.hpp"
 #include "expression.hpp"
+#include "conversion.hpp"
 #include "context.hpp"
+#include "print.hpp"
 
 #include <algorithm>
 #include <iostream>
@@ -71,10 +73,12 @@ namespace beaker
   {
     assert(!m_scope && !m_decl); // Must be in a pristine state.
 
-    // Compute the enclosing scopes of d.
-    Declaration_seq decls;
+    // Restore the scope up to, but not including d.
     if (!d->is_scoped())
       d = d->get_enclosing_declaration();
+
+    // Compute the enclosing scopes of d.
+    Declaration_seq decls;
     while (d) {
       decls.push_back(d);
       d = d->get_enclosing_declaration();
@@ -89,8 +93,10 @@ namespace beaker
   void
   Semantics::empty_scope(Declaration* d)
   {
+    // Restore the scope up to, but not including d.
     if (!d->is_scoped())
       d = d->get_enclosing_declaration();
+
     while (m_scope) {
       leave_scope(d);
       d = d->get_enclosing_declaration();
@@ -129,28 +135,57 @@ namespace beaker
 
   Expression*
   Semantics::on_assignment_expression(Expression* e1,
-                                       Expression* e2,
-                                       const Token& op)
+                                      Expression* e2,
+                                      const Token& op)
   {
     return nullptr;
   }
 
   Expression*
   Semantics::on_conditional_expression(Expression* e1, 
-                                        Expression* e2, 
-                                        Expression* e3,
-                                        const Token& question,
-                                        const Token& colon)
+                                       Expression* e2, 
+                                       Expression* e3,
+                                       const Token& question,
+                                       const Token& colon)
   {
+
     return nullptr;
   }
 
+  /// The operands are converted to bool values.
+  /// The type of the expression is bool.
   Expression*
-  Semantics::on_logical_expression(Expression* e1, 
-                                    Expression* e2,
-                                    const Token& op)
+  Semantics::on_logical_or_expression(Expression* e1, 
+                                       Expression* e2,
+                                       const Token& op)
   {
-    return nullptr;
+    e1 = convert_to_bool(e1);
+    e2 = convert_to_bool(e2);
+    Type* t = m_cxt.get_bool_type();    
+    return new Logical_or_expression(t, e1, e2, op);
+  }
+
+
+  /// The operands are converted to bool values.
+  /// The type of the expression is bool.
+  Expression*
+  Semantics::on_logical_and_expression(Expression* e1, 
+                                       Expression* e2,
+                                       const Token& op)
+  {
+    e1 = convert_to_bool(e1);
+    e2 = convert_to_bool(e2);
+    Type* t = m_cxt.get_bool_type();
+    return new Logical_and_expression(t, e1, e2, op);
+  }
+
+  Expression*
+  Semantics::on_logical_not_expression(Expression* e,
+                                       const Token& op)
+  {
+    e = convert_to_bool(e);
+    Type* t = m_cxt.get_bool_type();
+    return new Logical_not_expression(t, e, op);
   }
 
   Expression*
@@ -212,14 +247,20 @@ namespace beaker
   Semantics::on_unary_expression(Expression* e, 
                                  const Token& op)
   {
+    switch (op.get_name()) {
+    case Token::bang:
+      return on_logical_not_expression(e, op);
+    default:
+      __builtin_unreachable();
+    }
     return nullptr;
   }
 
   Expression*
   Semantics::on_call_expression(Expression* e, 
-                                 const Expression_seq& args,
-                                 const Token& lparen,
-                                 const Token& rparen)
+                                const Expression_seq& args,
+                                const Token& lparen,
+                                const Token& rparen)
   {
     return nullptr;
   }
@@ -622,5 +663,38 @@ namespace beaker
     return {};
   }
 
+  // Conversion
+
+  Expression*
+  Semantics::convert_to_value(Expression* e)
+  {
+    if (Reference_type* rt = dynamic_cast<Reference_type*>(e->get_type()))
+      return new Value_conversion(rt->get_object_type(), e);
+    return e;
+  }
+
+  Expression*
+  Semantics::convert_to_bool(Expression* e)
+  {
+    e = convert_to_value(e);
+
+    Type* t = e->get_type();
+    switch (t->get_kind()) {
+    case Type::bool_kind:
+      return e;
+    
+    case Type::int_kind:
+    case Type::float_kind:
+    case Type::func_kind:
+      return new Bool_conversion(m_cxt.get_bool_type(), e);
+
+    default:
+      break;
+    }
+
+    std::stringstream ss;
+    ss << "cannot convert " << '\'' << *t << '\'' << " to bool";
+    throw std::runtime_error(ss.str());
+  }
 
 } // namespace beaker

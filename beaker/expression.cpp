@@ -12,6 +12,11 @@ namespace beaker
     case bool_kind: return "bool-literal";
     case int_kind: return "int-literal";
     case id_kind: return "id-expression";
+    case and_kind: return "logical-and-expression";
+    case or_kind: return "logical-or-expression";
+    case not_kind: return "logical-not-expression";
+    case conv_kind: return "conversion";
+    default: __builtin_unreachable();
     }
   }
 

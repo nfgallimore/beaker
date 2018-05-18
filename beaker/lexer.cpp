@@ -283,10 +283,17 @@ namespace beaker
         return lex_monograph(Token::percent);
 
       case '&':
+        if (peek(1) == '&')
+          return lex_digraph(Token::ampersand_ampersand);
         return lex_monograph(Token::ampersand);
 
       case '|':
+        if (peek(1) == '|')
+          return lex_digraph(Token::bar_bar);
         return lex_monograph(Token::bar);
+
+      case '!':
+        return lex_monograph(Token::bang);
 
       case '^':
         return lex_monograph(Token::caret);

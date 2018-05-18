@@ -25,6 +25,8 @@ namespace beaker
     Type(Kind k) : m_kind(k) { }
 
   public:
+    virtual ~Type() = default;
+
     // Kind
 
     /// Returns the kind of type.
