@@ -27,6 +27,7 @@ add_library(beaker.lang
   semantics.cpp
   expression_semantics.cpp
   conversion_semantics.cpp
+  declaration_semantics.cpp
   scope.cpp
   print.cpp
   dump.cpp)

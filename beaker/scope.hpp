@@ -96,7 +96,7 @@ namespace beaker
     return m_lookup.lookup(sym); 
   }
   
-  void 
+  inline void 
   Block_scope::declare(Named_declaration* d) 
   { 
     m_lookup.declare(d); 
