@@ -3,6 +3,7 @@
 #include "type.hpp"
 #include "type_specifier.hpp"
 #include "expression.hpp"
+#include "initializer.hpp"
 #include "scope.hpp"
 #include "context.hpp"
 #include "print.hpp"
@@ -92,6 +93,9 @@ namespace beaker
   Semantics::on_data_initialization(Declaration* d, 
                                     const Token& semi)
   {
+    Data_declaration* data = static_cast<Data_declaration*>(d);
+    Initializer* init = new Default_initializer();
+    data->set_initializer(init);
     return d;
   }
 
@@ -101,7 +105,11 @@ namespace beaker
                                     const Token& semi)
   {
     Data_declaration* data = static_cast<Data_declaration*>(d);
-    data->set_initializer(e);
+
+    // FIXME: Actually analyze the expression before setting the initializer.
+    
+    Initializer* init = new Value_initializer(e);
+    data->set_initializer(init);
     return d;
   }
 

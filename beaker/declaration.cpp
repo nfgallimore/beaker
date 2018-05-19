@@ -145,7 +145,7 @@ namespace beaker
   }
 
   void 
-  Data_declaration::set_initializer(Expression* e)
+  Data_declaration::set_initializer(Initializer* e)
   {
     assert(!m_init);
     m_init = e;

@@ -348,10 +348,10 @@ namespace beaker
     void set_type_specifier(Type_specifier* ts);
 
     /// Returns the initializer.
-    Expression* get_initializer() const { return m_init; }
+    Initializer* get_initializer() const { return m_init; }
 
     /// Sets the initializer.
-    void set_initializer(Expression* e);
+    void set_initializer(Initializer* e);
 
   private:
     /// The type specifier of data declaration. This may be omitted.
@@ -359,7 +359,7 @@ namespace beaker
 
     /// The initializer for the data declaration. For parameters,
     /// this is interpreted as the default argument.
-    Expression* m_init;
+    Initializer* m_init;
   };
 
 
