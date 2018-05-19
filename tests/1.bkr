@@ -1,4 +1,7 @@
 
-var b : bool = true || false && !true;
+var b1 : bool = true || false && !true;
+var b2 : bool = true ? 0 : false;
+val b3 : bool = true ? b1 : false;
+
 var x : int = 42;
 val y : int = x;

@@ -28,8 +28,10 @@ namespace beaker
                                        const Token& question,
                                        const Token& colon)
   {
-
-    return nullptr;
+    e1 = convert_to_bool(e1);
+    std::tie(e2, e3) = convert_to_common(e2, e3);
+    Type* t = e2->get_type();
+    return new Conditional_expression(t, e1, e2, e3, question, colon);
   }
 
   /// The operands are converted to bool values.

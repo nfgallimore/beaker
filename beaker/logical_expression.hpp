@@ -4,6 +4,21 @@
 
 namespace beaker
 {
+  /// Represents conditional expressions.
+  class Conditional_expression : public Ternary_operator
+  {
+  public:
+    Conditional_expression(Type* t, 
+                           Expression* e1, 
+                           Expression* e2, 
+                           Expression* e3, 
+                           const Token& tok1, 
+                           const Token& tok2)
+      : Ternary_operator(cond_kind, t, e1, e2, e3, tok1, tok2)
+    { }
+  };
+
+
   /// Represents logical and expressions.
   class Logical_and_expression : public Binary_operator
   {

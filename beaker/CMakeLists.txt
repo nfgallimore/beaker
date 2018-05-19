@@ -1,6 +1,7 @@
 
 add_library(beaker.lang
-  context.cpp
+  hash.cpp
+  factory.cpp
   symbol.cpp
 
   file.cpp
@@ -15,6 +16,7 @@ add_library(beaker.lang
   conversion.cpp
   statement.cpp
   declaration.cpp
+  context.cpp
 
   lexer.cpp
   parser.cpp
@@ -25,6 +27,7 @@ add_library(beaker.lang
   function_parser.cpp
 
   semantics.cpp
+  type_semantics.cpp
   expression_semantics.cpp
   conversion_semantics.cpp
   declaration_semantics.cpp

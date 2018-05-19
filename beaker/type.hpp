@@ -1,6 +1,7 @@
 #pragma once
 
 #include <beaker/common.hpp>
+#include <beaker/hash.hpp>
 
 namespace beaker
 {
@@ -43,7 +44,7 @@ namespace beaker
 
     /// Returns true if this is one of the integer types.
     bool is_integer() const { return m_kind == int_kind; }
-    
+
     /// Returns true if this is one of the floating point types.
     bool is_floating_point() const { return m_kind == float_kind; }
 
@@ -55,7 +56,27 @@ namespace beaker
 
     /// Returns true if this is a reference type.
     bool is_reference() const { return m_kind == ref_kind; }
-  
+
+    // Equality
+
+    /// Returns true if this type is structurally equal to `t`. This is
+    /// used by the implementation to guarantee the uniqueness of types
+    /// on construction.
+    bool is_equal_to(const Type& t) const;
+
+    /// Returns true this type is the same as `t`. This is an identity
+    /// comparison; the implementation guarantees that this is equivalent
+    /// to, but (much more) efficient than is_equal_to.
+    bool is_same_as(const Type* t) const { return this == t; }
+
+    // Hashing
+
+    /// Returns the hash code for this type.
+    std::size_t hash() const;
+
+    /// Appends a hash code to the current object.
+    void hash(Hasher& h);
+
   private:
     Kind m_kind;
   };
@@ -136,6 +157,10 @@ namespace beaker
   class Function_type : public Type
   {
   public:
+    Function_type(const Type_seq& parms, Type* ret)
+      : Type(func_kind), m_parms(parms), m_ret(ret)
+    { }
+
     Function_type(Type_seq&& parms, Type* ret)
       : Type(func_kind), m_parms(std::move(parms)), m_ret(ret)
     { }

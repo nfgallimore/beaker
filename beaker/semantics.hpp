@@ -7,6 +7,10 @@ namespace beaker
 {
   class Scope;
   class Declaration_set;
+  class Int_type;
+  class Float_type;
+  class Function_type;
+  class Reference_type;
 
   /// The semantics class implements the semantic actions of the parser.
   class Semantics
@@ -85,13 +89,25 @@ namespace beaker
                                         const Token& lparen,
                                         const Token& rparen);
     
+    /// Invoked to construct a unit literal.
     Expression* on_unit_literal(const Token& tok);
+
+    /// Invoked to construct an integer literal.
     Expression* on_integer_literal(const Token& tok);
+
+    /// Invoked to construct a boolean literal.
     Expression* on_boolean_literal(const Token& tok);
+
+    /// Invoked to construct a floating point literal.
     Expression* on_float_literal(const Token& tok);
+
+    /// Invoked to construct a character literal.
     Expression* on_character_literal(const Token& tok);
+
+    /// Invoked to construct a string literal.
     Expression* on_string_literal(const Token& tok);
 
+    /// Invoked to analyze an id-expression.
     Expression* on_id_expression(const Token& id);
 
     Expression* on_paren_expression(Expression* e,
@@ -233,11 +249,66 @@ namespace beaker
 
     // Conversions
 
+    /// Returns `e` converted to the type `t`.
+    Expression* convert_to_type(Expression* e, Type* t);
+
     /// Returns `e` converted to a value.
     Expression* convert_to_value(Expression* e);
 
     /// Returns `e` converted to bool.
     Expression* convert_to_bool(Expression* e);
+
+    // Integer conversions
+
+    /// Returns `e` converted to the integer type `t`.
+    Expression* convert_to_integer(Expression* e, Int_type* z);
+
+    /// Converts an integer expression to a different integer type.
+    Expression* convert_integer(Expression* e, Int_type* z);
+
+    /// Extends an integer expression to a type of a greater rank.
+    Expression* extend_integer(Expression* e, Int_type* z);
+    
+    /// Truncates an integer expression to a type of a lesser rank.
+    Expression* truncate_integer(Expression* e, Int_type* z);
+
+    // Floating point conversions
+
+    /// Returns `e` converted to the floating point type `t`.
+    Expression* convert_to_floating_point(Expression* e, Float_type* f);
+
+    /// Converts a floating point expression to a different type.
+    Expression* convert_floating_point(Expression* e, Float_type* f);
+
+    /// Extends a floating point expression to one of a greater rank.
+    Expression* extend_floating_point(Expression* e, Float_type* f);
+    
+    /// Truncates a floating point expression to one of a lesser rank.
+    Expression* truncate_floating_point(Expression* e, Float_type* f);
+
+    // Reference conversions
+
+    /// Converts `e` to the reference type `t`.
+    Expression* convert_to_reference(Expression* e, Reference_type* r);
+
+    // Conversion to common type
+
+    /// Converts `e1` and `e2` to a common type.
+    Expression_pair convert_to_common(Expression* e1, Expression* e2);
+
+    /// Converts expressions `e1` and `e2` to a common reference type.
+    Expression_pair convert_to_common_reference(Expression* e1, Expression* e2);
+
+    /// Converts expressions e1 and e2 to a common value type.
+    Expression_pair convert_to_common_value(Expression* e1, Expression* e2);
+
+    /// Converts integer expressions e1 and e2 to the integer type with the
+    /// greatest rank.
+    Expression_pair convert_to_common_integer(Expression* e1, Expression* e2);
+
+    /// Converts floating point expressions e1 and e2 to the integer type 
+    /// with the greatest rank.
+    Expression_pair convert_to_common_floating_point(Expression* e1, Expression* e2);
 
   private:
     /// The translation context. This provides access to compiler resources.

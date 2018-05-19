@@ -15,6 +15,7 @@ namespace beaker
       int_kind,
       id_kind,
 
+      cond_kind,
       and_kind,
       or_kind,
       not_kind,
@@ -42,6 +43,14 @@ namespace beaker
     // Type
 
     Type* get_type() const { return m_type; }
+
+    // Conversions
+
+    /// Returns true if the expression is a narrowing conversion.
+    bool is_narrowing_conversion() const;
+    
+    /// Returns true if the expression is a widening conversion.
+    bool is_widening_conversion() const;
 
     // Location
 
@@ -171,6 +180,29 @@ namespace beaker
   };
 
 
+  /// The base class of all ternary expressions.
+  class Ternary_expression : public Expression
+  {
+  protected:
+    Ternary_expression(Kind k, Type* t, Expression* e1, Expression* e2, Expression* e3)
+      : Expression(k, t), m_exprs{e1, e2, e3}
+    { }
+
+  public:
+    /// Returns the first operand.
+    Expression* get_first() const { return m_exprs[0]; }
+
+    /// Returns the second operand.
+    Expression* get_second() const { return m_exprs[1]; }
+
+    /// Returns the third operand.
+    Expression* get_third() const { return m_exprs[2]; }
+
+  private:
+    Expression* m_exprs[3];
+  };
+
+
   /// The base class of all unary operator expressions.
   class Unary_operator : public Unary_expression
   {
@@ -245,5 +277,51 @@ namespace beaker
     return get_rhs()->get_end_location();
   }
 
+
+  /// The base class of all ternary operator expressions. We assume that all
+  /// such operators are in infix notation.
+  class Ternary_operator : public Ternary_expression
+  {
+  protected:
+    Ternary_operator(Kind k, 
+                     Type* t, 
+                     Expression* e1, 
+                     Expression* e2, 
+                     Expression* e3,
+                     const Token& tok1,
+                     const Token& tok2)
+      : Ternary_expression(k, t, e1, e2, e3), m_toks{tok1, tok2}
+    { }
+
+  public:
+    /// Returns the operator token (the first token).
+    const Token& get_operator() const { return m_toks[0]; }
+
+    /// Returns the separator token (the second toke).
+    const Token& get_separator() const { return m_toks[1]; }
+
+    /// Returns the start location of the expression. This is the start 
+    /// location of the first operand.
+    Location get_start_location() const override;
+    
+    /// Returns the end location of the expression. This is the end location
+    /// of the third operand.
+    Location get_end_location() const override;
+
+  private:
+    Token m_toks[2];
+  };
+
+  inline Location
+  Ternary_operator::get_start_location() const
+  {
+    return get_first()->get_start_location();
+  }
+  
+  inline Location
+  Ternary_operator::get_end_location() const
+  {
+    return get_third()->get_end_location();
+  }
 
 } // namespace beaker

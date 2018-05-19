@@ -47,6 +47,9 @@ namespace beaker
   
   /// A sequence of expressions.
   using Expression_seq = std::vector<Expression*>;
+
+  /// A pair fo expressions.
+  using Expression_pair = std::pair<Expression*, Expression*>;
   
   /// A sequence of statements.
   using Statement_seq = std::vector<Statement*>;

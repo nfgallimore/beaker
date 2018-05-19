@@ -11,10 +11,16 @@ namespace beaker
   public:
     enum Operation
     {
-      to_value,
-      to_bool,
-      to_int,
-      to_float,
+      value_conv, // reference to value conversion
+      bool_conv, // boolean conversion
+      int_prom, // promotion of integer value to integer type
+      sign_ext, // sign extension of integer type
+      zero_ext, // zero extension of integer type
+      int_trunc, // truncation of integer value
+      float_prom, // promotion of integer value to fp type
+      float_dem, // demotion of fp value to integer type
+      float_ext, // extension of fp value to greater rank
+      float_trunc, // truncation of fp value to lesser rank
     };
     
     Conversion(Type* t, Expression* e, Operation op)
@@ -55,7 +61,7 @@ namespace beaker
   {
   public:
     Value_conversion(Type* t, Expression* e)
-      : Conversion(t, e, to_value)
+      : Conversion(t, e, value_conv)
     { }
   };
 
@@ -65,7 +71,86 @@ namespace beaker
   {
   public:
     Bool_conversion(Type* t, Expression* e)
-      : Conversion(t, e, to_bool)
+      : Conversion(t, e, bool_conv)
+    { }
+  };
+
+
+  /// Represents the promotion of integer values to an integer type.
+  class Int_promotion : public Conversion
+  {
+  public:
+    Int_promotion(Type* t, Expression* e)
+      : Conversion(t, e, int_prom)
+    { }
+  };
+
+
+  /// Represents the sign extension of integer values to a greater rank.
+  class Sign_extension : public Conversion
+  {
+  public:
+    Sign_extension(Type* t, Expression* e)
+      : Conversion(t, e, sign_ext)
+    { }
+  };
+
+
+  /// Represents the zero extension of integer values to a greater rank.
+  class Zero_extension : public Conversion
+  {
+  public:
+    Zero_extension(Type* t, Expression* e)
+      : Conversion(t, e, zero_ext)
+    { }
+  };
+
+
+  /// Represents the truncation of an integer value to a lower rank.
+  class Int_truncation : public Conversion
+  {
+  public:
+    Int_truncation(Type* t, Expression* e)
+      : Conversion(t, e, int_trunc)
+    { }
+  };
+
+
+  /// Represents the conversion of integer values to a floating point type.
+  class Float_promotion : public Conversion
+  {
+  public:
+    Float_promotion(Type* t, Expression* e)
+      : Conversion(t, e, float_prom)
+    { }
+  };
+
+
+  /// Represents the conversion of floating point values to an integer type.
+  class Float_demotion : public Conversion
+  {
+  public:
+    Float_demotion(Type* t, Expression* e)
+      : Conversion(t, e, float_dem)
+    { }
+  };
+
+
+  /// Represets the extension of floating point values to a greater rank.
+  class Float_extension : public Conversion
+  {
+  public:
+    Float_extension(Type* t, Expression* e)
+      : Conversion(t, e, float_ext)
+    { }
+  };
+
+  /// Represets the truncation of floating point values to a lesser rank.
+  class Float_truncation : public Conversion
+  {
+  public:
+    Float_truncation(Type* t, Expression* e)
+      : Conversion(t, e, float_trunc)
     { }
   };
 

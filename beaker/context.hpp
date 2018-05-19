@@ -32,22 +32,25 @@ namespace beaker
     // Types
 
     /// Returns the type `unit`.
-    Type* get_unit_type() const { return m_unit_type.get(); }
+    Type* get_unit_type();
     
     /// Returns the type `bool`.
-    Type* get_bool_type() const { return m_bool_type.get(); }
+    Type* get_bool_type();
     
     /// Returns the type `int`.
-    Type* get_int_type() const { return m_int_type.get(); }
+    Type* get_int_type();
 
     /// Returns the type `float`.
-    Type* get_float_type() const { return m_float_type.get(); }
+    Type* get_float_type();
 
     /// Returns the type `auto`.
-    Type* get_auto_type() const { return m_auto_type.get(); }
+    Type* get_auto_type();
 
-    /// Returns a reference to the given type.
+    /// Returns the type `t&`.
     Type* get_reference_type(Type* t);
+
+    /// Returns the type `(t1, t2, ..., tn) -> tr`.
+    Type* get_function_type(const Type_seq& ts, Type* r);
 
   private:
     /// The symbol table provides unique representations of symbols in the
@@ -55,24 +58,11 @@ namespace beaker
     Symbol_table m_syms;
 
     // Types
-    //
-    // FIXME: Add precise integer types and make `int` an alias to one of
-    // those.
+    class Type_factory;
 
-    /// The type `unit`.
-    std::unique_ptr<Type> m_unit_type;
+    /// Used to create (possibly unique) types.
+    std::unique_ptr<Type_factory> m_types;
 
-    /// The type `bool`.
-    std::unique_ptr<Type> m_bool_type;
-
-    /// The type `int`.
-    std::unique_ptr<Type> m_int_type;
-
-    /// The type `float`.
-    std::unique_ptr<Type> m_float_type;
-
-    /// The type `auto`.
-    std::unique_ptr<Type> m_auto_type;
   };
 
 } // namespace beaker
