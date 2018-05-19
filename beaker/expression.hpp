@@ -37,9 +37,15 @@ namespace beaker
       ng_kind,
       nl_kind,
 
+      // object expressions
       assign_kind,
 
+      // conversions
       conv_kind,
+
+      // initializers
+      def_init,
+      val_init,
     };
 
   protected:

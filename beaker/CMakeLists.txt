@@ -16,6 +16,7 @@ add_library(beaker.lang
   logical_expression.cpp
   relational_expression.cpp
   conversion.cpp
+  initializer.cpp
   statement.cpp
   declaration.cpp
   context.cpp
