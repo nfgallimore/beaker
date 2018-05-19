@@ -38,6 +38,7 @@ namespace beaker
   class Scoped_declaration;
   class Named_declaration;
   class Typed_declaration;
+  class Data_declaration;
   class Parameter;
 
   /// A sequence of types.

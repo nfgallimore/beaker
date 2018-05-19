@@ -341,6 +341,14 @@ namespace beaker
     /// Checks that `e1` and `e2` have the same value type.
     Expression_pair require_same_value(Expression* e1, Expression* e2);
 
+    // Initialization
+
+    /// Initialize the variable `d` with `e`.
+    void default_initialize(Data_declaration* d);
+
+    /// Initialize the variable `d` with `e`.
+    void value_initialize(Data_declaration* d, Expression* e);
+
   private:
     /// The translation context. This provides access to compiler resources.
     Context& m_cxt;

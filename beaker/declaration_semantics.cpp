@@ -94,8 +94,7 @@ namespace beaker
                                     const Token& semi)
   {
     Data_declaration* data = static_cast<Data_declaration*>(d);
-    Initializer* init = new Default_initializer();
-    data->set_initializer(init);
+    default_initialize(data);
     return d;
   }
 
@@ -105,11 +104,7 @@ namespace beaker
                                     const Token& semi)
   {
     Data_declaration* data = static_cast<Data_declaration*>(d);
-
-    // FIXME: Actually analyze the expression before setting the initializer.
-    
-    Initializer* init = new Value_initializer(e);
-    data->set_initializer(init);
+    value_initialize(data, e);
     return d;
   }
 

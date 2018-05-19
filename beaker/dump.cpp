@@ -253,6 +253,13 @@ namespace beaker
   }
 
   static void
+  dump_initializer_children(Dump_context& dc, const Value_initializer* e)
+  {
+    Indent_around indent(dc);
+    dump(dc, e->get_value());
+  }
+
+  static void
   dump_children(Dump_context& dc, const Expression* e)
   {
     if (!e)
@@ -297,7 +304,10 @@ namespace beaker
     case Expression::cond_kind:
       // Ternary expressions.
       return dump_ternary_children(dc, static_cast<const Ternary_expression*>(e));
-    
+
+    case Expression::val_init:
+      return dump_initializer_children(dc, static_cast<const Value_initializer*>(e));
+
     default:
       __builtin_unreachable();
     }
