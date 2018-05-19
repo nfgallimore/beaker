@@ -4,9 +4,9 @@ namespace beaker
 {
 
   const char*
-  Conversion::get_operation_name() const
+  Conversion::get_conversion_name() const
   {
-    switch (m_op) {
+    switch (get_kind()) {
     case value_conv: return "value-conversion";
     case bool_conv: return "bool-conversion";
     case int_prom: return "int-promotion";
@@ -18,8 +18,9 @@ namespace beaker
     case float_ext: return "float-extension";
     case float_trunc: return "float-truncation";
     default:
-      assert(false);
+      break;
     }
+    __builtin_unreachable();
   }
 
 } // namespace beaker

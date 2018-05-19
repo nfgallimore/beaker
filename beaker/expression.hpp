@@ -15,6 +15,15 @@ namespace beaker
       int_kind,
       id_kind,
 
+      // arithmetic expressions
+      add_kind,
+      sub_kind,
+      mul_kind,
+      quo_kind,
+      rem_kind,
+      neg_kind,
+      rec_kind,
+
       // bitwise expressions
       bit_and_kind,
       bit_ior_kind,
@@ -41,11 +50,20 @@ namespace beaker
       assign_kind,
 
       // conversions
-      conv_kind,
-
+      value_conv, // reference to value conversion
+      bool_conv, // boolean conversion
+      int_prom, // promotion of integer value to integer type
+      sign_ext, // sign extension of integer type
+      zero_ext, // zero extension of integer type
+      int_trunc, // truncation of integer value
+      float_prom, // promotion of integer value to fp type
+      float_dem, // demotion of fp value to integer type
+      float_ext, // extension of fp value to greater rank
+      float_trunc, // truncation of fp value to lesser rank
+      
       // initializers
-      def_init,
-      val_init,
+      def_init, // default initialization
+      val_init, // value initialization
     };
 
   protected:

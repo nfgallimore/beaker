@@ -8,42 +8,23 @@ namespace beaker
   /// destination type.
   class Conversion : public Unary_expression
   {
-  public:
-    enum Operation
-    {
-      value_conv, // reference to value conversion
-      bool_conv, // boolean conversion
-      int_prom, // promotion of integer value to integer type
-      sign_ext, // sign extension of integer type
-      zero_ext, // zero extension of integer type
-      int_trunc, // truncation of integer value
-      float_prom, // promotion of integer value to fp type
-      float_dem, // demotion of fp value to integer type
-      float_ext, // extension of fp value to greater rank
-      float_trunc, // truncation of fp value to lesser rank
-    };
-    
-    Conversion(Type* t, Expression* e, Operation op)
-      : Unary_expression(conv_kind, t, e), m_op(op)
+  protected:
+    Conversion(Kind k, Type* t, Expression* e)
+      : Unary_expression(k, t, e)
     { }
 
+  public:
     /// Returns the source expression.
     Expression* get_source() const { return get_operand(); }
 
-    /// Returns the conversion operation.
-    Operation get_operation() const { return m_op; }
-
-    /// Returns a textual representation of the operation.
-    const char* get_operation_name() const;
+    /// Returns a textual representation of the conversion name.
+    const char* get_conversion_name() const;
 
     /// Returns the start location of the expression.
     Location get_start_location() const override;
 
     /// Returns the end location of the expression.
     Location get_end_location() const override;
-
-  private:
-    Operation m_op;
   };
 
   inline Location 
@@ -64,7 +45,7 @@ namespace beaker
   {
   public:
     Value_conversion(Type* t, Expression* e)
-      : Conversion(t, e, value_conv)
+      : Conversion(value_conv, t, e)
     { }
   };
 
@@ -74,7 +55,7 @@ namespace beaker
   {
   public:
     Bool_conversion(Type* t, Expression* e)
-      : Conversion(t, e, bool_conv)
+      : Conversion(bool_conv, t, e)
     { }
   };
 
@@ -84,7 +65,7 @@ namespace beaker
   {
   public:
     Int_promotion(Type* t, Expression* e)
-      : Conversion(t, e, int_prom)
+      : Conversion(int_prom, t, e)
     { }
   };
 
@@ -94,7 +75,7 @@ namespace beaker
   {
   public:
     Sign_extension(Type* t, Expression* e)
-      : Conversion(t, e, sign_ext)
+      : Conversion(sign_ext, t, e)
     { }
   };
 
@@ -104,7 +85,7 @@ namespace beaker
   {
   public:
     Zero_extension(Type* t, Expression* e)
-      : Conversion(t, e, zero_ext)
+      : Conversion(zero_ext, t, e)
     { }
   };
 
@@ -114,7 +95,7 @@ namespace beaker
   {
   public:
     Int_truncation(Type* t, Expression* e)
-      : Conversion(t, e, int_trunc)
+      : Conversion(int_trunc, t, e)
     { }
   };
 
@@ -124,7 +105,7 @@ namespace beaker
   {
   public:
     Float_promotion(Type* t, Expression* e)
-      : Conversion(t, e, float_prom)
+      : Conversion(float_prom, t, e)
     { }
   };
 
@@ -134,7 +115,7 @@ namespace beaker
   {
   public:
     Float_demotion(Type* t, Expression* e)
-      : Conversion(t, e, float_dem)
+      : Conversion(float_dem, t, e)
     { }
   };
 
@@ -144,7 +125,7 @@ namespace beaker
   {
   public:
     Float_extension(Type* t, Expression* e)
-      : Conversion(t, e, float_ext)
+      : Conversion(float_ext, t, e)
     { }
   };
 
@@ -153,7 +134,7 @@ namespace beaker
   {
   public:
     Float_truncation(Type* t, Expression* e)
-      : Conversion(t, e, float_trunc)
+      : Conversion(float_trunc, t, e)
     { }
   };
 

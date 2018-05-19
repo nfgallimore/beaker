@@ -3,6 +3,7 @@
 #include "type.hpp"
 #include "expression.hpp"
 #include "conversion.hpp"
+#include "initializer.hpp"
 #include "statement.hpp"
 #include "declaration.hpp"
 
@@ -204,12 +205,6 @@ namespace beaker
   }
 
   static void
-  dump_conversion_attributes(Dump_context& dc, const Conversion* e)
-  {
-    dc.get_stream() << "conv=" << e->get_operation_name();
-  }
-
-  static void
   dump_attributes(Dump_context& dc, const Expression* e)
   {
     Newline_finally nl(dc);
@@ -224,11 +219,13 @@ namespace beaker
     case Expression::bool_kind:
     case Expression::int_kind:
       return dump_literal_attributes(dc, static_cast<const Literal*>(e));
+    
     case Expression::id_kind:
       return dump_id_attributes(dc, static_cast<const Id_expression*>(e));
-    case Expression::conv_kind:
-      return dump_conversion_attributes(dc, static_cast<const Conversion*>(e));
-    }    
+
+    default:
+      break;
+    }
   }
 
   static void
@@ -275,8 +272,20 @@ namespace beaker
       // These nodes have no subexpressions.
       return;
     
+    case Expression::neg_kind:
+    case Expression::rec_kind:
+    case Expression::bit_not_kind:
     case Expression::not_kind:
-    case Expression::conv_kind:
+    case Expression::value_conv:
+    case Expression::bool_conv:
+    case Expression::int_prom:
+    case Expression::sign_ext:
+    case Expression::zero_ext:
+    case Expression::int_trunc:
+    case Expression::float_prom:
+    case Expression::float_dem:
+    case Expression::float_ext:
+    case Expression::float_trunc:
       // Unary expressions
       return dump_unary_children(dc, static_cast<const Unary_expression*>(e));
     

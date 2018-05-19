@@ -30,6 +30,7 @@ namespace beaker
   class Type;
   class Type_specifier;
   class Expression;
+  class Conversion;
   class Initializer;
   class Condition;
   class Statement;
