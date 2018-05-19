@@ -12,7 +12,9 @@ add_library(beaker.lang
   type_specifier.cpp
   expression.cpp
   arithmetic_expression.cpp
+  bitwise_expression.cpp
   logical_expression.cpp
+  relational_expression.cpp
   conversion.cpp
   statement.cpp
   declaration.cpp

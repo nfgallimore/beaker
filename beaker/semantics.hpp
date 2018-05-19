@@ -35,44 +35,58 @@ namespace beaker
                                           const Token& question,
                                           const Token& colon);
     
-    /// Invoked to analyze a logical-or-expression.
-    Expression* on_logical_or_expression(Expression* e1, 
-                                         Expression* e2,
-                                         const Token& op);
+    /// Invoked to analyze a logical-or-expression or logical-and-expression.
+    Expression* on_logical_expression(Expression* e1, 
+                                      Expression* e2,
+                                      const Token& op);
 
-    /// Invoked to analyze a logical-and-expression.
-    Expression* on_logical_and_expression(Expression* e1, 
-                                          Expression* e2,
-                                          const Token& op);
-    
     /// Invoked to analyze a logical not unary-expression.
-    Expression* on_logical_not_expression(Expression* e,
-                                          const Token& op);
+    Expression* on_logical_expression(Expression* e,
+                                      const Token& op);
 
+    /// Invoked to analyze one of the bitwise-and|or|xor-expressions.
     Expression* on_bitwise_expression(Expression* e1, 
                                       Expression* e2,
                                       const Token& op);
-    
+
+
+    /// Invoked to analyze a bitwise no unary-expression.
+    Expression* on_bitwise_expression(Expression* e, 
+                                      const Token& op);
+
+    /// Invoked to analyze an equality-expression.
     Expression* on_equality_expression(Expression* e1, 
                                        Expression* e2,
                                        const Token& op);
-    
+
+    /// Invoked to analyze a relational-expression.
     Expression* on_relational_expression(Expression* e1, 
                                          Expression* e2,
                                          const Token& op);
     
+    /// Invoked to analyze a shift-expression.
     Expression* on_shift_expression(Expression* e1, 
                                     Expression* e2,
                                     const Token& op);
     
+    /// Invoked to analyze an additive-expression.
     Expression* on_additive_expression(Expression* e1, 
                                        Expression* e2,
                                        const Token& op);
+
+    /// Invoked to analyze a negation unary-expression.
+    Expression* on_additive_expression(Expression* e,
+                                       const Token& op);
     
+    /// Invoked to analyze an multiplicative-expression.
     Expression* on_multiplicative_expression(Expression* e1, 
                                              Expression* e2,
                                              const Token& op);
     
+    /// Invoked to analyze a reciprocal unary-expression.
+    Expression* on_multiplicative_expression(Expression* e,
+                                             const Token& op);
+
     Expression* on_cast_expression(Expression* e, 
                                    Type_specifier* t);
     
@@ -294,7 +308,7 @@ namespace beaker
     // Conversion to common type
 
     /// Converts `e1` and `e2` to a common type.
-    Expression_pair convert_to_common(Expression* e1, Expression* e2);
+    Expression_pair convert_to_common_type(Expression* e1, Expression* e2);
 
     /// Converts expressions `e1` and `e2` to a common reference type.
     Expression_pair convert_to_common_reference(Expression* e1, Expression* e2);
@@ -309,6 +323,23 @@ namespace beaker
     /// Converts floating point expressions e1 and e2 to the integer type 
     /// with the greatest rank.
     Expression_pair convert_to_common_floating_point(Expression* e1, Expression* e2);
+
+    // Type requirements
+
+    /// Checks that `e` has reference type.
+    Expression* require_reference(Expression* e);
+
+    /// Checks that `e` is a reference to an object of type `t`.
+    Expression* require_reference_to(Expression* e, Type* t);
+
+    /// Checks that `e` has integer type.
+    Expression* require_integer(Expression* e);
+
+    /// Checks that `e1` and `e2` have a common integer type.
+    Expression_pair require_common_integer(Expression* e1, Expression* e2);
+
+    /// Checks that `e1` and `e2` have the same value type.
+    Expression_pair require_same_value(Expression* e1, Expression* e2);
 
   private:
     /// The translation context. This provides access to compiler resources.

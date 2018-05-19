@@ -33,6 +33,9 @@ namespace beaker
     /// Returns the conversion operation.
     Operation get_operation() const { return m_op; }
 
+    /// Returns a textual representation of the operation.
+    const char* get_operation_name() const;
+
     /// Returns the start location of the expression.
     Location get_start_location() const override;
 

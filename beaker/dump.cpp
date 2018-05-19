@@ -2,8 +2,9 @@
 #include "print.hpp"
 #include "type.hpp"
 #include "expression.hpp"
-#include "declaration.hpp"
+#include "conversion.hpp"
 #include "statement.hpp"
+#include "declaration.hpp"
 
 #include <iostream>
 
@@ -203,6 +204,12 @@ namespace beaker
   }
 
   static void
+  dump_conversion_attributes(Dump_context& dc, const Conversion* e)
+  {
+    dc.get_stream() << "conv=" << e->get_operation_name();
+  }
+
+  static void
   dump_attributes(Dump_context& dc, const Expression* e)
   {
     Newline_finally nl(dc);
@@ -219,6 +226,8 @@ namespace beaker
       return dump_literal_attributes(dc, static_cast<const Literal*>(e));
     case Expression::id_kind:
       return dump_id_attributes(dc, static_cast<const Id_expression*>(e));
+    case Expression::conv_kind:
+      return dump_conversion_attributes(dc, static_cast<const Conversion*>(e));
     }    
   }
 
@@ -235,6 +244,15 @@ namespace beaker
     Indent_around indent(dc);
     dump(dc, e->get_lhs());
     dump(dc, e->get_rhs());
+  }
+
+  static void
+  dump_ternary_children(Dump_context& dc, const Ternary_expression* e)
+  {
+    Indent_around indent(dc);
+    dump(dc, e->get_first());
+    dump(dc, e->get_second());
+    dump(dc, e->get_third());
   }
 
   static void
@@ -266,6 +284,10 @@ namespace beaker
     case Expression::or_kind:
       // Binary expressions
       return dump_binary_children(dc, static_cast<const Binary_expression*>(e));
+
+    case Expression::cond_kind:
+      // Ternary expressions.
+      return dump_ternary_children(dc, static_cast<const Ternary_expression*>(e));
     
     default:
       __builtin_unreachable();

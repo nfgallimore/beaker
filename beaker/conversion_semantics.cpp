@@ -245,7 +245,7 @@ namespace beaker
   }
 
   Expression_pair
-  Semantics::convert_to_common(Expression* e1, Expression* e2)
+  Semantics::convert_to_common_type(Expression* e1, Expression* e2)
   {
     Type* t1 = e1->get_type();
     Type* t2 = e2->get_type();
@@ -259,8 +259,6 @@ namespace beaker
       return convert_to_common_reference(e1, e2);
 
     // Convert to a common value type.
-    e1 = convert_to_value(e1);
-    e2 = convert_to_value(e2);
     return convert_to_common_value(e1, e2);
   }
 
@@ -300,6 +298,10 @@ namespace beaker
   Expression_pair
   Semantics::convert_to_common_value(Expression* e1, Expression* e2)
   {
+    // Convert both expressions to values.
+    e1 = convert_to_value(e1);
+    e2 = convert_to_value(e2);
+
     Type* t1 = e1->get_type();
     Type* t2 = e2->get_type();
 

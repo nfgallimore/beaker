@@ -57,6 +57,9 @@ namespace beaker
     /// Returns true if this is a reference type.
     bool is_reference() const { return m_kind == ref_kind; }
 
+    /// Returns true if this is a reference to `t`.
+    bool is_reference_to(const Type* t) const;
+
     // Equality
 
     /// Returns true if this type is structurally equal to `t`. This is

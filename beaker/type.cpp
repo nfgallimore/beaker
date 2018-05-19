@@ -18,6 +18,16 @@ namespace beaker
     }
   }
 
+  bool
+  Type::is_reference_to(const Type* t) const
+  {
+    if (is_reference()) {
+      const Reference_type* r = static_cast<const Reference_type*>(this);
+      return r->get_object_type() == t;
+    }
+    return false;
+  }
+
   static bool equal_types(const Type* t1, const Type* t2);
 
   static bool

@@ -15,10 +15,29 @@ namespace beaker
       int_kind,
       id_kind,
 
+      // bitwise expressions
+      bit_and_kind,
+      bit_ior_kind,
+      bit_xor_kind,
+      bit_not_kind,
+      bit_shl_kind,
+      bit_shr_kind,
+
+      // logical expressions
       cond_kind,
       and_kind,
       or_kind,
       not_kind,
+
+      // relational expressions
+      eq_kind,
+      ne_kind,
+      lt_kind,
+      gt_kind,
+      ng_kind,
+      nl_kind,
+
+      assign_kind,
 
       conv_kind,
     };
@@ -323,5 +342,17 @@ namespace beaker
   {
     return get_third()->get_end_location();
   }
+
+
+  // Object expressions
+
+  /// Represents the assignment of a value to an object.
+  class Assignment_expression : public Binary_operator
+  {
+  public:
+    Assignment_expression(Type* t, Expression* e1, Expression* e2, const Token& op)
+      : Binary_operator(assign_kind, t, e1, e2, op)
+    { }
+  };
 
 } // namespace beaker

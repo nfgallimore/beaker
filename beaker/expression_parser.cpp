@@ -137,7 +137,7 @@ namespace beaker
     Expression* e1 = parse_logical_and_expression();
     while (Token op = match_if(Token::bar_bar)) {
       Expression* e2 = parse_logical_and_expression();
-      e1 = m_act.on_logical_or_expression(e1, e2, op);
+      e1 = m_act.on_logical_expression(e1, e2, op);
     }
     return e1;
   }
@@ -151,7 +151,7 @@ namespace beaker
     Expression* e1 = parse_bitwise_or_expression();
     while (Token op = match_if(Token::ampersand_ampersand)) {
       Expression* e2 = parse_bitwise_or_expression();
-      e1 = m_act.on_logical_and_expression(e1, e2, op);
+      e1 = m_act.on_logical_expression(e1, e2, op);
     }
     return e1;
   }
