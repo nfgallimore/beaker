@@ -59,6 +59,7 @@ namespace beaker
       return parse_function_definition();
     case Token::val_kw:
     case Token::var_kw:
+    case Token::ref_kw:
       return parse_data_definition();
     default:
       break;
@@ -67,6 +68,14 @@ namespace beaker
     std::stringstream ss;
     ss << "expected declaration, but got '" << peek() << "'\n";
     throw std::runtime_error(ss.str());
+  }
+
+  static bool
+  is_data_head(const Token& tok)
+  {
+    return tok.is(Token::val_kw) 
+        || tok.is(Token::var_kw) 
+        || tok.is(Token::ref_kw);
   }
 
   /// data-definition:
@@ -79,7 +88,7 @@ namespace beaker
   Declaration*
   Module_parser::parse_data_definition()
   {
-    assert(next_token_is(Token::val_kw) || next_token_is(Token::var_kw));
+    assert(is_data_head(peek()));
     Token kw = consume();
 
     // Match the declaration name.

@@ -1,6 +1,8 @@
 #include "type.hpp"
+#include "dump.hpp"
 
 #include <algorithm>
+#include <iostream>
 
 namespace beaker
 {
@@ -139,6 +141,13 @@ namespace beaker
   Type::hash(Hasher& h)
   {
     return hash_type(h, this);
+  }
+
+  void
+  Type::dump() const
+  {
+    Dump_context dc(std::cerr);
+    beaker::dump(dc, this);
   }
 
 } // namespace beaker

@@ -33,7 +33,7 @@ namespace beaker
     struct Enclosure
     {
       Enclosure(Print_context& pc, char open, char close)
-        : m_pc(pc)
+        : m_pc(pc), m_open(open), m_close(close)
       {
         m_pc.get_stream() << m_open;
       }
@@ -67,7 +67,7 @@ namespace beaker
       Paren_enclosure enc(pc);
       print_list(pc, t->get_parameter_types());
     }
-    pc.get_stream() << " -> ";
+    pc.get_stream() << "->";
     print(pc, t->get_return_type());
   }
 
@@ -75,8 +75,8 @@ namespace beaker
   print_reference_type(Print_context& pc, const Reference_type* t)
   {
     // FIXME: We may need to enclose the object type in parens.
+    pc.get_stream() << "ref ";
     print(pc, t->get_object_type());
-    pc.get_stream() << '&';
   }
 
   void

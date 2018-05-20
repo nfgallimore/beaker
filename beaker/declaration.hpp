@@ -1,7 +1,8 @@
 #pragma once
 
 #include <beaker/common.hpp>
-#include <beaker/token.hpp>
+#include <beaker/symbol.hpp>
+#include <beaker/location.hpp>
 
 #include <unordered_map>
 
@@ -87,13 +88,14 @@ namespace beaker
       func_kind,
       val_kind,
       var_kind,
+      ref_kind,
       parm_kind,
     };
 
   protected:
     /// Construct a declaration of kind `k` in the scoped declaration.
-    Declaration(Kind k, Scoped_declaration* sd)
-      : m_kind(k), m_scope(sd)
+    Declaration(Kind k, Scoped_declaration* sd, Location start)
+      : m_kind(k), m_scope(sd), m_start(start)
     { }
 
   public:
@@ -118,13 +120,16 @@ namespace beaker
     bool is_function() const { return m_kind == func_kind; }
 
     /// Returns true if this is a data definition.
-    bool is_data() const { return is_value() || is_variable(); }
+    bool is_data() const { return is_value() || is_variable() || is_reference(); }
 
     /// Returns true if this is a value definition.
     bool is_value() const { return m_kind == val_kind; }
 
     /// Returns true if this is a variable definition.
     bool is_variable() const { return m_kind == var_kind; }
+
+    /// Returns true if this is a reference definition.
+    bool is_reference() const { return m_kind == ref_kind; }
 
     /// Returns true if this is a scoped declaration.
     bool is_scoped() const;
@@ -146,7 +151,7 @@ namespace beaker
     // Physical location.
 
     /// Returns the start location of the this statement.
-    virtual Location get_start_location() const { return Location(); }
+    virtual Location get_start_location() const { return m_start; }
     
     /// Returns the end location of the this statement.
     virtual Location get_end_location() const { return Location(); }
@@ -162,6 +167,9 @@ namespace beaker
 
     /// The region of source text associated with the declaration.
     Scoped_declaration* m_scope;
+
+    /// The starting location of the declaration.
+    Location m_start;
   };
 
 
@@ -234,7 +242,7 @@ namespace beaker
   public:
     /// Constructs the translation unit.
     Translation_unit()
-      : Declaration(tu_kind, nullptr), Scoped_declaration(this)
+      : Declaration(tu_kind, nullptr, Location()), Scoped_declaration(this)
     { }
   };
 
@@ -245,20 +253,36 @@ namespace beaker
   class Named_declaration : public Declaration
   {
   protected:
-    Named_declaration(Kind k, Scoped_declaration* sd, const Token& id)
-     : Declaration(k, sd), m_id(id)
-    { assert(id.is(Token::identifier)); }
+    Named_declaration(Kind k, 
+                      Scoped_declaration* sd, 
+                      Symbol sym, 
+                      Location start, 
+                      Location loc);
 
   public:
     /// Returns the name of the symbol.
-    Symbol get_name() const { return m_id.get_symbol(); }
+    Symbol get_name() const { return m_sym; }
 
-    /// Returns the declared identifier.
-    const Token& get_identifier() const { return m_id; }
+    /// Returns the location of the introduced name. This is associated
+    /// with the point of identification.
+    Location get_name_location() const { return m_loc; }
 
   private:
-    Token m_id;
+    /// The name of the declared entity.
+    Symbol m_sym;
+
+    /// The location of the name.
+    Location m_loc;
   };
+
+  inline
+  Named_declaration::Named_declaration(Kind k,
+                                       Scoped_declaration* sd, 
+                                       Symbol sym, 
+                                       Location start, 
+                                       Location loc)
+    : Declaration(k, sd, start), m_sym(sym), m_loc(loc)
+  { }
 
 
   /// The base class of all declarations that have an associated type. Note
@@ -267,9 +291,11 @@ namespace beaker
   class Typed_declaration : public Named_declaration
   {
   protected:
-    Typed_declaration(Kind k, Scoped_declaration* sd, const Token& id)
-      : Named_declaration(k, sd, id), m_type()
-    { }
+    Typed_declaration(Kind k, 
+                      Scoped_declaration* sd, 
+                      Symbol sym, 
+                      Location start,
+                      Location loc);
 
   public:
     /// Returns the type of the declaration.
@@ -282,14 +308,26 @@ namespace beaker
     Type* m_type;
   };
 
+  inline 
+  Typed_declaration::Typed_declaration(Kind k, 
+                                       Scoped_declaration* sd, 
+                                       Symbol sym, 
+                                       Location start,
+                                       Location loc)
+    : Named_declaration(k, sd, sym, start, loc), m_type()
+  { }
+
 
   /// Represents the declaration of a function.
   class Function_declaration : public Typed_declaration, public Scoped_declaration
   {
   public:
-    Function_declaration(Scoped_declaration* sd, const Token& id)
-      : Typed_declaration(func_kind, sd, id), Scoped_declaration(this)
-    { }
+    Function_declaration(Scoped_declaration* sd, 
+                         Symbol sym, 
+                         Location start, 
+                         Location loc);
+
+    // Type
 
     /// Returns the type of the function.
     Function_type* get_type() const;
@@ -306,6 +344,8 @@ namespace beaker
     /// Returns the parameters.
     Type_seq& get_parameter_types();
 
+    // Parameters
+
     /// Returns the parameters.
     const Parameter_seq& get_parameters() const { return m_parms; }
     
@@ -315,11 +355,21 @@ namespace beaker
     /// Sets the parameters.
     void set_parameters(Parameter_seq&& parms) { m_parms = std::move(parms); }
 
+    // Return type specifier
+
     /// Returns the return type specifier.
     Type_specifier* get_return() const { return m_ret; }
 
     /// Sets the return type specifier.
     void set_return(Type_specifier* ts) { m_ret = ts; }
+
+    // Function definition
+
+    /// Returns the body of the statement.
+    Statement* get_body() const { return m_body; }
+
+    /// Sets the body of the statement.
+    void set_body(Statement* s) { assert(!m_body); m_body = s; }
 
   private:
     /// The parameters of the function.
@@ -327,7 +377,24 @@ namespace beaker
 
     /// The return type specifier.
     Type_specifier* m_ret;
+
+    /// The statement defining the function.
+    ///
+    /// FIXME: The definition could also be deleted or defaulted.
+    Statement* m_body;
   };
+
+  inline
+  Function_declaration::Function_declaration(Scoped_declaration* sd, 
+                                             Symbol sym, 
+                                             Location start, 
+                                             Location loc)
+    : Typed_declaration(func_kind, sd, sym, start, loc), 
+      Scoped_declaration(this),
+      m_parms(),
+      m_ret(),
+      m_body()
+  { }
 
 
   /// The base class of all data declarations. This class provides an optional
@@ -335,9 +402,11 @@ namespace beaker
   class Data_declaration : public Typed_declaration
   {
   protected:
-    Data_declaration(Kind k, Scoped_declaration* sd, const Token& id)
-      : Typed_declaration(k, sd, id), m_ts(), m_init()
-    { }
+    Data_declaration(Kind k, 
+                     Scoped_declaration* sd, 
+                     Symbol sym, 
+                     Location start, 
+                     Location loc);
 
   public:
     /// Returns the type specifier for the declaration.
@@ -362,25 +431,56 @@ namespace beaker
     Initializer* m_init;
   };
 
+  inline
+  Data_declaration::Data_declaration(Kind k, 
+                                     Scoped_declaration* sd, 
+                                     Symbol sym, 
+                                     Location start, 
+                                     Location loc)
+    : Typed_declaration(k, sd, sym, start, loc), m_ts(), m_init()
+  { }
+
 
   /// Represents the declaration of a value. Value declarations introduce 
   /// names that bind to expressions, which compute values.
   class Value_declaration : public Data_declaration
   {
   public:
-    Value_declaration(Scoped_declaration* sd, const Token& id)
-      : Data_declaration(val_kind, sd, id)
+    Value_declaration(Scoped_declaration* sd, 
+                      Symbol sym, 
+                      Location start, 
+                      Location loc)
+      : Data_declaration(val_kind, sd, sym, start, loc)
     { }
   };
 
 
   /// Represents the declaration of a variable. Variable declarations introduce
-  /// names that bind to objects, which hold values.
+  /// names that bind to objects, which hold values. These declarations are
+  /// responsible for the allocation of storage for the object.
   class Variable_declaration : public Data_declaration
   {
   public:
-    Variable_declaration(Scoped_declaration* sd, const Token& id)
-      : Data_declaration(var_kind, sd, id)
+    Variable_declaration(Scoped_declaration* sd, 
+                         Symbol sym, 
+                         Location start,
+                         Location loc)
+      : Data_declaration(var_kind, sd, sym, start, loc)
+    { }
+  };
+
+
+  /// Represents the declaration of a reference. Reference declarations 
+  /// introduce names that bind to objects, which hold values. Unlike 
+  /// variables, there may be no underlying storage for the object.
+  class Reference_declaration : public Data_declaration
+  {
+  public:
+    Reference_declaration(Scoped_declaration* sd, 
+                          Symbol sym, 
+                          Location start, 
+                          Location loc)
+      : Data_declaration(ref_kind, sd, sym, start, loc)
     { }
   };
 

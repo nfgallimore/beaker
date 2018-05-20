@@ -22,7 +22,7 @@ namespace beaker
     Expression* parse_expression();
 
     // Types
-    Type_specifier* parse_type_specifier();
+    Type_specifier* parse_value_type_specifier();
   };
 
 } // namespace beaker

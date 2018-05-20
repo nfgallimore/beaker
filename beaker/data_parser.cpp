@@ -9,14 +9,18 @@
 namespace beaker
 {
   // type-clause:
-  //    ':' type-specifier
+  //    ':' value-type-specifier
   //    <empty>
+  //
+  // Note that the value-type-specifier does not permit reference types
+  // in the declaration. To declare a reference, use a ref declaration.
   void
   Data_parser::parse_data_type(Declaration* d)
   {
     Restored_declarative_region region(*this, d);
+
     if (Token colon = match_if(Token::colon)) {
-      Type_specifier* type = parse_type_specifier();
+      Type_specifier* type = parse_value_type_specifier();
       m_act.on_data_declaration(d, type);
     }
     else {
@@ -33,6 +37,7 @@ namespace beaker
   Data_parser::parse_data_initializer(Declaration* d)
   {
     Restored_declarative_region region(*this, d);
+    
     if (Token eq = match_if(Token::equal)) {
       Expression* expr = parse_expression();
       Token semi = match(Token::semicolon);
@@ -51,12 +56,12 @@ namespace beaker
     return ep.parse_expression();
   }
 
-  /// Parse a type specifier.
+  /// Parse a value-type-specifier.
   Type_specifier*
-  Data_parser::parse_type_specifier()
+  Data_parser::parse_value_type_specifier()
   {
     Type_parser tp(m_cxt);
-    return tp.parse_type_specifier();
+    return tp.parse_value_type_specifier();
   }
 
 } // namespace beaker

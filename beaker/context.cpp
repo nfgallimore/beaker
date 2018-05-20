@@ -38,23 +38,23 @@ namespace beaker
     { }
 
     /// The type `unit`.
-    std::unique_ptr<Type> unit_type;
+    std::unique_ptr<Unit_type> unit_type;
 
     /// The type `bool`.
-    std::unique_ptr<Type> bool_type;
+    std::unique_ptr<Bool_type> bool_type;
 
     /// The type `int`.
     ///
     /// \todo Support an extended integer type family.
-    std::unique_ptr<Type> int_type;
+    std::unique_ptr<Int_type> int_type;
 
     /// The type `float`.
     ///
     /// \todo Support an extended integer type family.
-    std::unique_ptr<Type> float_type;
+    std::unique_ptr<Float_type> float_type;
 
     /// The type `auto`.
-    std::unique_ptr<Type> auto_type;
+    std::unique_ptr<Auto_type> auto_type;
 
     /// Creates unique function types.
     Unique_type<Function_type> function_types;
@@ -71,43 +71,43 @@ namespace beaker
   Context::~Context()
   { }
 
-  Type*
+  Unit_type*
   Context::get_unit_type()
   { 
     return m_types->unit_type.get(); 
   }
   
-  Type*
+  Bool_type*
   Context::get_bool_type()
   { 
     return m_types->bool_type.get(); 
   }
   
-  Type*
+  Int_type*
   Context::get_int_type()
   { 
     return m_types->int_type.get(); 
   }
 
-  Type*
+  Float_type*
   Context::get_float_type()
   { 
     return m_types->float_type.get(); 
   }
 
-  Type*
+  Auto_type*
   Context::get_auto_type()
   { 
     return m_types->auto_type.get(); 
   }
 
-  Type*
+  Reference_type*
   Context::get_reference_type(Type* t)
   {
     return m_types->reference_types.make(t);
   }
 
-  Type*
+  Function_type*
   Context::get_function_type(const Type_seq& ts, Type* t)
   {
     return m_types->function_types.make(ts, t);

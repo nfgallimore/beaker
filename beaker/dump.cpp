@@ -424,6 +424,7 @@ namespace beaker
       break;
     case Declaration::val_kind:
     case Declaration::var_kind:
+    case Declaration::ref_kind:
       dump_data_attributes(dc, static_cast<const Data_declaration*>(d));
       break;
     case Declaration::parm_kind:
@@ -455,10 +456,16 @@ namespace beaker
     dump_typed_children(dc, d);
     
     dump_label(dc, "parameters");
-    dump_sequence(dc, d->get_parameters());
+    {
+      Indent_around parms(dc);
+      dump_sequence(dc, d->get_parameters());
+    }
     
     dump_label(dc, "body");
-    // dump(dc, d->get_body());
+    {
+      Indent_around body(dc);
+      dump(dc, d->get_body());
+    }
   }
 
   static void
@@ -499,6 +506,7 @@ namespace beaker
       break;
     case Declaration::val_kind:
     case Declaration::var_kind:
+    case Declaration::ref_kind:
       dump_data_children(dc, static_cast<const Data_declaration*>(d));
       break;
     case Declaration::parm_kind:
@@ -520,6 +528,12 @@ namespace beaker
   {
     Dump_context dc(std::cerr);
     dump(dc, d);
+  }
+
+  void 
+  dump(const Scoped_declaration* d)
+  {
+    dump(d->cast_as_declaration());
   }
 
 } // namespace beaker

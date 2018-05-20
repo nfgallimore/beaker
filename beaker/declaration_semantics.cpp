@@ -4,6 +4,7 @@
 #include "type_specifier.hpp"
 #include "expression.hpp"
 #include "initializer.hpp"
+#include "statement.hpp"
 #include "scope.hpp"
 #include "context.hpp"
 #include "print.hpp"
@@ -37,13 +38,18 @@ namespace beaker
   static Data_declaration*
   make_data_decl(const Token& id, const Token& kw, Scoped_declaration* sd)
   {
+    Symbol sym = id.get_symbol();
+    Location loc = id.get_location();
+    Location start = kw.get_location();
     switch (kw.get_name()) {
     default:
       __builtin_unreachable();
     case Token::val_kw:
-      return new Value_declaration(sd, id);
+      return new Value_declaration(sd, sym, start, loc);
     case Token::var_kw:
-      return new Variable_declaration(sd, id);
+      return new Variable_declaration(sd, sym, start, loc);
+    case Token::ref_kw:
+      return new Reference_declaration(sd, sym, start, loc);
     }
   }
 
@@ -74,14 +80,14 @@ namespace beaker
 
     return data;
   }
-  
+
   Declaration* 
-  Semantics::on_data_declaration(Declaration* d, Type_specifier* t)
+  Semantics::on_data_declaration(Declaration* d, Type_specifier* ts)
   {
     Data_declaration* data = static_cast<Data_declaration*>(d);
 
     // Set the type specifier for the declaration.
-    data->set_type_specifier(t);
+    data->set_type_specifier(ts);
 
     // Declare the value or object.
     declare(data);
@@ -114,7 +120,10 @@ namespace beaker
   Semantics::on_function_identification(const Token& id, const Token& kw)
   {
     // Create the entity.
-    Function_declaration* fn = new Function_declaration(m_decl, id);
+    Symbol sym = id.get_symbol();
+    Location loc = id.get_location();
+    Location start = kw.get_location();
+    Function_declaration* fn = new Function_declaration(m_decl, sym, start, loc);
 
     // Identify the declaration
     identify(fn);
@@ -123,14 +132,13 @@ namespace beaker
   }
 
   static Function_type*
-  make_fn_type(const Parameter_seq& parms, Type_specifier* ret)
+  make_fn_type(Context& cxt, const Parameter_seq& parms, Type_specifier* ret)
   {
-    // FIXME: Make sure the type is unique.
-    Type_seq parm_types;
+    Type_seq ptypes;
     for (Parameter *parm : parms)
-      parm_types.push_back(parm->get_type());
-    Type* ret_type = ret->get_type();
-    return new Function_type(std::move(parm_types), ret_type);
+      ptypes.push_back(parm->get_type());
+    Type* rtype = ret->get_type();
+    return cxt.get_function_type(std::move(ptypes), rtype);
   }
 
   Declaration*
@@ -144,7 +152,7 @@ namespace beaker
     Function_declaration* fn = static_cast<Function_declaration*>(d);
 
     // Set the type.
-    fn->set_type(make_fn_type(parms, ret));
+    fn->set_type(make_fn_type(m_cxt, parms, ret));
 
     // Set the parameters and return specifier.
     fn->set_parameters(std::move(parms));
@@ -153,13 +161,46 @@ namespace beaker
     return fn;
   }
 
-  Declaration*
-  Semantics::on_function_definition(Declaration* d, 
-                                    Statement_seq&& s,
-                                    const Token& lbrace,
-                                    const Token& rbrace)
+  Statement*
+  Semantics::on_start_function_definition(Declaration* d)
   {
-    return nullptr;
+    Function_declaration* fn = static_cast<Function_declaration*>(d);
+
+    // Create the statement that will serve as the outermost block
+    // of the function; enter its scope.
+    Block_statement* body = new Block_statement();
+    enter_scope(body);
+
+    // Identify (register) parameter declarations within the scope of the 
+    // outermost block.
+    for (Parameter *p : fn->get_parameters())
+      identify(p);
+    
+    return body;
+  } 
+
+  Declaration*
+  Semantics::on_finish_function_definition(Declaration* d, 
+                                           Statement* s,
+                                           const Token& lbrace,
+                                           const Token& rbrace)
+  {
+    Function_declaration* fn = static_cast<Function_declaration*>(d);
+    Block_statement* body = static_cast<Block_statement*>(s);
+    
+    // Leave the scope of the outermost block.
+    leave_scope(body);
+
+    // Update the brace locations.
+    body->set_brace_locations(lbrace.get_location(), rbrace.get_location());
+
+    // Update the function.
+    fn->set_body(body);
+
+    // FIXME: Perform final analysis of the function.
+    // Check for return paths, etc.
+
+    return fn;
   }
 
   Parameter*
@@ -168,10 +209,16 @@ namespace beaker
                                    const Token& colon)
   {
     // Build underlying declaration.
-    Value_declaration* val = new Value_declaration(m_decl, id);
+    //
+    // FIXME: Parameters can be variables or references.
+    Symbol sym = id.get_symbol();
+    Location loc = id.get_location();
+    Value_declaration* val = new Value_declaration(m_decl, sym, loc, loc);
     val->set_type_specifier(type);
 
-    // Build the parameter.
+    // Build the parameter over the underlying declaration. 
+    //
+    // FIXME: When is the right time to set the depth and index?
     Parameter* parm = new Parameter(val);
 
     // Identify and declare the parameter.

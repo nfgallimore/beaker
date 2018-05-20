@@ -7,6 +7,14 @@
 
 namespace beaker
 {
+  class Unit_type;
+  class Bool_type;
+  class Int_type;
+  class Float_type;
+  class Auto_type;
+  class Function_type;
+  class Reference_type;
+
   /// Provides context (i.e., resources) to all major components of the
   /// compiler. This includes: memory allocation, diagnostics, memoization,
   /// internment, etc.
@@ -32,25 +40,25 @@ namespace beaker
     // Types
 
     /// Returns the type `unit`.
-    Type* get_unit_type();
+    Unit_type* get_unit_type();
     
     /// Returns the type `bool`.
-    Type* get_bool_type();
+    Bool_type* get_bool_type();
     
     /// Returns the type `int`.
-    Type* get_int_type();
+    Int_type* get_int_type();
 
     /// Returns the type `float`.
-    Type* get_float_type();
+    Float_type* get_float_type();
 
     /// Returns the type `auto`.
-    Type* get_auto_type();
+    Auto_type* get_auto_type();
 
     /// Returns the type `t&`.
-    Type* get_reference_type(Type* t);
+    Reference_type* get_reference_type(Type* t);
 
     /// Returns the type `(t1, t2, ..., tn) -> tr`.
-    Type* get_function_type(const Type_seq& ts, Type* r);
+    Function_type* get_function_type(const Type_seq& ts, Type* r);
 
   private:
     /// The symbol table provides unique representations of symbols in the

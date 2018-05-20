@@ -307,6 +307,10 @@ namespace beaker
     return nullptr;
   }
 
+  /// The type of the expression is determined by the declaration denoted by
+  /// identifier. If the declaration is a variable or reference, the type
+  /// is a reference to the declared type of the entity. Otherwise, the type
+  /// is just the declared type of the entity.
   Expression*
   Semantics::on_id_expression(const Token& id)
   {
@@ -329,9 +333,9 @@ namespace beaker
     
     // Analyze the declaration to determine the type of the expression.
     Type* type = td->get_type();
-    if (td->is_variable())
+    if (td->is_variable() || td->is_reference())
       type = m_cxt.get_reference_type(type);
-    
+
     return new Id_expression(type, td);
   }
 

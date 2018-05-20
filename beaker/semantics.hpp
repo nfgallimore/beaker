@@ -2,6 +2,7 @@
 
 #include <beaker/common.hpp>
 #include <beaker/token.hpp>
+#include <beaker/dump.hpp>
 
 namespace beaker
 {
@@ -18,6 +19,9 @@ namespace beaker
   public:
     Semantics(Context& cxt);
     ~Semantics();
+
+    /// Returns the underlying context.
+    Context& get_context() const;
 
     /// Invoked to construct a reference type.
     Type_specifier* on_reference_type(Type_specifier* ts, const Token& tok);
@@ -233,10 +237,16 @@ namespace beaker
                                          const Token& rparen,
                                          const Token& arrow);
     
-    Declaration* on_function_definition(Declaration* d, 
-                                        Statement_seq&& ss,
-                                        const Token& lbrace,
-                                        const Token& rbrace);
+    /// Called to construct the compound-statement comprising the function 
+    /// body. This declares paraemters within the outermost block to ensure
+    /// we don't hide them unnecessarily.
+    Statement* on_start_function_definition(Declaration* d);
+
+    /// Called to finalize the function definition.
+    Declaration* on_finish_function_definition(Declaration* d, 
+                                               Statement*,
+                                               const Token& lbrace,
+                                               const Token& rbrace);
 
     Parameter* on_function_parameter(const Token& n, 
                                      Type_specifier* t, 

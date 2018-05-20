@@ -42,7 +42,8 @@ namespace beaker
   void
   Semantics::enter_scope(Statement* s)
   {
-    __builtin_unreachable();
+    // Push a new block scope on the stack.
+    m_scope = new Block_scope(s, m_scope);
   }
 
   void
@@ -52,6 +53,8 @@ namespace beaker
     assert(m_decl == d->cast_as_scoped()); // Imbalanced stack
 
     // Pop the current scope.
+    //
+    // FIXME: Check that the scope also refers to d.
     Scope* prev = m_scope;
     m_scope = m_scope->get_parent();
     delete prev;
@@ -66,7 +69,12 @@ namespace beaker
   void
   Semantics::leave_scope(Statement* s)
   {
-    __builtin_unreachable();
+    // FIXME: Check that the scope refers to s.
+    assert(m_scope); // Imbalanced stack
+    
+    Scope* prev = m_scope;
+    m_scope = m_scope->get_parent();
+    delete prev;
   }
 
   void
@@ -75,8 +83,7 @@ namespace beaker
     assert(!m_scope && !m_decl); // Must be in a pristine state.
 
     // Restore the scope up to, but not including d.
-    if (!d->is_scoped())
-      d = d->get_enclosing_declaration();
+    d = d->get_enclosing_declaration();
 
     // Compute the enclosing scopes of d.
     Declaration_seq decls;
@@ -95,15 +102,13 @@ namespace beaker
   Semantics::empty_scope(Declaration* d)
   {
     // Restore the scope up to, but not including d.
-    if (!d->is_scoped())
-      d = d->get_enclosing_declaration();
+    d = d->get_enclosing_declaration();
 
     while (m_scope) {
       leave_scope(d);
       d = d->get_enclosing_declaration();
     }
   }
-
 
   // Lookup
 

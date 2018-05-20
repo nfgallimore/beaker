@@ -44,5 +44,6 @@ namespace beaker
   void dump(const Expression* t);
   void dump(const Statement* t);
   void dump(const Declaration* d);
+  void dump(const Scoped_declaration* d);
 
 } // namespace beaker

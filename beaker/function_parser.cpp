@@ -2,6 +2,7 @@
 #include "type_parser.hpp"
 #include "expression_parser.hpp"
 #include "data_parser.hpp"
+#include "dump.hpp"
 
 #include <iostream>
 #include <sstream>
@@ -16,9 +17,11 @@ namespace beaker
   void
   Function_parser::parse_function_signature(Declaration* d)
   {
-    // FIXME: We have to rebuild the scope. This means walking up the
-    // declaration context chain and creating scopes until we've reached
-    // the outermost.
+    // Re-enter the enclosing contex.t
+    Restored_declarative_region region(*this, d);
+
+    // Enter function scope.
+    Parsing_declarative_region function(*this, d);
 
     // Match the parameter list.
     Token lparen = match(Token::lparen);
@@ -80,8 +83,8 @@ namespace beaker
   }
 
   /// function-parameter:
-  ///   data-head identifier ':' type-specifier
-  ///   identifier ':' type-specifier
+  ///   data-head identifier ':' value-type-specifier
+  ///   identifier ':' value-type-specifier
   ///
   /// \todo Implement support for val and var parameters.
   ///
@@ -95,7 +98,7 @@ namespace beaker
     
     Token colon = match(Token::colon);
     Type_parser tp(m_cxt);
-    Type_specifier* type = tp.parse_type_specifier();
+    Type_specifier* type = tp.parse_value_type_specifier();
     
     return m_act.on_function_parameter(id, type, colon);
   }
@@ -132,13 +135,26 @@ namespace beaker
   void
   Function_parser::parse_function_body(Declaration* d)
   {
+    // Re-enter the enclosing context.
+    Restored_declarative_region region(*this, d);
+
+    // Re-enter function scope.
+    //
+    // FIXME: If we want function labels, then we really need something
+    // between the statement scope and the declaration scope. Lables are
+    // part of the definition, and shouldn't be registered with the function.
+    //
+    // Except perhaps that registering a label with a function might expose
+    // an entry point for coroutines?
+    Parsing_declarative_region function(*this, d);
+
+    Statement* body = m_act.on_start_function_definition(d);
     Token lbrace = require(Token::lbrace);
-
-    Statement_seq stmts = parse_statement_seq();
-
+    Statement_seq stmts;
+    if (next_token_is_not(Token::rbrace))
+      stmts = parse_statement_seq();
     Token rbrace = match(Token::rbrace);
-
-    m_act.on_function_definition(d, std::move(stmts), lbrace, rbrace);
+    m_act.on_finish_function_definition(d, body, lbrace, rbrace);
   }
 
   /// statement-seq:
@@ -345,12 +361,20 @@ namespace beaker
     return ep.parse_expression();
   }
 
-  /// Parse a type specifier.
+  /// Parse a type-specifier.
   Type_specifier*
   Function_parser::parse_type_specifier()
   {
     Type_parser tp(m_cxt);
     return tp.parse_type_specifier();
+  }
+
+  /// Parse a value-type-specifier.
+  Type_specifier*
+  Function_parser::parse_value_type_specifier()
+  {
+    Type_parser tp(m_cxt);
+    return tp.parse_value_type_specifier();
   }
 
 } // namespace beaker

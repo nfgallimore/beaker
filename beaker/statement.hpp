@@ -22,7 +22,7 @@ namespace beaker
     { }
 
   public:
-    virtual ~Statement();
+    virtual ~Statement() = default;
 
     // Kind
 
@@ -52,8 +52,8 @@ namespace beaker
   class Block_statement : public Statement
   {
   public:
-    Block_statement(const Token& lb, const Token& rb)
-      : Statement(block_kind), m_braces{lb, rb}
+    Block_statement()
+      : Statement(block_kind), m_braces{}
     { }
 
     /// Returns the sequence of statements.
@@ -63,17 +63,27 @@ namespace beaker
     void add_statement(Statement* s) { m_stmts.push_back(s); }
 
     /// Returns the start location of the this statement.
-    Location get_start_location() const override { return m_braces[0].get_location(); }
+    Location get_start_location() const override { return m_braces[0]; }
     
     /// Returns the end location of the this statement.
-    Location get_end_location() const override { return m_braces[1].get_location(); }
+    Location get_end_location() const override { return m_braces[1]; }
+
+    /// Sets the locations of the left and right brace. 
+    void set_brace_locations(Location lbrace, Location rbrace);
   
   private:
     /// The nested sequence of statements.
     Statement_seq m_stmts;
 
     /// The opening and closing braces.
-    Token m_braces[2];
+    Location m_braces[2];
   };
+
+  inline void
+  Block_statement::set_brace_locations(Location lbrace, Location rbrace)
+  {
+    m_braces[0] = lbrace;
+    m_braces[1] = rbrace;
+  }
 
 } // namespace beaker

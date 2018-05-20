@@ -80,6 +80,10 @@ namespace beaker
     /// Appends a hash code to the current object.
     void hash(Hasher& h);
 
+    // Debugging
+
+    void dump() const;
+
   private:
     Kind m_kind;
   };

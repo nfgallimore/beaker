@@ -29,8 +29,12 @@ namespace beaker
     case func_kind: return "function-declaration";
     case val_kind: return "value-declaration";
     case var_kind: return "variable-declaration";
+    case ref_kind: return "reference-declaration";
     case parm_kind: return "parameter";
+    default:
+      break;
     }
+    __builtin_unreachable();
   }
 
   bool 
@@ -152,7 +156,12 @@ namespace beaker
   }
 
   Parameter::Parameter(Named_declaration* d)
-    : Named_declaration(parm_kind, d->get_owner(), d->get_identifier()), m_decl(d)
+    : Named_declaration(parm_kind, 
+                        d->get_owner(), 
+                        d->get_name(), 
+                        d->get_start_location(), 
+                        d->get_name_location()), 
+      m_decl(d)
   { }
 
 } // namespace beaker

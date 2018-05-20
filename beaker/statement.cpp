@@ -7,8 +7,11 @@ namespace beaker
   Statement::get_kind_name() const
   {
     switch (m_kind) {
-    case block_kind: "return block-statement";
+    case block_kind: return "block-statement";
+    default:
+      break;
     }
+    __builtin_unreachable();
   }
 
 } // namespace beaker
