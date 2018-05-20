@@ -1,7 +1,7 @@
 #pragma once
 
 #include <beaker/common.hpp>
-#include <beaker/token.hpp>
+#include <beaker/location.hpp>
 
 namespace beaker
 {
