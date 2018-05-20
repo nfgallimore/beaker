@@ -112,6 +112,7 @@ namespace beaker
       {m_cxt.get_symbol("namespace"), Token::namespace_kw},
       {m_cxt.get_symbol("new"), Token::new_kw},
       {m_cxt.get_symbol("operator"), Token::operator_kw},
+      {m_cxt.get_symbol("ref"), Token::ref_kw},
       {m_cxt.get_symbol("requires"), Token::requires_kw},
       {m_cxt.get_symbol("return"), Token::return_kw},
       {m_cxt.get_symbol("switch"), Token::switch_kw},

@@ -175,6 +175,7 @@ namespace beaker
     case namespace_kw: return std::strlen("namespace");
     case new_kw: return std::strlen("new");
     case operator_kw: return std::strlen("operator");
+    case ref_kw: return std::strlen("ref");
     case requires_kw: return std::strlen("requires");
     case return_kw: return std::strlen("return");
     case switch_kw: return std::strlen("switch");
@@ -275,6 +276,7 @@ namespace beaker
     case namespace_kw: return "namespace";
     case new_kw: return "new";
     case operator_kw: return "operator";
+    case ref_kw: return "ref";
     case requires_kw: return "requires";
     case return_kw: return "return";
     case switch_kw: return "switch";

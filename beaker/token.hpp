@@ -109,6 +109,7 @@ namespace beaker
       namespace_kw,
       new_kw,
       operator_kw,
+      ref_kw,
       requires_kw,
       return_kw,
       switch_kw,
