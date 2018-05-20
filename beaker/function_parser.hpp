@@ -25,26 +25,7 @@ namespace beaker
     Parameter* parse_variadic_parameter();
 
     // Statements
-    Statement_seq parse_statement_seq();
-    Statement* parse_statement();
-    Statement* parse_block_statement();
-    Statement* parse_if_statement();
-    Statement* parse_while_statement();
-    Statement* parse_break_statement();
-    Statement* parse_continue_statement();
-    Statement* parse_return_statement();
-    Statement* parse_declaration_statement();
-    Statement* parse_expression_statement();
-
-    // Conditions
-    Condition* parse_condition();
-
-    // Local declarations.
-    Declaration* parse_local_declaration();
-    Declaration* parse_data_definition();
-
-    // Expressions
-    Expression* parse_expression();
+    void parse_statement_seq();
 
     // Types
     Type_specifier* parse_type_specifier();

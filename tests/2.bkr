@@ -1,4 +1,9 @@
 
+var global : int = 42;
+
 func f(a : int, b : bool) -> int {
-  
+  0;
+  a;
+  return global;
+  return a + a; 
 }

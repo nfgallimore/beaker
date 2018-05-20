@@ -323,6 +323,10 @@ namespace beaker
     }
     Named_declaration* nd = found.get_single_declaration();
     
+    // Unwrap references to parameters.
+    if (Parameter* parm = dynamic_cast<Parameter*>(nd))
+      nd = parm->get_declaration();
+
     // Id-expressions must be types.
     if (!nd->is_typed()) {
       std::stringstream ss;

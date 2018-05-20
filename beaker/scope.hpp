@@ -74,7 +74,7 @@ namespace beaker
     { }
 
     /// Returns the underlying statement
-    Statement* get_statement() const;
+    Statement* get_statement() const { return m_stmt; }
 
     /// Search this scope for a declaration.
     Declaration_set lookup(Symbol sym) const override;

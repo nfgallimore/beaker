@@ -4,7 +4,7 @@
 #include "type.hpp"
 #include "type_specifier.hpp"
 #include "expression.hpp"
-#include "logical_expression.hpp"
+#include "statement.hpp"
 #include "conversion.hpp"
 #include "context.hpp"
 #include "print.hpp"
@@ -108,6 +108,23 @@ namespace beaker
       leave_scope(d);
       d = d->get_enclosing_declaration();
     }
+  }
+
+  Function_declaration*
+  Semantics::get_current_function()
+  {
+    Declaration* d = m_decl->cast_as_declaration();
+    if (auto* fn = dynamic_cast<Function_declaration*>(d))
+      return fn;
+    return nullptr;
+  }
+
+  Block_statement*
+  Semantics::get_current_block()
+  {
+    if (auto* bs = dynamic_cast<Block_scope*>(m_scope))
+      return static_cast<Block_statement*>(bs->get_statement());
+    return nullptr;
   }
 
   // Lookup

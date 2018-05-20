@@ -12,6 +12,8 @@ namespace beaker
     enum Kind
     {
       block_kind,
+      ret_kind,
+      expr_kind,
     };
 
   protected:
@@ -85,5 +87,45 @@ namespace beaker
     m_braces[0] = lbrace;
     m_braces[1] = rbrace;
   }
+
+
+  /// Represents return statements.
+  class Return_statement : public Statement
+  {
+  public:
+    Return_statement(Expression* e, Location kw, Location semi)
+      : Statement(ret_kind), m_expr(e), m_locs{kw, semi}
+    { }
+
+    /// Returns the expression.
+    Expression* get_return_value() const { return m_expr; }
+
+  private:
+    /// The computed return value.
+    Expression* m_expr;
+
+    /// The location of `return`  and ';', respectively.
+    Location m_locs[2];
+  };
+
+
+  /// Represents expression statements.
+  class Expression_statement : public Statement
+  {
+  public:
+    Expression_statement(Expression* e, Location semi)
+      : Statement(expr_kind), m_expr(e), m_loc(semi)
+    { }
+
+    /// Returns the expression.
+    Expression* get_expression() const { return m_expr; }
+
+  private:
+    /// The computed return value.
+    Expression* m_expr;
+
+    /// The location of the `;`.
+    Location m_loc;
+  };
 
 } // namespace beaker

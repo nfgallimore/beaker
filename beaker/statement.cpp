@@ -8,6 +8,8 @@ namespace beaker
   {
     switch (m_kind) {
     case block_kind: return "block-statement";
+    case ret_kind: return "return-statement";
+    case expr_kind: return "expression-statement";
     default:
       break;
     }

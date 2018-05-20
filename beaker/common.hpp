@@ -40,6 +40,7 @@ namespace beaker
   class Named_declaration;
   class Typed_declaration;
   class Data_declaration;
+  class Function_declaration;
   class Parameter;
 
   /// A sequence of types.

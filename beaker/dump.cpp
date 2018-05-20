@@ -342,12 +342,43 @@ namespace beaker
   }
 
   static void
+  dump_block_children(Dump_context& dc, const Block_statement* s)
+  {
+    Indent_around indent(dc);
+    for (Statement* ss : s->get_statements())
+      dump(dc, ss);
+  }
+
+  static void
+  dump_return_children(Dump_context& dc, const Return_statement* s)
+  {
+    Indent_around indent(dc);
+    dump(dc, s->get_return_value());
+  }
+
+  static void
+  dump_expr_children(Dump_context& dc, const Expression_statement* s)
+  {
+    Indent_around indent(dc);
+    dump(dc, s->get_expression());
+  }
+
+  static void
   dump_children(Dump_context& dc, const Statement* s)
   {
     if (!s)
       return;
 
-    // FIXME: Implement me.
+    switch (s->get_kind()) {
+    case Statement::block_kind:
+      return dump_block_children(dc, static_cast<const Block_statement*>(s));
+    case Statement::ret_kind:
+      return dump_return_children(dc, static_cast<const Return_statement*>(s));
+    case Statement::expr_kind:
+      return dump_expr_children(dc, static_cast<const Expression_statement*>(s));
+    default:
+      break;
+    }
   }
 
   void 

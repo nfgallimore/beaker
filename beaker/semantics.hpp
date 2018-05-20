@@ -12,6 +12,7 @@ namespace beaker
   class Float_type;
   class Function_type;
   class Reference_type;
+  class Block_statement;
 
   /// The semantics class implements the semantic actions of the parser.
   class Semantics
@@ -154,13 +155,18 @@ namespace beaker
     /// Invoked to analyze an id-expression.
     Expression* on_id_expression(const Token& id);
 
+    /// Invoked to analyze a paren-enclosed primary-expression.
     Expression* on_paren_expression(Expression* e,
                                     const Token& lparen, 
                                     const Token& rparen);
 
-    Statement* on_block_statement(const Statement_seq& stmts,
-                                  const Token& lbrace,
-                                  const Token& rbrace);
+    /// Invoked to construt an empty block statement.
+    Statement* on_start_block_statement();
+
+    /// Invoked to finalize the block statement.
+    Statement* on_finish_block_statement(Statement* s,
+                                         const Token& lbrace,
+                                         const Token& rbrace);
 
     Statement* on_when_statement(Expression* e, 
                                  Statement* s, 
@@ -277,7 +283,14 @@ namespace beaker
 
     /// Returns current scoped declaration. This provides lookup and
     /// declaration facilities for the current declarative region.
-    Scoped_declaration* get_current_declaration() const { return m_decl; }
+    Scoped_declaration* get_current_declaration() { return m_decl; }
+
+    /// Returns the current function declaration.
+    Function_declaration* get_current_function();
+    
+    /// Returns the innermost block statement. Returns nullptr if not
+    /// inside a function definition.
+    Block_statement* get_current_block();
 
     // Declarations
 

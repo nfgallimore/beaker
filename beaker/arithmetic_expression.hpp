@@ -9,7 +9,7 @@ namespace beaker
   {
   public:
     Addition_expression(Type* t, Expression* lhs, Expression* rhs, const Token& op)
-      : Binary_operator(and_kind, t, lhs, rhs, op)
+      : Binary_operator(add_kind, t, lhs, rhs, op)
     { }
   };
 
@@ -18,7 +18,7 @@ namespace beaker
   {
   public:
     Subtraction_expression(Type* t, Expression* lhs, Expression* rhs, const Token& op)
-      : Binary_operator(or_kind, t, lhs, rhs, op)
+      : Binary_operator(sub_kind, t, lhs, rhs, op)
     { }
   };
 
@@ -27,7 +27,7 @@ namespace beaker
   {
   public:
     Multiplication_expression(Type* t, Expression* lhs, Expression* rhs, const Token& op)
-      : Binary_operator(or_kind, t, lhs, rhs, op)
+      : Binary_operator(mul_kind, t, lhs, rhs, op)
     { }
   };
 
@@ -36,7 +36,7 @@ namespace beaker
   {
   public:
     Quotient_expression(Type* t, Expression* lhs, Expression* rhs, const Token& op)
-      : Binary_operator(or_kind, t, lhs, rhs, op)
+      : Binary_operator(quo_kind, t, lhs, rhs, op)
     { }
   };
 
@@ -45,7 +45,7 @@ namespace beaker
   {
   public:
     Remainder_expression(Type* t, Expression* lhs, Expression* rhs, const Token& op)
-      : Binary_operator(or_kind, t, lhs, rhs, op)
+      : Binary_operator(rem_kind, t, lhs, rhs, op)
     { }
   };
 
@@ -54,7 +54,7 @@ namespace beaker
   {
   public:
     Negation_expression(Type* t, Expression* e, const Token& op)
-      : Unary_operator(not_kind, t, e, op)
+      : Unary_operator(neg_kind, t, e, op)
     { }
   };
 
@@ -63,7 +63,7 @@ namespace beaker
   {
   public:
     Reciprocal_expression(Type* t, Expression* e, const Token& op)
-      : Unary_operator(not_kind, t, e, op)
+      : Unary_operator(rec_kind, t, e, op)
     { }
   };
 

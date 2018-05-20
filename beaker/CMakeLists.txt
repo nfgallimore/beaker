@@ -26,6 +26,7 @@ add_library(beaker.lang
   module_parser.cpp
   type_parser.cpp
   expression_parser.cpp
+  statement_parser.cpp
   data_parser.cpp
   function_parser.cpp
 
