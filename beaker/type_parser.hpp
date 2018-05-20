@@ -16,7 +16,10 @@ namespace beaker
     { }
 
     Type_specifier* parse_type_specifier();
+    Type_specifier* parse_reference_type_specifier();
+    Type_specifier* parse_value_type_specifier();
     Type_specifier* parse_simple_type_specifier();
+    Type_specifier_seq parse_type_specifier_list();
   };
 
 } // namespace beaker

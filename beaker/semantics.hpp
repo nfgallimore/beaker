@@ -19,16 +19,42 @@ namespace beaker
     Semantics(Context& cxt);
     ~Semantics();
 
+    /// Invoked to construct a reference type.
+    Type_specifier* on_reference_type(Type_specifier* ts, const Token& tok);
+
+    /// Invoked to construct a unit type.
     Type_specifier* on_unit_type(const Token& tok);
+
+    /// Invoked to construct a unit type.
     Type_specifier* on_bool_type(const Token& tok);
+
+    /// Invoked to construct a unit type.
     Type_specifier* on_int_type(const Token& tok);
+
+    /// Invoked to construct a unit type.
     Type_specifier* on_float_type(const Token& tok);
+
+    /// Invoked to construct a unit type.
     Type_specifier* on_char_type(const Token& tok);
 
+    /// Invoked to construct a function type.
+    Type_specifier* on_function_type(Type_specifier_seq&& parms,
+                                     Type_specifier* ret, 
+                                     const Token& lparen,
+                                     const Token& rparen,
+                                     const Token& arrow);
+
+    /// Invoked to handle grouped type-specifiers.
+    Type_specifier* on_paren_type(Type_specifier* ts,
+                                  const Token& lparen,
+                                  const Token& rparen);
+
+    /// Invoked to analyze an assignment-expression.
     Expression* on_assignment_expression(Expression* e1,
                                          Expression* e2,
                                          const Token& op);
     
+    /// Invoked to analyze an conditional-expression.
     Expression* on_conditional_expression(Expression* e1, 
                                           Expression* e2, 
                                           Expression* e3,

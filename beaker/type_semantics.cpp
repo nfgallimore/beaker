@@ -5,39 +5,78 @@
 #include "context.hpp"
 #include "print.hpp"
 
+#include <algorithm>
 #include <iostream>
 #include <sstream>
 
 namespace beaker
 {
   Type_specifier*
+  Semantics::on_reference_type(Type_specifier* ts, const Token& tok)
+  {
+    Type* t = m_cxt.get_reference_type(ts->get_type());
+    return new Reference_type_specifier(t, ts, tok.get_location());
+  }
+
+  Type_specifier*
   Semantics::on_unit_type(const Token& tok)
   {
-    return new Simple_type_specifier(tok, m_cxt.get_unit_type());
+    return new Simple_type_specifier(m_cxt.get_unit_type(), tok.get_location());
   }
   
   Type_specifier*
   Semantics::on_bool_type(const Token& tok)
   {
-    return new Simple_type_specifier(tok, m_cxt.get_bool_type());
+    return new Simple_type_specifier(m_cxt.get_bool_type(), tok.get_location());
   }
   
   Type_specifier*
   Semantics::on_int_type(const Token& tok)
   {
-    return new Simple_type_specifier(tok, m_cxt.get_int_type());
+    return new Simple_type_specifier(m_cxt.get_int_type(), tok.get_location());
   }
   
   Type_specifier*
   Semantics::on_float_type(const Token& tok)
   {
-    return new Simple_type_specifier(tok, m_cxt.get_float_type());
+    return new Simple_type_specifier(m_cxt.get_float_type(), tok.get_location());
   }
   
   Type_specifier*
   Semantics::on_char_type(const Token& tok)
   {
     __builtin_unreachable();
+  }
+
+  Type_specifier*
+  Semantics::on_function_type(Type_specifier_seq&& parms,
+                              Type_specifier* ret,
+                              const Token& lparen,
+                              const Token& rparen,
+                              const Token& arrow)
+  {
+    /// Build the function type.
+    Type_seq ptypes(parms.size());
+    std::transform(parms.begin(), parms.end(), ptypes.begin(), [](Type_specifier* ts) {
+      return ts->get_type();
+    });
+    Type* rtype = ret->get_type();
+    Type* t = m_cxt.get_function_type(std::move(ptypes), rtype);
+
+    /// Construct the type specifier.
+    return new Function_type_specifier(t, std::move(parms), ret, 
+                                       lparen.get_location(), 
+                                       rparen.get_location(), 
+                                       arrow.get_location());
+  }
+
+  Type_specifier*
+  Semantics::on_paren_type(Type_specifier* ts, 
+                           const Token& lparen,
+                           const Token& rparen)
+  {
+    // FIXME: Actually represent the parens explicitly?
+    return ts;
   }
 
   // Type requirements

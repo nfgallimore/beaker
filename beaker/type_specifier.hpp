@@ -12,6 +12,8 @@ namespace beaker
     enum Kind
     {
       simple_kind,
+      ref_kind,
+      func_kind,
     };
   
   protected:
@@ -54,16 +56,120 @@ namespace beaker
   class Simple_type_specifier : public Type_specifier
   {
   public:
-    Simple_type_specifier(const Token& tok, Type* t)
+    Simple_type_specifier(Type* t, Location loc)
       : Type_specifier(simple_kind, t)
     { }
 
-    /// Returns the token for the type specifier.
-    const Token& get_token() const { return m_tok; }
+    /// Returns the start location of the this statement.
+    Location get_start_location() const override { return m_loc; }
+    
+    /// Returns the end location of the this statement.
+    Location get_end_location() const override { return m_loc; }
 
   private:
-    /// The token representing the specifier.
-    Token m_tok;
+    Location m_loc;
   };
+
+
+  /// Represents reference specifiers of the form `ref ts`.
+  class Reference_type_specifier : public Type_specifier
+  {
+  public:
+    Reference_type_specifier(Type* t, Type_specifier* ts, Location loc)
+      : Type_specifier(ref_kind, t), m_ts(ts), m_loc(loc)
+    { }
+
+    /// Returns the underlying specifier for the value type.
+    Type_specifier* get_value_type() const { return m_ts; }
+
+    /// Returns the start location of the this statement.
+    Location get_start_location() const override { return m_loc; }
+    
+    /// Returns the end location of the this statement.
+    Location get_end_location() const override { return m_ts->get_end_location(); }
+
+  private:
+    /// The underlying type specifier.
+    Type_specifier* m_ts;
+    
+    /// The location of the `ref` token.
+    Location m_loc;
+  };
+
+
+  /// Represents type specifiers of the form `(t1, t2, ..., tn) -> tr`.
+  class Function_type_specifier : public Type_specifier
+  {
+  public:
+    Function_type_specifier(Type* t,
+                            const Type_specifier_seq& parms,
+                            Type_specifier* ret, 
+                            Location lparen, 
+                            Location rparen, 
+                            Location arrow);
+
+    Function_type_specifier(Type* t,
+                            Type_specifier_seq&& parms,
+                            Type_specifier* ret, 
+                            Location lparen, 
+                            Location rparen, 
+                            Location arrow);
+
+    /// Returns the parameter types of the specifier.
+    const Type_specifier_seq& get_parameter_types() const { return m_parms; }
+
+    /// Returns the parameter types of the specifier.
+    Type_specifier_seq& get_parameter_types() { return m_parms; }
+
+    /// Returns the return type specifier.
+    Type_specifier* get_return_type() const { return m_ret; }
+
+    /// Returns the start location of the this statement. This is the location
+    /// of the left paren.
+    Location get_start_location() const override { return m_locs[0]; }
+    
+    /// Returns the end location of the this statement. This is the end 
+    /// location of the return type specifier.
+    Location get_end_location() const override { return m_ret->get_end_location(); }
+
+  private:
+    /// The parameter type specifiers.
+    Type_specifier_seq m_parms;
+    
+    /// The return type specifier.
+    Type_specifier* m_ret;
+    
+    /// The locations of the left paren, right paren, and arrow tokens,
+    /// respectively.
+    Location m_locs[3];
+  };
+
+  inline
+  Function_type_specifier::
+  Function_type_specifier(Type* t,
+                          const Type_specifier_seq& parms,
+                          Type_specifier* ret, 
+                          Location lparen, 
+                          Location rparen, 
+                          Location arrow)
+    : Type_specifier(func_kind, t), 
+      m_parms(parms), 
+      m_ret(ret),
+      m_locs{lparen, rparen, arrow}
+  { }
+
+  inline
+  Function_type_specifier::
+  Function_type_specifier(Type* t,
+                          Type_specifier_seq&& parms,
+                          Type_specifier* ret, 
+                          Location lparen, 
+                          Location rparen, 
+                          Location arrow)
+    : Type_specifier(func_kind, t), 
+      m_parms(std::move(parms)), 
+      m_ret(ret),
+      m_locs{lparen, rparen, arrow}
+  { }
 
 } // namespace beaker
