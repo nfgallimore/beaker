@@ -2,6 +2,8 @@
 var global : int = 42;
 
 func f(a : int, b : bool) -> int {
+  var x : int = 0;
+
   if (3 == 4)
     return 0;
   else

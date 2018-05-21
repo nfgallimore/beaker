@@ -19,6 +19,7 @@ namespace beaker
       cont_kind,
       ret_kind,
       expr_kind,
+      decl_kind,
     };
 
   protected:
@@ -263,6 +264,22 @@ namespace beaker
 
     /// The location of the `;`.
     Location m_loc;
+  };
+
+
+  /// Reprsents a statement that declares a local entity.
+  class Declaration_statement : public Statement
+  {
+  public:
+    Declaration_statement(Declaration* d)
+      : Statement(decl_kind), m_decl(d)
+    { }
+
+    /// Returns the declaration.
+    Declaration* get_declaration() const { return m_decl; }
+
+  private:
+    Declaration* m_decl;
   };
 
 } // namespace beaker

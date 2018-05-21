@@ -15,6 +15,7 @@ namespace beaker
     case cont_kind: return "continue-statement";
     case ret_kind: return "return-statement";
     case expr_kind: return "expression-statement";
+    case decl_kind: return "declaration-statement";
     default:
       break;
     }

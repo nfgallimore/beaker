@@ -174,6 +174,7 @@ namespace beaker
     switch (lookahead()) {
     case Token::val_kw:
     case Token::var_kw:
+    case Token::ref_kw:
       return parse_data_definition();
     default:
       break;
@@ -190,6 +191,10 @@ namespace beaker
         || tok.is(Token::ref_kw);
   }
 
+  /// Parse a local data declaration.
+  ///
+  /// FIXME: Make sure this matches the syntax of in module-parser in order
+  /// to allow for abbreviated declarations (i.e., x := e).
   Declaration*
   Statement_parser::parse_data_definition()
   {

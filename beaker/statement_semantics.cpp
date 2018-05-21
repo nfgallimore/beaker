@@ -126,7 +126,8 @@ namespace beaker
   Statement*
   Semantics::on_declaration_statement(Declaration* d)
   {
-    return nullptr;
+    // FIXME: Is there really nothing to do here?
+    return new Declaration_statement(d);
   }
 
   Statement*

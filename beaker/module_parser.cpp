@@ -185,7 +185,7 @@ namespace beaker
   {
     Data_parser p(m_cxt);
     p.inject(m_toks);
-    p.parse_data_type(m_decl);
+    p.parse_deferred_data_type(m_decl);
   }
 
   void
@@ -193,7 +193,7 @@ namespace beaker
   {
     Data_parser p(m_cxt);
     p.inject(m_toks);
-    p.parse_data_initializer(m_decl);
+    p.parse_deferred_data_initializer(m_decl);
   }
 
   void
@@ -201,7 +201,7 @@ namespace beaker
   {
     Function_parser p(m_cxt);
     p.inject(m_toks);
-    p.parse_function_signature(m_decl);
+    p.parse_deferred_function_signature(m_decl);
   }
 
   void
@@ -209,7 +209,7 @@ namespace beaker
   {
     Function_parser p(m_cxt);
     p.inject(m_toks);
-    p.parse_function_body(m_decl);
+    p.parse_deferred_function_body(m_decl);
   }
 
 } // namespace beaker

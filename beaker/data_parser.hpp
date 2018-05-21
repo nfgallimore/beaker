@@ -15,6 +15,9 @@ namespace beaker
       : Parser(cxt)
     { }
 
+    void parse_deferred_data_type(Declaration* d);
+    void parse_deferred_data_initializer(Declaration* d);
+
     void parse_data_type(Declaration* d);
     void parse_data_initializer(Declaration* d);
 

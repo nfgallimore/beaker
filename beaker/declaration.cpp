@@ -161,7 +161,9 @@ namespace beaker
                         d->get_name(), 
                         d->get_start_location(), 
                         d->get_name_location()), 
-      m_decl(d)
+      m_decl(d),
+      m_depth(0),
+      m_index(0)
   { }
 
 } // namespace beaker

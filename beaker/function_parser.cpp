@@ -10,6 +10,13 @@
 
 namespace beaker
 {
+  void
+  Function_parser::parse_deferred_function_signature(Declaration* d)
+  {
+    Restored_declarative_region region(*this, d);
+    parse_function_signature(d);
+  }
+
   /// function-signature:
   ///   '(' parameter-clause ')' '->' type-specifier
   ///
@@ -17,9 +24,6 @@ namespace beaker
   void
   Function_parser::parse_function_signature(Declaration* d)
   {
-    // Re-enter the enclosing contex.t
-    Restored_declarative_region region(*this, d);
-
     // Enter function scope.
     Parsing_declarative_region function(*this, d);
 
@@ -124,6 +128,13 @@ namespace beaker
     return m_act.on_variadic_parameter(ellipsis);
   }
 
+  void
+  Function_parser::parse_deferred_function_body(Declaration* d)
+  {
+    Restored_declarative_region region(*this, d);
+    parse_function_body(d);
+  }
+
   /// function-body:
   ///   '{' statement-seq '}'
   ///
@@ -135,9 +146,6 @@ namespace beaker
   void
   Function_parser::parse_function_body(Declaration* d)
   {
-    // Re-enter the enclosing context.
-    Restored_declarative_region region(*this, d);
-
     // Re-enter function scope.
     //
     // FIXME: If we want function labels, then we really need something

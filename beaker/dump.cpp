@@ -389,6 +389,13 @@ namespace beaker
   }
 
   static void
+  dump_decl_children(Dump_context& dc, const Declaration_statement* s)
+  {
+    Indent_around indent(dc);
+    dump(dc, s->get_declaration());
+  }
+
+  static void
   dump_children(Dump_context& dc, const Statement* s)
   {
     if (!s)
@@ -407,6 +414,8 @@ namespace beaker
       return dump_return_children(dc, static_cast<const Return_statement*>(s));
     case Statement::expr_kind:
       return dump_expr_children(dc, static_cast<const Expression_statement*>(s));
+    case Statement::decl_kind:
+      return dump_decl_children(dc, static_cast<const Declaration_statement*>(s));
     default:
       break;
     }

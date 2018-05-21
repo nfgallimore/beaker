@@ -15,6 +15,9 @@ namespace beaker
       : Parser(cxt)
     { }
 
+    void parse_deferred_function_signature(Declaration* d);
+    void parse_deferred_function_body(Declaration* d);
+
     void parse_function_signature(Declaration* d);
     void parse_function_body(Declaration* d);
 
