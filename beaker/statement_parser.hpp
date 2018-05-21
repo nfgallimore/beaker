@@ -24,7 +24,7 @@ namespace beaker
     Statement* parse_return_statement();
     Statement* parse_declaration_statement();
     Statement* parse_expression_statement();
-    void parse_statement_seq();
+    Statement_seq parse_statement_seq();
 
     // Conditions
     Condition* parse_condition();

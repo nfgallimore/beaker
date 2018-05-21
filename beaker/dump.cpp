@@ -350,6 +350,31 @@ namespace beaker
   }
 
   static void
+  dump_when_children(Dump_context& dc, const When_statement* s)
+  {
+    Indent_around indent(dc);
+    dump(dc, s->get_condition());
+    dump(dc, s->get_true_branch());
+  }
+
+  static void
+  dump_if_children(Dump_context& dc, const If_statement* s)
+  {
+    Indent_around indent(dc);
+    dump(dc, s->get_condition());
+    dump(dc, s->get_true_branch());
+    dump(dc, s->get_false_branch());
+  }
+
+  static void
+  dump_while_children(Dump_context& dc, const While_statement* s)
+  {
+    Indent_around indent(dc);
+    dump(dc, s->get_condition());
+    dump(dc, s->get_body());
+  }
+
+  static void
   dump_return_children(Dump_context& dc, const Return_statement* s)
   {
     Indent_around indent(dc);
@@ -372,6 +397,12 @@ namespace beaker
     switch (s->get_kind()) {
     case Statement::block_kind:
       return dump_block_children(dc, static_cast<const Block_statement*>(s));
+    case Statement::when_kind:
+      return dump_when_children(dc, static_cast<const When_statement*>(s));
+    case Statement::if_kind:
+      return dump_if_children(dc, static_cast<const If_statement*>(s));
+    case Statement::while_kind:
+      return dump_while_children(dc, static_cast<const While_statement*>(s));
     case Statement::ret_kind:
       return dump_return_children(dc, static_cast<const Return_statement*>(s));
     case Statement::expr_kind:

@@ -25,7 +25,7 @@ namespace beaker
     Parameter* parse_variadic_parameter();
 
     // Statements
-    void parse_statement_seq();
+    Statement_seq parse_statement_seq();
 
     // Types
     Type_specifier* parse_type_specifier();

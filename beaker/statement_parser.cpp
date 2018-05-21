@@ -59,15 +59,16 @@ namespace beaker
     
     // Parse nested statements in block scope.
     Token lbrace, rbrace;
+    Statement_seq ss;
     {
       Parsing_declarative_region block(*this, s);
       lbrace = match(Token::lbrace);
       if (lookahead() != Token::rbrace)
-        parse_statement_seq();
+        ss = parse_statement_seq();
       rbrace = match(Token::rbrace);
     }
     
-    return m_act.on_finish_block_statement(s, lbrace, rbrace);
+    return m_act.on_finish_block_statement(s, std::move(ss), lbrace, rbrace);
   }
 
   /// if-statement:
@@ -220,12 +221,15 @@ namespace beaker
   /// statement-seq:
   ///   statement-seq statement
   ///   statement
-  void
+  Statement_seq
   Statement_parser::parse_statement_seq()
   {
+    Statement_seq ss;
     do {
-      parse_statement();
+      Statement* s = parse_statement();
+      ss.push_back(s);
     } while (next_token_is_not(Token::rbrace));
+    return ss;
   }
 
 } // namespace beaker

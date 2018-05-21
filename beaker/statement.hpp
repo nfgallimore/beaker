@@ -12,6 +12,11 @@ namespace beaker
     enum Kind
     {
       block_kind,
+      when_kind,
+      if_kind,
+      while_kind,
+      break_kind,
+      cont_kind,
       ret_kind,
       expr_kind,
     };
@@ -61,6 +66,12 @@ namespace beaker
     /// Returns the sequence of statements.
     const Statement_seq& get_statements() const { return m_stmts; }
 
+    /// Set the statements for the block scope.
+    void set_statements(const Statement_seq& ss) { m_stmts = ss; }
+
+    /// Set the statements for the block scope.
+    void set_statements(Statement_seq&& ss) { m_stmts = std::move(ss); }
+
     /// Adds a statement to the current block.
     void add_statement(Statement* s) { m_stmts.push_back(s); }
 
@@ -87,6 +98,132 @@ namespace beaker
     m_braces[0] = lbrace;
     m_braces[1] = rbrace;
   }
+
+
+  /// Represents statements of the form `if (e) s`.
+  class When_statement : public Statement
+  {
+  public:
+    When_statement(Expression* e, 
+                   Statement* s, 
+                   Location start, 
+                   Location lp, 
+                   Location rp)
+      : Statement(when_kind), m_cond(e), m_true(s), m_locs{start, lp, rp}
+    { }
+
+    /// Returns the condition.
+    Expression* get_condition() const { return m_cond; }
+
+    /// Return the branch to execute when the condition is true.
+    Statement* get_true_branch() const { return m_true; }
+
+  private:
+    /// The condition.
+    Expression* m_cond;
+
+    /// The statement to execute when the condition is true.
+    Statement* m_true;
+
+    /// The locations of 'if', '(', and ')', respectively.
+    Location m_locs[3];
+  };
+
+
+  /// Represents statements of the form `if (e) s1 else s2`.
+  class If_statement : public Statement
+  {
+  public:
+    If_statement(Expression* e, 
+                 Statement* s1, 
+                 Statement* s2, 
+                 Location start, 
+                 Location lp, 
+                 Location rp,
+                 Location el)
+      : Statement(if_kind), m_cond(e), m_true(s1), m_false(s2), m_locs{start, lp, rp, el}
+    { }
+
+    /// Returns the condition.
+    Expression* get_condition() const { return m_cond; }
+
+    /// Return the branch to execute when the condition is true.
+    Statement* get_true_branch() const { return m_true; }
+
+    /// Return the branch to execute when the condition is false.
+    Statement* get_false_branch() const { return m_false; }
+
+  private:
+    /// The condition.
+    Expression* m_cond;
+
+    /// The statement to execute when the condition is true.
+    Statement* m_true;
+
+    /// The statement to execute when the condition is false.
+    Statement* m_false;
+
+    /// The locations of 'if', '(', ')', and 'else' respectively.
+    Location m_locs[5];
+  };
+
+
+  /// Represents statements of the form `if (e) s`.
+  class While_statement : public Statement
+  {
+  public:
+    While_statement(Expression* e, 
+                    Statement* s, 
+                    Location start, 
+                    Location lp, 
+                    Location rp)
+      : Statement(while_kind), m_cond(e), m_body(s), m_locs{start, lp, rp}
+    { }
+
+    /// Returns the condition.
+    Expression* get_condition() const { return m_cond; }
+
+    /// Returns the loop body.
+    Statement* get_body() const { return m_body; }
+
+  private:
+    /// The condition.
+    Expression* m_cond;
+
+    /// The loop body.
+    Statement* m_body;
+
+    /// The locations of 'while', '(', and ')', respectively.
+    Location m_locs[3];
+  };
+
+
+  /// Represents statements of the form `break;`.
+  class Break_statement : public Statement
+  {
+  public:
+    Break_statement(Location kw, Location semi)
+      : Statement(break_kind), m_locs{kw, semi}
+    { }
+
+  private:
+    /// The 'break' and ';' locations, respectively.
+    Location m_locs[2];
+  };
+
+
+  /// Represents statements of the form `continue;`.
+  class Continue_statement : public Statement
+  {
+  public:
+    Continue_statement(Location kw, Location semi)
+      : Statement(cont_kind), m_locs{kw, semi}
+    { }
+
+  private:
+    /// The 'break' and ';' locations, respectively.
+    Location m_locs[2];
+  };
 
 
   /// Represents return statements.

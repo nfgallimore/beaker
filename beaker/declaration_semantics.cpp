@@ -161,14 +161,17 @@ namespace beaker
     return fn;
   }
 
-  Statement*
+  Declaration*
   Semantics::on_start_function_definition(Declaration* d)
   {
     Function_declaration* fn = static_cast<Function_declaration*>(d);
 
-    // Create the statement that will serve as the outermost block
-    // of the function; enter its scope.
+    // Create the function definition and make it the function body.
+    // We're going to add statements later.
     Block_statement* body = new Block_statement();
+    fn->set_body(body);
+    
+    // Enter block scope.
     enter_scope(body);
 
     // Identify (register) parameter declarations within the scope of the 
@@ -176,26 +179,24 @@ namespace beaker
     for (Parameter *p : fn->get_parameters())
       identify(p);
     
-    return body;
+    return fn;
   } 
 
   Declaration*
   Semantics::on_finish_function_definition(Declaration* d, 
-                                           Statement* s,
+                                           Statement_seq&& ss,
                                            const Token& lbrace,
                                            const Token& rbrace)
   {
     Function_declaration* fn = static_cast<Function_declaration*>(d);
-    Block_statement* body = static_cast<Block_statement*>(s);
+    Block_statement* body = static_cast<Block_statement*>(fn->get_body());
     
     // Leave the scope of the outermost block.
     leave_scope(body);
 
-    // Update the brace locations.
+    // Update the function definition.
+    body->set_statements(std::move(ss));
     body->set_brace_locations(lbrace.get_location(), rbrace.get_location());
-
-    // Update the function.
-    fn->set_body(body);
 
     // FIXME: Perform final analysis of the function.
     // Check for return paths, etc.

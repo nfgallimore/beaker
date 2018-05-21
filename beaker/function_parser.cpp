@@ -148,22 +148,23 @@ namespace beaker
     // an entry point for coroutines?
     Parsing_declarative_region function(*this, d);
 
-    Statement* body = m_act.on_start_function_definition(d);
+    m_act.on_start_function_definition(d);
+    Statement_seq ss;
     Token lbrace = require(Token::lbrace);
     if (next_token_is_not(Token::rbrace))
-      parse_statement_seq();
+      ss = parse_statement_seq();
     Token rbrace = match(Token::rbrace);
-    m_act.on_finish_function_definition(d, body, lbrace, rbrace);
+    m_act.on_finish_function_definition(d, std::move(ss), lbrace, rbrace);
   }
 
   /// statement-seq:
   ///   statement-seq statement
   ///   statement
-  void
+  Statement_seq
   Function_parser::parse_statement_seq()
   {
     Statement_parser sp(m_cxt);
-    sp.parse_statement_seq();
+    return sp.parse_statement_seq();
   }
 
   /// Parse a type-specifier.

@@ -165,6 +165,7 @@ namespace beaker
 
     /// Invoked to finalize the block statement.
     Statement* on_finish_block_statement(Statement* s,
+                                         Statement_seq&& ss,
                                          const Token& lbrace,
                                          const Token& rbrace);
 
@@ -246,11 +247,11 @@ namespace beaker
     /// Called to construct the compound-statement comprising the function 
     /// body. This declares paraemters within the outermost block to ensure
     /// we don't hide them unnecessarily.
-    Statement* on_start_function_definition(Declaration* d);
+    Declaration* on_start_function_definition(Declaration* d);
 
     /// Called to finalize the function definition.
     Declaration* on_finish_function_definition(Declaration* d, 
-                                               Statement*,
+                                               Statement_seq&& ss,
                                                const Token& lbrace,
                                                const Token& rbrace);
 

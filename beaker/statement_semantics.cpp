@@ -14,23 +14,19 @@ namespace beaker
   Statement*
   Semantics::on_start_block_statement()
   {
-    Block_statement* bs = new Block_statement();
-
-    // Add this statement to the current block.
-    Block_statement* block = get_current_block();
-    block->add_statement(bs);
-
-    return bs;
+    return new Block_statement();
   }
 
   Statement*
   Semantics::on_finish_block_statement(Statement* s,
+                                       Statement_seq&& ss,
                                        const Token& lbrace,
                                        const Token& rbrace)
   {
     Block_statement* bs = static_cast<Block_statement*>(s);
 
     // Update the statement.
+    bs->set_statements(std::move(ss));
     bs->set_brace_locations(lbrace.get_location(), rbrace.get_location());
 
     return bs;
@@ -43,7 +39,15 @@ namespace beaker
                                const Token& lparen,
                                const Token& rparen)
   {
-    return nullptr;
+    /// The condition is converted to bool.
+    ///
+    /// FIXME: Process the expression as a legit condition.
+    e = convert_to_bool(e);
+
+    Location start = kw.get_location();
+    Location lloc = lparen.get_location();
+    Location rloc = rparen.get_location();
+    return new When_statement(e, s, start, lloc, rloc);
   }
 
   Statement*
@@ -55,7 +59,16 @@ namespace beaker
                              const Token& rparen,
                              const Token& kw2)
   {
-    return nullptr;
+    /// The condition is converted to bool.
+    ///
+    /// FIXME: Process the expression as a legit condition.
+    e = convert_to_bool(e);
+
+    Location start = kw1.get_location();
+    Location lloc = lparen.get_location();
+    Location rloc = rparen.get_location();
+    Location eloc = kw2.get_location();
+    return new If_statement(e, s1, s2, start, lloc, rloc, eloc);
   }
 
   Statement*
@@ -65,21 +78,34 @@ namespace beaker
                                 const Token& lparen,
                                 const Token& rparen)
   {
-    return nullptr;
+    /// The condition is converted to bool.
+    ///
+    /// FIXME: Process the expression as a legit condition.
+    e = convert_to_bool(e);
+
+    Location start = kw.get_location();
+    Location lloc = lparen.get_location();
+    Location rloc = rparen.get_location();
+    return new While_statement(e, s, start, lloc, rloc);
   }
 
   Statement*
   Semantics::on_break_statement(const Token& kw, 
                                 const Token& semi)
   {
-    return nullptr;
+    // FIXME: Verify that break is valid in this context.
+    Location start = kw.get_location();
+    Location end = semi.get_location();
+    return new Break_statement(start, end);
   }
 
   Statement*
   Semantics::on_continue_statement(const Token& kw,
                                    const Token& semi)
   {
-    return nullptr;
+    Location start = kw.get_location();
+    Location end = semi.get_location();
+    return new Continue_statement(start, end);
   }
 
   Statement*
@@ -94,12 +120,7 @@ namespace beaker
     // Create the statement.
     Location start = kw.get_location();
     Location end = semi.get_location();
-    Return_statement* es = new Return_statement(e, start, end);
-
-    Block_statement* block = get_current_block();
-    block->add_statement(es);
-
-    return es;
+    return new Return_statement(e, start, end);
   }
 
   Statement*
@@ -116,12 +137,7 @@ namespace beaker
     //
     // FIXME: Is there any analysis we need to do?
     Location end = semi.get_location();
-    Expression_statement* es = new Expression_statement(e, end);
-    
-    Block_statement* block = get_current_block();
-    block->add_statement(es);
-
-    return es;
+    return new Expression_statement(e, end);
   }
 
   // Conditions
