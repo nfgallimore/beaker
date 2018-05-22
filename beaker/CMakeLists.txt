@@ -39,7 +39,13 @@ add_library(beaker.lang
   initialization_semantics.cpp
   scope.cpp
   print.cpp
-  dump.cpp)
+  dump.cpp
+
+  generation.cpp
+  global_generation.cpp
+  module_generation.cpp
+  function_generation.cpp)
+target_link_libraries(beaker.lang ${LLVM_LIBS})
 
 add_executable(beaker.compile main.cpp)
 target_link_libraries(beaker.compile beaker.lang)
