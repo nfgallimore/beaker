@@ -6,6 +6,7 @@ namespace llvm
 {
   class LLVMContext;
   class Module;
+  class Type;
 } // namespace llvm
 
 namespace beaker
@@ -21,7 +22,7 @@ namespace beaker
   class Module_context
   {
   public:
-    Module_context(Global_context& parent, const Translation_unit* tu);
+    Module_context(Global_context& parent);
 
     // Context
 
@@ -31,30 +32,35 @@ namespace beaker
     /// Returns the LLVM context.
     llvm::LLVMContext* get_llvm_context() const;
 
-    /// Recursively generate the contents of the module.
-    void generate();
+    /// Returns the LLVM module.
+    llvm::Module* get_llvm_module() const { return m_llvm; }
+
+    // Generation
+
+    /// Generates the external name for `d`.
+    std::string generate_external_name(const Named_declaration* d);
+
+    /// Generates the type for `t`.
+    llvm::Type* generate_type(const Type* t);
+
+    /// Generates the type for `d`.
+    llvm::Type* generate_type(const Typed_declaration* d);
+
+    /// Recursively generate the contents of the translation unit.
+    void generate_module(const Translation_unit* tu);
 
     /// Generates code corresponding for the declaration `d`.
-    void generate(Declaration* d);
+    void generate_global(const Declaration* d);
 
-    /// Generates a global value declaration.
-    void generate_variable(Value_declaration* d);
+    /// Generates a global variable.
+    void generate_variable(const Data_declaration* d);
 
-    /// Generates a global variable declaration.
-    void generate_variable(Variable_declaration* d);
-
-    /// Generates a global reference declaration.
-    void generate_variable(Reference_declaration* d);
-
-    /// Generates a function declaration.
-    void generate_function(Function_declaration* d);
+    /// Generates a function.
+    void generate_function(const Function_declaration* d);
   
   private:
     /// The parent context.
     Global_context& m_parent;
-
-    /// The current translation unit.
-    const Translation_unit* m_tu;
 
     /// The Module being generated.
     llvm::Module* m_llvm;

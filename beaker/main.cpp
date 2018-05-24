@@ -2,6 +2,7 @@
 #include <beaker/file.hpp>
 #include <beaker/module_parser.hpp>
 #include <beaker/declaration.hpp>
+#include <beaker/generation.hpp>
 
 #include <iostream>
 
@@ -19,12 +20,19 @@ main(int argc, const char* argv[])
   Context cxt;
   
   // The input file.
+  //
+  // FIXME: Register the input file with the context.
   File input(argv[1]);
 
   // Run the parser.
-  Parse_context pcxt(cxt, input);
-  Module_parser mp(pcxt);
+  //
+  // FIXME: Can we make this a single declaration? Probably not because of
+  // the sharing.
+  Parse_context pc(cxt, input);
+  Module_parser mp(pc);
   Declaration* tu = mp.parse_module();
+  // tu->dump();
 
-  tu->dump();
+  Generator gen(cxt);
+  gen.generate_module(tu);
 }

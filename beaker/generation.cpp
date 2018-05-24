@@ -20,11 +20,13 @@ namespace beaker
   { }
 
   void
-  Generator::generate_module(const Declaration* tu)
+  Generator::generate_module(const Declaration* d)
   {
-    assert(tu->is_translation_unit());
-    Module_context mod(*m_cxt, static_cast<const Translation_unit*>(tu));
-    mod.generate();
+    assert(d->is_translation_unit());
+    
+    auto* tu = static_cast<const Translation_unit*>(d);
+    Module_context mod(*m_cxt);
+    mod.generate_module(tu);
   }
 
 } // namespace beaker

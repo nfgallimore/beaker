@@ -2,7 +2,6 @@
 
 #include <cassert>
 #include <memory>
-#include <variant>
 #include <vector>
 
 namespace beaker
@@ -67,9 +66,15 @@ namespace beaker
 
   /// A syntactic construct is a type specifier, expression, statement,
   /// or declaration. 
-  class Construct : public std::variant<Type_specifier*, Expression*, Statement*, Declaration*>
+  class Construct
   {
-    using Base = std::variant<Type_specifier*, Expression*, Statement*, Declaration*>;
+    union Data
+    {
+      Type_specifier* t;
+      Expression* e;
+      Statement* s;
+      Declaration* d;
+    };
   public:
     /// Kinds of syntactic constructs.
     ///
@@ -83,15 +88,29 @@ namespace beaker
       decl_kind,
     };
 
-    using Base::variant;
+    Construct(Type_specifier* t)
+      : m_kind(type_kind)
+    { m_data.t = t; }
+
+    Construct(Expression* e)
+      : m_kind(expr_kind)
+    { m_data.e = e; }
+
+    Construct(Statement* s)
+      : m_kind(stmt_kind)
+    { m_data.s = s; }
+
+    Construct(Declaration* d)
+      : m_kind(decl_kind)
+    { m_data.d = d; }
   
     // Queries
 
     /// Returns the kind of construct.
-    Kind get_kind() const { return static_cast<Kind>(index()); }
+    Kind get_kind() const { return m_kind; }
 
     /// Returns true if this is a type specifier.
-    bool is_type_specifier() const { return get_kind() == type_kind; }
+    bool is_type() const { return get_kind() == type_kind; }
 
     /// Returns true if this is an expression.
     bool is_expression() const { return get_kind() == expr_kind; }
@@ -102,19 +121,48 @@ namespace beaker
     /// Returns true if this is a declaration.
     bool is_declaration() const { return get_kind() == decl_kind; }
 
-    // Variant access
+    // Access
 
     /// Returns this as a type specifier.
-    Type_specifier* get_type() const { return std::get<Type_specifier*>(*this); }
+    Type_specifier* get_type() const;
 
     /// Returns this as an expression.
-    Expression* get_expression() const { return std::get<Expression*>(*this); }
+    Expression* get_expression() const;
 
     /// Returns this as a statement.
-    Statement* get_statement() const { return std::get<Statement*>(*this); }
+    Statement* get_statement() const;
 
     /// Returns this as a declaration.
-    Declaration* get_declaration() const { return std::get<Declaration*>(*this); }
+    Declaration* get_declaration() const;
+
+  private:
+    Kind m_kind;
+    Data m_data;
   };
+
+  inline Type_specifier*
+  Construct::get_type() const
+  {
+    assert(is_type()); return m_data.t;
+  }
+
+  inline Expression*
+  Construct::get_expression() const
+  {
+    assert(is_expression()); return m_data.e;
+  }
+
+  inline Statement*
+  Construct::get_statement() const
+  {
+    assert(is_statement()); return m_data.s;
+  }
+
+  inline Declaration*
+  Construct::get_declaration() const
+  {
+    assert(is_declaration()); return m_data.d;
+  }
+
 
 } // namespace beaker

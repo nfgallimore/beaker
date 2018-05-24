@@ -196,7 +196,7 @@ namespace beaker
     Kind get_decl_kind() const { return m_derived->get_kind(); }
 
     /// Returns true if this is a translation unit.
-    bool is_translation_unit() const { m_derived->is_translation_unit(); }
+    bool is_translation_unit() const { return m_derived->is_translation_unit(); }
 
     /// Returns true if this is a function.
     bool is_function() const { return m_derived->is_function(); }

@@ -44,8 +44,10 @@ add_library(beaker.lang
   generation.cpp
   global_generation.cpp
   module_generation.cpp
-  function_generation.cpp)
-target_link_libraries(beaker.lang ${LLVM_LIBS})
+  variable_generation.cpp
+  function_generation.cpp
+  instruction_generation.cpp)
+target_link_libraries(beaker.lang )
 
 add_executable(beaker.compile main.cpp)
-target_link_libraries(beaker.compile beaker.lang)
+target_link_libraries(beaker.compile beaker.lang ${LLVM_LIBS})

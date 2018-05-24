@@ -25,6 +25,12 @@ namespace beaker
   }
 
   llvm::Type*
+  Global_context::generate_type(const Typed_declaration* t)
+  {
+    return generate_type(t->get_type());
+  }
+
+  llvm::Type*
   Global_context::generate_type(const Type* t)
   {
     // Check to see if we've already generated the type.
