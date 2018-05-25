@@ -4,37 +4,72 @@
 
 namespace beaker
 {
-  /// Represents a data initializer. Note that initializers are untyped; they
-  /// do not produce values.
-  ///
-  /// \todo 
+  /// Represents an object initializer. Note that initializers are untyped; 
+  /// they do not produce values. An initializer is executed to supply
+  /// an object with a value.
   class Initializer : public Expression
   {
   protected:
-    Initializer(Kind k)
-      : Expression(k, nullptr)
+    Initializer(Kind k, Expression* obj)
+      : Expression(k, nullptr), m_obj(obj)
     { }
+
+  public:
+    /// Returns the object being initialized. For variable declarations,
+    /// this is an id-expression referring to the object. For dynamic
+    /// allocations and temporaries, this is the expression that creates
+    /// the object. Note that this must be a reference.
+    Expression* get_object() const { return m_obj; }
+
+  private:
+    Expression* m_obj;
   };
 
   
-  /// A default initializer applies default initialization to an object.
-  class Default_initializer : public Initializer
+  /// The empty initializer applies implicit default initialization. This 
+  /// corresponds to declarations of the form:
+  ///
+  ///     var x : int;
+  ///
+  /// Implicit default initialization trivially initializes certain objects.
+  class Empty_initializer : public Initializer
   {
   public:
-    Default_initializer()
-      : Initializer(def_init)
+    Empty_initializer(Expression* obj)
+      : Initializer(empty_init, obj)
     { }
   };
 
-  /// A value initializer supplies a value to the entity initialized. If
-  /// the entity is an object, the object receives a copy ofthe value.
+
+  /// The empty initializer applies explicit default initialization. This 
+  /// corresponds to declarations of the form:
+  ///
+  ///     var x : int = default;
+  ///
+  /// Explicit default initialization zero-initializes certain objects.
+  class Default_initializer : public Initializer
+  {
+  public:
+    Default_initializer(Expression* obj)
+      : Initializer(def_init, obj)
+    { }
+  };
+
+
+  /// The value initializer applies copy initialization. This corresponds to 
+  /// declarations of the form:
+  ///
+  ///     var x : int = e;
+  ///
+  /// The value of e is stored in the variable `x`.
   class Value_initializer : public Initializer
   {
   public:
-    Value_initializer(Expression* e)
-      : Initializer(val_init), m_expr(e)
+    Value_initializer(Expression* obj, Expression* e)
+      : Initializer(val_init, obj), m_expr(e)
     { }
 
+    /// Returns the value used for initialization.
     Expression* get_value() const { return m_expr; }
 
   private:

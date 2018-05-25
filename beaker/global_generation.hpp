@@ -41,6 +41,33 @@ namespace beaker
     /// Returns the LLVM context.
     llvm::LLVMContext* get_llvm_context() const { return m_llvm.get(); }
 
+    // LLVM types
+
+    /// Returns the LLVM void type.
+    llvm::Type* get_llvm_void_type() const;
+    
+    /// Returns an LLVM int type with `n` bits of precision.
+    llvm::Type* get_llvm_int_type(int n) const;
+    
+    /// Returns an LLVM int type with 1 bit of precision.
+    llvm::Type* get_llvm_i1_type() const { return get_llvm_int_type(1); }
+
+    /// Returns an LLVM int type with 8 bits of precision.
+    llvm::Type* get_llvm_i8_type(int n) const { return get_llvm_int_type(8); }
+
+    /// Returns an LLVM int type with 16 bits of precision.
+    llvm::Type* get_llvm_i16_type(int n) const { return get_llvm_int_type(16); }
+    
+    /// Returns an LLVM int type with 32 bits of precision.
+    llvm::Type* get_llvm_i32_type(int n) const { return get_llvm_int_type(32); }
+
+    /// Returns an LLVM int type with 64 bits of precision.
+    llvm::Type* get_llvm_i64_type(int n) const { return get_llvm_int_type(64); }
+
+    // LLVM constants
+
+    // FIXME: Implement this...
+
     // Names
 
     /// Returns a name for the declaration that is suitable for linking

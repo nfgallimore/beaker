@@ -60,6 +60,76 @@ namespace beaker
     return nullptr;
   }
 
+  /// Returns a new value conversion.
+  static Implicit_conversion*
+  make_value_conversion(Type* t, Expression* e)
+  {
+    return new Implicit_conversion(Conversion::value_conv, t, e);
+  }
+
+  /// Returns a new bool conversion.
+  static Implicit_conversion*
+  make_bool_conversion(Type* t, Expression* e)
+  {
+    return new Implicit_conversion(Conversion::bool_conv, t, e);
+  }
+  
+  /// Returns a new integer promotion.
+  static Implicit_conversion*
+  make_int_promotion(Type* t, Expression* e)
+  {
+    return new Implicit_conversion(Conversion::int_prom, t, e);
+  }
+
+  /// Returns a new sign extension.
+  static Implicit_conversion*
+  make_sign_extension(Type* t, Expression* e)
+  {
+    return new Implicit_conversion(Conversion::sign_ext, t, e);
+  }
+
+  /// Returns a new zero extension.
+  static Implicit_conversion*
+  make_zero_extension(Type* t, Expression* e)
+  {
+    return new Implicit_conversion(Conversion::zero_ext, t, e);
+  }
+
+  /// Returns a new integer truncation.
+  static Implicit_conversion*
+  make_int_truncation(Type* t, Expression* e)
+  {
+    return new Implicit_conversion(Conversion::int_trunc, t, e);
+  }
+
+  /// Returns a new floating point promotion.
+  static Implicit_conversion*
+  make_float_promotion(Type* t, Expression* e)
+  {
+    return new Implicit_conversion(Conversion::float_prom, t, e);
+  }
+
+  /// Returns a new floating point demotion.
+  static Implicit_conversion*
+  make_float_demotion(Type* t, Expression* e)
+  {
+    return new Implicit_conversion(Conversion::float_dem, t, e);
+  }
+
+  /// Returns a new floating point extension.
+  static Implicit_conversion*
+  make_float_extension(Type* t, Expression* e)
+  {
+    return new Implicit_conversion(Conversion::float_ext, t, e);
+  }
+
+  /// Returns a new floating point truncation.
+  static Implicit_conversion*
+  make_float_truncation(Type* t, Expression* e)
+  {
+    return new Implicit_conversion(Conversion::float_trunc, t, e);
+  }
+
   Expression*
   Semantics::convert_to_type(Expression* e, Type* t)
   {
@@ -87,7 +157,7 @@ namespace beaker
   Semantics::convert_to_value(Expression* e)
   {
     if (Reference_type* rt = get_if_ref_type(e))
-      return new Value_conversion(rt->get_object_type(), e);
+      return make_value_conversion(rt->get_object_type(), e);
     return e;
   }
 
@@ -108,7 +178,7 @@ namespace beaker
     case Type::int_kind:
     case Type::float_kind:
     case Type::func_kind:
-      return new Bool_conversion(b, e);
+      return make_bool_conversion(b, e);
 
     default:
       break;
@@ -128,10 +198,10 @@ namespace beaker
     Type* t = e->get_type();
     switch (t->get_kind()) {
     case Type::bool_kind:
-      return new Int_promotion(z, e);
+      return make_int_promotion(z, e);
 
     case Type::float_kind:
-      return new Float_demotion(z, e);
+      return make_float_demotion(z, e);
     
     case Type::int_kind:
       return convert_integer(e, z);
@@ -160,14 +230,15 @@ namespace beaker
   Semantics::extend_integer(Expression* e, Int_type* z)
   {
     assert(get_int_rank(e) < z->get_rank());
-    return new Sign_extension(z, e);
+    /// FIXME: Implement zero extensions for unsigned types.
+    return make_sign_extension(z, e);
   }
 
   Expression*
   Semantics::truncate_integer(Expression* e, Int_type* z)
   {
     assert(get_int_rank(e) > z->get_rank());
-    return new Int_truncation(z, e);
+    return make_int_truncation(z, e);
   }
 
   Expression*
@@ -182,7 +253,7 @@ namespace beaker
       return convert_floating_point(e, f);
     
     case Type::int_kind:
-      return new Float_promotion(f, e);
+      return make_float_promotion(f, e);
     
     default:
       break;
@@ -208,14 +279,14 @@ namespace beaker
   Semantics::extend_floating_point(Expression* e, Float_type* f)
   {
     assert(get_fp_rank(e) < f->get_rank());
-    return new Float_extension(f, e);
+    return make_float_extension(f, e);
   }
 
   Expression*
   Semantics::truncate_floating_point(Expression* e, Float_type* f)
   {
     assert(get_fp_rank(e) > f->get_rank());
-    return new Float_truncation(f, e);
+    return make_float_truncation(f, e);
   }
 
   /// Returns true if t1 and t2 are both references.

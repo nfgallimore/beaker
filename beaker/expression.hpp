@@ -50,20 +50,12 @@ namespace beaker
       assign_kind,
 
       // conversions
-      value_conv, // reference to value conversion
-      bool_conv, // boolean conversion
-      int_prom, // promotion of integer value to integer type
-      sign_ext, // sign extension of integer type
-      zero_ext, // zero extension of integer type
-      int_trunc, // truncation of integer value
-      float_prom, // promotion of integer value to fp type
-      float_dem, // demotion of fp value to integer type
-      float_ext, // extension of fp value to greater rank
-      float_trunc, // truncation of fp value to lesser rank
+      imp_conv,
       
       // initializers
-      def_init, // default initialization
-      val_init, // value initialization
+      empty_init, // implicit default initialization
+      def_init, // explicit default initialization
+      val_init, // value/copy initialization
     };
 
   protected:
@@ -86,14 +78,6 @@ namespace beaker
     // Type
 
     Type* get_type() const { return m_type; }
-
-    // Conversions
-
-    /// Returns true if the expression is a narrowing conversion.
-    bool is_narrowing_conversion() const;
-    
-    /// Returns true if the expression is a widening conversion.
-    bool is_widening_conversion() const;
 
     // Location
 

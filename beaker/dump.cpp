@@ -283,16 +283,7 @@ namespace beaker
     case Expression::rec_kind:
     case Expression::bit_not_kind:
     case Expression::not_kind:
-    case Expression::value_conv:
-    case Expression::bool_conv:
-    case Expression::int_prom:
-    case Expression::sign_ext:
-    case Expression::zero_ext:
-    case Expression::int_trunc:
-    case Expression::float_prom:
-    case Expression::float_dem:
-    case Expression::float_ext:
-    case Expression::float_trunc:
+    case Expression::imp_conv:
       // Unary expressions
       return dump_unary_children(dc, static_cast<const Unary_expression*>(e));
     

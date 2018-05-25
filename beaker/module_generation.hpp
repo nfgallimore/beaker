@@ -2,11 +2,15 @@
 
 #include <beaker/common.hpp>
 
+#include <unordered_map>
+
 namespace llvm
 {
   class LLVMContext;
   class Module;
   class Type;
+  class GlobalValue;
+  class Function;
 } // namespace llvm
 
 namespace beaker
@@ -21,6 +25,7 @@ namespace beaker
   /// Provides context for translating module-level constructs.
   class Module_context
   {
+    using Global_map = std::unordered_map<const Typed_declaration*, llvm::GlobalValue*>;
   public:
     Module_context(Global_context& parent);
 
@@ -34,6 +39,14 @@ namespace beaker
 
     /// Returns the LLVM module.
     llvm::Module* get_llvm_module() const { return m_llvm; }
+
+    // Declarations
+
+    /// Globally associate a declaration with its value.
+    void declare(const Typed_declaration* d, llvm::GlobalValue* v);
+
+    /// Returns the value associated with `d`.
+    llvm::GlobalValue* lookup(const Typed_declaration* d);
 
     // Generation
 
@@ -57,6 +70,13 @@ namespace beaker
 
     /// Generates a function.
     void generate_function(const Function_declaration* d);
+
+    // Functions
+
+    /// Returns a function that acts as a constructor for the module. This
+    /// will also append the function to the list of constructors for the
+    /// module.
+    llvm::Function* make_constructor(const char* name);
   
   private:
     /// The parent context.
@@ -64,6 +84,9 @@ namespace beaker
 
     /// The Module being generated.
     llvm::Module* m_llvm;
+
+    /// Global name bindings
+    Global_map m_globals;
   };
 
 } // namespace beaker

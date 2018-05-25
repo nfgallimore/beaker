@@ -1,6 +1,8 @@
 #include "variable_generation.hpp"
 #include "module_generation.hpp"
+#include "function_generation.hpp"
 #include "type.hpp"
+#include "initializer.hpp"
 #include "declaration.hpp"
 
 #include <llvm/IR/LLVMContext.h>
@@ -15,7 +17,7 @@
 namespace beaker
 {
   Variable_context::Variable_context(Module_context& parent)
-    : m_parent(parent)
+    : m_parent(parent), m_llvm()
   { }
 
   Context& 
@@ -66,16 +68,21 @@ namespace beaker
     // FIXME: Adjust the type based on the kind of declaration?
     llvm::Type* type = generate_type(d);
 
-    // Create the variable.
-    m_llvm = new llvm::GlobalVariable(*mod, type, false, link, nullptr, name);
-
-    // FIXME: Evaluate the initializer. If it's a constant, then we can
-    // initialize the variable immediately. Otherwise, we have to an
-    // initialization function and append it to the list constructors.
+    // Create the initial initializer. We may overwrite this if the
+    // declarations initializer is a constant expression.
+    //
+    // FIXME: This could be the result of a trial evaluation.
     llvm::Constant* init = llvm::Constant::getNullValue(type);
 
-    // Update the initializer.
-    m_llvm->setInitializer(init);
+    // Create and declare the variable.
+    m_llvm = new llvm::GlobalVariable(*mod, type, false, link, nullptr, name);
+    m_parent.declare(d, m_llvm);
+
+    // Generate the constructor.
+    std::string cname = "__" + *d->get_name() + "_init";
+    llvm::Function* ctor = m_parent.make_constructor(cname.c_str());
+    Function_context fn(m_parent, ctor);
+    fn.generate_definition(d->get_initializer());
   }
 
 } // namespace beaker

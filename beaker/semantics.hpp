@@ -155,6 +155,12 @@ namespace beaker
     /// Invoked to analyze an id-expression.
     Expression* on_id_expression(const Token& id);
 
+    /// Invoked to construct an id-expression from a declaration.
+    Expression* make_id_expression(Named_declaration* d);
+
+    /// Invoked to construct an id-expression from a declaration.
+    Expression* make_id_expression(Typed_declaration* d);
+
     /// Invoked to analyze a paren-enclosed primary-expression.
     Expression* on_paren_expression(Expression* e,
                                     const Token& lparen, 

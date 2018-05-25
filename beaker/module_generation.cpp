@@ -14,7 +14,7 @@
 namespace beaker
 {
   Module_context::Module_context(Global_context& parent)
-    : m_parent(parent)
+    : m_parent(parent), m_llvm()
   { }
 
   Context& 
@@ -27,6 +27,20 @@ namespace beaker
   Module_context::get_llvm_context() const
   {
     return m_parent.get_llvm_context(); 
+  }
+
+  void
+  Module_context::declare(const Typed_declaration* d, llvm::GlobalValue* v)
+  {
+    assert(m_globals.count(d) == 0);
+    m_globals.emplace(d, v);
+  }
+
+  llvm::GlobalValue*
+  Module_context::lookup(const Typed_declaration* d)
+  {
+    assert(m_globals.count(d) != 0);
+    return m_globals.find(d)->second;
   }
 
   std::string
@@ -50,6 +64,8 @@ namespace beaker
   void
   Module_context::generate_module(const Translation_unit* d)
   { 
+    assert(!m_llvm);
+
     // Create the module.
     m_llvm = new llvm::Module("a.ll", *get_llvm_context());
     
@@ -93,5 +109,16 @@ namespace beaker
     fn.generate(d);
   }
 
+  llvm::Function*
+  Module_context::make_constructor(const char* name)
+  {
+    auto link = llvm::Function::PrivateLinkage;
+    auto type = llvm::FunctionType::get(m_parent.get_llvm_void_type(), {}, false);
+    auto fn = llvm::Function::Create(type, link, name, m_llvm);
+
+    // FIXME: Append name to the global ctors.
+
+    return fn;
+  }
 
 } // namespace beaker

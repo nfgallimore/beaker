@@ -16,6 +16,18 @@ namespace beaker
   Global_context::~Global_context()
   { }
 
+  llvm::Type*
+  Global_context::get_llvm_void_type() const
+  {
+    return llvm::Type::getVoidTy(*m_llvm);
+  }
+
+  llvm::Type*
+  Global_context::get_llvm_int_type(int n) const
+  {
+    return llvm::Type::getIntNTy(*m_llvm, n);
+  }
+
   /// \todo We'll have to mangle the name based on the properties of the
   /// declaration. Note that only typed declarations have mangled names.
   std::string

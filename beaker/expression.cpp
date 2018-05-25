@@ -38,7 +38,7 @@ namespace beaker
     case or_kind: return "logical-or-expression";
     case not_kind: return "logical-not-expression";
 
-      // relational expressions
+    // relational expressions
     case eq_kind: return "equal-to-expression";
     case ne_kind: return "not-equal-to-expression";
     case lt_kind: return "less-than-expression";
@@ -46,56 +46,19 @@ namespace beaker
     case ng_kind: return "not-greather-than-expression";
     case nl_kind: return "not-less-than-expression";
 
-      // object expressions
+    // object expressions
     case assign_kind: return "assignment-expression";
-
-    case value_conv: return "value-conversion";
-    case bool_conv: return "bool-conversion";
-    case int_prom: return "int-promotion";
-    case sign_ext: return "sign-extension";
-    case zero_ext: return "zero-extension";
-    case int_trunc: return "int-truncation";
-    case float_prom: return "float-promotion";
-    case float_dem: return "float-demotion";
-    case float_ext: return "float-extension";
-    case float_trunc: return "float-truncation";
-
+    
+    // Casts and conversions
+    case imp_conv: return "implicit-conversion";
+    
+    // Initializers
+    case empty_init: return "empty-initializer";
     case def_init: return "default-initializer";
     case val_init: return "value-initializer";
     
     default: __builtin_unreachable();
     }
-  }
-
-  /// Note that a value conversion is not a narrowing conversion.
-  bool
-  Expression::is_narrowing_conversion() const
-  {
-    switch (m_kind) {
-    default:
-      return false;
-    case bool_conv:
-    case int_trunc:
-    case float_dem:
-    case float_trunc:
-      return true;
-    }  
-  }
-
-  /// Note that a value conversion is not a widening conversion.
-  bool
-  Expression::is_widening_conversion() const
-  {
-    switch (m_kind) {
-    default:
-      return false;
-    case int_prom:
-    case sign_ext:
-    case zero_ext:
-    case float_prom:
-    case float_ext:
-      return true;
-    }  
   }
 
   void

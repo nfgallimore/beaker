@@ -321,26 +321,37 @@ namespace beaker
       ss << "no matching declaration for " << '\'' << id << '\'';
       throw std::runtime_error(ss.str());
     }
-    Named_declaration* nd = found.get_single_declaration();
-    
-    // Unwrap references to parameters.
-    if (Parameter* parm = dynamic_cast<Parameter*>(nd))
-      nd = parm->get_declaration();
+    return make_id_expression(found.get_single_declaration());
+  }
 
-    // Id-expressions must be types.
-    if (!nd->is_typed()) {
+  Expression*
+  Semantics::make_id_expression(Named_declaration* d)
+  {
+    // Unwrap references to parameters.
+    if (Parameter* parm = dynamic_cast<Parameter*>(d))
+      d = parm->get_declaration();
+
+    // Id-expressions must be typed.
+    if (!d->is_typed()) {
       std::stringstream ss;
-      ss << "declaration " << '\'' << id << '\'' << " does not have a value";
+      ss << "declaration " << '\'' << d->get_name() << '\'' << " does not have a value";
       throw std::runtime_error(ss.str());
     }
-    Typed_declaration* td = static_cast<Typed_declaration*>(nd);
     
+    return make_id_expression(static_cast<Typed_declaration*>(d));
+  }
+
+  Expression*
+  Semantics::make_id_expression(Typed_declaration* d)
+  {
     // Analyze the declaration to determine the type of the expression.
-    Type* type = td->get_type();
-    if (td->is_variable() || td->is_reference())
+    //
+    // FIXME: Do we really need to adjust for declarations?
+    Type* type = d->get_type();
+    if (d->is_variable() || d->is_reference())
       type = m_cxt.get_reference_type(type);
 
-    return new Id_expression(type, td);
+    return new Id_expression(type, d);
   }
 
   Expression*

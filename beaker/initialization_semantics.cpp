@@ -26,9 +26,11 @@ namespace beaker
       throw std::runtime_error(ss.str());
     }
 
-    // FIXME: Actually analyze the type of D to see if it can be default
-    // initialized (what can't?).
-    Initializer* init = new Default_initializer();
+    // Build the object expression.
+    Expression* obj = make_id_expression(d);
+
+    // Build the initializer. 
+    Initializer* init = new Default_initializer(obj);
     d->set_initializer(init);
   }
 
@@ -50,8 +52,11 @@ namespace beaker
     // Convert the initializer to the entity's type.
     e = convert_to_type(e, get_entity_type(m_cxt, d));
 
+    // Build the object expression.
+    Expression* obj = make_id_expression(d);
+
     // Build the initializer.
-    Initializer* init = new Value_initializer(e);
+    Initializer* init = new Value_initializer(obj, e);
     d->set_initializer(init);
   }
 

@@ -2,12 +2,15 @@
 
 #include <beaker/common.hpp>
 
+#include <unordered_map>
+
 namespace llvm
 {
   class LLVMContext;
   class Module;
   class Type;
   class FunctionType;
+  class Value;
   class Function;
   class BasicBlock;
 } // namespace llvm
@@ -20,8 +23,10 @@ namespace beaker
   /// Provides context for translating function definitions.
   class Function_context
   {
+    using Value_map = std::unordered_map<const Typed_declaration*, llvm::Value*>;
   public:
     Function_context(Module_context& parent);
+    Function_context(Module_context& parent, llvm::Function* fn);
 
     // Context
 
@@ -39,8 +44,22 @@ namespace beaker
     /// Returns the current block.
     llvm::BasicBlock* get_current_block() const { return m_block; }
 
+    /// Returns the entry block for the function.
+    llvm::BasicBlock* get_entry_block() const { return m_entry; }
+
+    /// Returns a new, unattached basic block.
+    llvm::BasicBlock* make_block(const char* label);
+
     /// Emits the `b`, making it the current block.
     void emit_block(llvm::BasicBlock* b);
+
+    // Declarations
+
+    /// Locally associate a declaration with its value.
+    void declare(const Typed_declaration* d, llvm::Value* v);
+
+    /// Returns the value associated with `d`.
+    llvm::Value* lookup(const Typed_declaration* d);
 
     // Generation
 
@@ -60,6 +79,11 @@ namespace beaker
     /// Recursively generate the definition of the function.
     void generate(const Function_declaration* d);
 
+    /// Generate a function definiton comprised of a single expression.
+    /// This is used to generate internally used functions or thunks whose
+    /// definitions are trivial (e.g., dynamic initializers).
+    void generate_definition(const Expression* e);
+
   private:
     /// The parent context.
     Module_context& m_parent;
@@ -69,6 +93,12 @@ namespace beaker
 
     /// The current block.
     llvm::BasicBlock* m_block;
+
+    /// The entry block.
+    llvm::BasicBlock* m_entry;
+
+    /// Local name bindings.
+    Value_map m_locals;
   };
 
 } // namespace beaker
