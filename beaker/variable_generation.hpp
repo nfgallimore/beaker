@@ -26,13 +26,13 @@ namespace beaker
     // Context
 
     /// Returns the Beaker context.
-    Context& get_beaker_context() const;
+    Context& get_beaker_context();
 
     /// Returns the LLVM context.
-    llvm::LLVMContext* get_llvm_context() const;
+    llvm::LLVMContext* get_llvm_context();
 
     /// Returns the LLVM module
-    llvm::Module* get_llvm_module() const;
+    llvm::Module* get_llvm_module();
 
     /// Returns the global code generation context.
     Global_context& get_global_context();
@@ -63,11 +63,11 @@ namespace beaker
     void generate_value(const Value_declaration* d);
     void generate_reference(const Reference_declaration* d);
 
-    llvm::Constant* generate_static_initializer(const Data_declaration* d);
-    llvm::Constant* generate_constant_initializer(const Data_declaration* d);
-    llvm::Constant* generate_zero_initializer(const Data_declaration* d);
+    llvm::Constant* generate_static_initializer(const Variable_declaration* d);
+    llvm::Constant* generate_constant_initializer(const Variable_declaration* d);
+    llvm::Constant* generate_zero_initializer(const Variable_declaration* d);
 
-    void generate_dynamic_initializer(const Data_declaration* d);
+    void generate_dynamic_initializer(const Variable_declaration* d);
 
   private:
     /// The parent context.

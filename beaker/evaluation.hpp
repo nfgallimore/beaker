@@ -7,12 +7,10 @@
 #include <forward_list>
 #include <unordered_map>
 
-#include <boost/optional.hpp> // FIXME: Remove this.
+#include <boost/optional.hpp> // FIXME: Replace with std::optional.
 
 namespace beaker
 {
-  class Typed_declaration;
-
   /// The static store provides facilities for managing static name bindings.
   /// This associates declarations with their corresponding values. In cases
   /// where those declarations have associated objects, this will also manage
@@ -26,10 +24,10 @@ namespace beaker
     /// called directly for constants.
     void bind(const Typed_declaration* d, const Value& v);
 
-    /// Creates an object for the given declaration. Note that the object is 
+    /// Creates an object for the given variable. Note that the object is 
     /// uninitialized at the time of creation. The evaluator is responsible
     /// for populating the object with an initial value.
-    Object* create(const Typed_declaration* d);
+    Object* create(const Variable_declaration* d);
 
     /// Fetches the value associated with the declaration. If the declaration
     /// has an associated object

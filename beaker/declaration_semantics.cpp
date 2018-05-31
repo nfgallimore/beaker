@@ -89,9 +89,12 @@ namespace beaker
     // Set the type specifier for the declaration.
     data->set_type_specifier(ts);
 
-    if (auto* ref = dynamic_cast<Reference_declaration*>(d)) {
-      std::cout << "REF DECL\n";
-    }
+    // The the type of declaration. For references the type is adjusted to
+    // ref t.
+    Type* t = ts->get_type();
+    if (auto* ref = dynamic_cast<Reference_declaration*>(d))
+      t = m_cxt.get_reference_type(t);
+    data->set_type(t);
 
     // Declare the value or object.
     declare(data);

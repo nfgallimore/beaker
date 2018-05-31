@@ -24,57 +24,57 @@ namespace beaker
   { }
 
   Context& 
-  Variable_context::get_beaker_context() const
+  Variable_context::get_beaker_context()
   { 
-    return m_parent.get_beaker_context(); 
+    return get_global_context().get_beaker_context(); 
   }
 
   llvm::LLVMContext* 
-  Variable_context::get_llvm_context() const
+  Variable_context::get_llvm_context()
   { 
-    return m_parent.get_llvm_context(); 
+    return get_global_context().get_llvm_context(); 
   }
 
   llvm::Module*
-  Variable_context::get_llvm_module() const
+  Variable_context::get_llvm_module()
   {
-    return m_parent.get_llvm_module();
+    return get_module_context().get_llvm_module();
   }
 
   Global_context&
   Variable_context::get_global_context()
   {
-    return m_parent.get_global_context();
+    return get_module_context().get_global_context();
   }
   
   std::string
   Variable_context::generate_external_name(const Named_declaration* d)
   {
-    return m_parent.generate_external_name(d);
+    return get_global_context().generate_external_name(d);
   }
 
   llvm::Type*
   Variable_context::generate_type(const Type* t)
   {
-    return m_parent.generate_type(t);
+    return get_global_context().generate_type(t);
   }
 
   llvm::Type*
   Variable_context::generate_type(const Typed_declaration* d)
   {
-    return m_parent.generate_type(d);
+    return get_global_context().generate_type(d);
   }
 
   llvm::Constant*
   Variable_context::generate_constant(const Type* t, const Value& v)
   {
-    return m_parent.generate_constant(t, v);
+    return get_global_context().generate_constant(t, v);
   }
 
   llvm::Constant*
   Variable_context::generate_constant(const Object* o)
   {
-    return m_parent.generate_constant(o);
+    return get_global_context().generate_constant(o);
   }
 
   void
@@ -107,7 +107,7 @@ namespace beaker
 
     // Create and declare the variable.
     m_llvm = new llvm::GlobalVariable(*mod, type, false, link, nullptr, name);
-    m_parent.declare(d, m_llvm);
+    get_module_context().declare(d, m_llvm);
 
     // Generate the static initializer.
     llvm::Constant* init = generate_static_initializer(d);
@@ -133,17 +133,40 @@ namespace beaker
       throw std::runtime_error(ss.str());
     }
     llvm::Constant* c = generate_constant(d->get_type(), v);
-    m_parent.declare(d, c);
+    get_module_context().declare(d, c);
   }
 
+  // FIXME: Can we clean this up a bit?
   void
   Variable_context::generate_reference(const Reference_declaration* d)
   {
-    assert(false);
+    // Evaluate the initializer as a constant and associate with the 
+    // declaration. Note that no storage is associated with the value.
+    Value val;
+    try {
+      val = evaluate(get_beaker_context(), d->get_initializer());
+    }
+    catch (std::runtime_error& err) {
+      std::stringstream ss;
+      ss << "cannot initialize constant " << '(' << err.what() << ')';
+      throw std::runtime_error(ss.str());
+    }
+
+    // The value of the reference is the address of the corresponding
+    // global declaration (or globally allocated object).
+    llvm::Constant* c;
+    Object* obj = val.get_reference();
+    Creator creator = obj->get_creator();
+    if (creator.is_declaration())
+      c = get_module_context().lookup(creator.get_declaration());
+    else
+      assert(false); // Not implemented.
+
+    get_module_context().declare(d, c);
   }
 
   llvm::Constant*
-  Variable_context::generate_static_initializer(const Data_declaration* d)
+  Variable_context::generate_static_initializer(const Variable_declaration* d)
   {
     if (llvm::Constant* init = generate_constant_initializer(d))
       return init;
@@ -158,7 +181,7 @@ namespace beaker
   }
 
   llvm::Constant*
-  Variable_context::generate_constant_initializer(const Data_declaration* d)
+  Variable_context::generate_constant_initializer(const Variable_declaration* d)
   {
     llvm::Constant* init;
     try {
@@ -181,7 +204,7 @@ namespace beaker
   }
 
   llvm::Constant*
-  Variable_context::generate_zero_initializer(const Data_declaration* d)
+  Variable_context::generate_zero_initializer(const Variable_declaration* d)
   {
     return get_global_context().get_llvm_zero(d->get_type());
   }

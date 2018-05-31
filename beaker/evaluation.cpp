@@ -12,12 +12,12 @@ namespace beaker
   }
 
   Object*
-  Static_store::create(const Typed_declaration* d)
+  Static_store::create(const Variable_declaration* d)
   {
     assert(m_values.count(d) == 0);
 
     // Create the uninitialized object.
-    m_objects.emplace_front(d->get_type());
+    m_objects.emplace_front(Creator(d));
     Object* obj = &m_objects.front();
 
     // Bind the name to its object (i.e., address).

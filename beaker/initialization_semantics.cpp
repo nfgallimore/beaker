@@ -51,7 +51,7 @@ namespace beaker
   Semantics::value_initialize(Data_declaration* d, Expression* e)
   {
     // Convert the initializer to the entity's type.
-    e = convert_to_type(e, get_entity_type(m_cxt, d));
+    e = convert_to_type(e, d->get_type());
 
     if (auto* var = dynamic_cast<Variable_declaration*>(d))
       value_initialize_variable(var, e);

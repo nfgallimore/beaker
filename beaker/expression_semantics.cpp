@@ -348,14 +348,14 @@ namespace beaker
   Expression*
   Semantics::make_id_expression(Typed_declaration* d)
   {
-    // Analyze the declaration to determine the type of the expression.
-    //
-    // FIXME: Do we really need to adjust for declarations?
-    Type* type = d->get_type();
-    if (d->is_variable() || d->is_reference())
-      type = m_cxt.get_reference_type(type);
+    // Analyze the declaration to determine the type of the expression. If
+    // the name referred to a variable, the type of the expression is `t&`.
+    // Otherwise, it is plain the type `t`.
+    Type* t = d->get_type();
+    if (d->is_variable())
+      t = m_cxt.get_reference_type(t);
 
-    return new Id_expression(type, d);
+    return new Id_expression(t, d);
   }
 
   Expression*

@@ -140,14 +140,6 @@ namespace beaker
     return get_type()->get_parameter_types();
   }
 
-  void
-  Data_declaration::set_type_specifier(Type_specifier* ts)
-  {
-    assert(!m_ts);
-    m_ts = ts;
-    set_type(ts->get_type());
-  }
-
   void 
   Data_declaration::set_initializer(Expression* e)
   {

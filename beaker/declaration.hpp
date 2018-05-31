@@ -301,7 +301,7 @@ namespace beaker
     /// Returns the type of the declaration.
     Type* get_type() const { return m_type; }
 
-    /// Sets the type of the declaration.
+    /// Sets the type of the declaration. 
     void set_type(Type* t) { assert(!m_type); m_type = t; }
 
   private:
@@ -412,9 +412,8 @@ namespace beaker
     /// Returns the type specifier for the declaration.
     Type_specifier* get_type_specifier() const { return m_ts; }
 
-    /// Sets the type specifier for the declaration. Note that this will also 
-    /// update the type.
-    void set_type_specifier(Type_specifier* ts);
+    /// Sets the type specifier for the declaration.
+    void set_type_specifier(Type_specifier* ts) { assert(!m_ts); m_ts = ts; }
 
     /// Returns the initializer.
     Expression* get_initializer() const { return m_init; }

@@ -112,14 +112,8 @@ namespace beaker
   Value
   Evaluator::evaluate_id_expression(const Id_expression* e)
   {
-    // An id-expression that refers to a (mutable) variable is not a constant 
-    // expression.
-    //
-    // FIXME: We could relax this to allow references to constant references?
-    const Typed_declaration* d = e->get_declaration();
-    if (d->is_variable() || d->is_reference())
-      throw std::runtime_error("reference to non-constant object");
-
+    // FIXME: an id-expression that refers to a reference can fail to
+    // be a constant expression.
     return fetch(e->get_declaration());
   }
 
@@ -194,9 +188,27 @@ namespace beaker
   {
     Value ref = evaluate(e);
 
-    // FIXME: Check that the object can be referenced in a constant 
-    // expression.
+    // A value-conversion is not a constant expression unless...
+    //
+    // FIXME: Check that the reference is valid!
     Object* obj = ref.get_reference();
+
+    // ... the source expression refers to data that is initialized by a
+    // constant expression.
+    //
+    // FIXME: This isn't quite right. We probably need to qualify this in
+    // terms of the "initialized by a constant expression", which would
+    // include all local variables created during initialization.
+    Creator c = obj->get_creator();
+    if (c.is_declaration()) {
+      const Data_declaration* d = c.get_declaration();
+      
+      // Technically, global variables can have a constant initialization,
+      // but we don't know if there have been any intermediate writes.
+      if (d->is_variable() && d->has_static_storage())
+        throw std::runtime_error("read from non-constant object");
+    }
+
     
     Value val = obj->load();
     if (val.is_indeterminate())
