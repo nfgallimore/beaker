@@ -5,7 +5,8 @@
 
 var b1 : bool = true;
 var b2 : bool = false;
-# ref b3 : bool = b1;
+var b3 : bool = b1;
+var b4 : bool = b3;
 
 var x : int = 42;
 # val y : int = x;

@@ -21,6 +21,10 @@ namespace beaker
     /// the object. Note that this must be a reference.
     Expression* get_object() const { return m_obj; }
 
+    /// Returns the declared object being initialized. Returns null if
+    /// the initializer is applied to an object created dynamically.
+    Typed_declaration* get_declaration() const;
+
   private:
     Expression* m_obj;
   };

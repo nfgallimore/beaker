@@ -40,6 +40,12 @@ namespace beaker
     return m_parent.get_llvm_module();
   }
 
+  Global_context&
+  Function_context::get_global_context()
+  {
+    return m_parent.get_global_context();
+  }
+
   llvm::BasicBlock*
   Function_context::make_block(const char* label)
   {
@@ -113,17 +119,19 @@ namespace beaker
     m_llvm = llvm::Function::Create(type, link, name, mod);
     m_parent.declare(d, m_llvm);
 
+    start_definition();
+
     // FIXME: Emit the definition.
     // Set up function arguments, initialize variable parms, create
     // the entry block, generate the definition.
+
+    finish_definition();
   }
   
   void
   Function_context::generate_definition(const Expression* e)
   {
-    // Establish the entry block.
-    m_entry = m_block = make_block("entry");
-    emit_block(m_entry);
+    start_definition();
 
     // Emit the definition.
     Instruction_generator gen(*this);
@@ -139,6 +147,22 @@ namespace beaker
       ir.CreateRetVoid();
     else
       ir.CreateRet(val);
+
+    finish_definition();
+  }
+
+  void
+  Function_context::start_definition()
+  {
+    // Establish the entry block.
+    m_entry = m_block = make_block("entry");
+    emit_block(m_entry);
+  }
+
+  void
+  Function_context::finish_definition()
+  {
+    // FIXME: Anything to do here?
   }
 
 } // namespace beaker

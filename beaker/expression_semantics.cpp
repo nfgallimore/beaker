@@ -284,8 +284,12 @@ namespace beaker
   Expression*
   Semantics::on_integer_literal(const Token& tok)
   {
+    // Get the integer value from the token.
+    char* end;
+    std::intmax_t val = std::strtoll(tok.get_spelling(), &end, 10);
+    assert(*end == 0);
+
     Type* type = m_cxt.get_int_type();
-    int val = 13; // FIXME
     return new Int_literal(type, tok, val);
   }
   
@@ -352,6 +356,13 @@ namespace beaker
       type = m_cxt.get_reference_type(type);
 
     return new Id_expression(type, d);
+  }
+
+  Expression*
+  Semantics::make_init_expression(Variable_declaration* d)
+  {
+    Type* type = m_cxt.get_reference_type(d->get_type());
+    return new Init_expression(type, d);
   }
 
   Expression*

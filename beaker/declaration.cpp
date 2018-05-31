@@ -149,10 +149,23 @@ namespace beaker
   }
 
   void 
-  Data_declaration::set_initializer(Initializer* e)
+  Data_declaration::set_initializer(Expression* e)
   {
     assert(!m_init);
     m_init = e;
+  }
+
+  bool
+  Data_declaration::has_static_storage() const
+  {
+    // FIXME: Namespaces can also have static storage.
+    return get_enclosing_declaration()->is_translation_unit();
+  }
+
+  bool
+  Data_declaration::has_automatic_storage() const
+  {
+    return get_enclosing_declaration()->is_function();
   }
 
   Parameter::Parameter(Named_declaration* d)

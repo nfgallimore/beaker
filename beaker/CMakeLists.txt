@@ -41,6 +41,13 @@ add_library(beaker.lang
   print.cpp
   dump.cpp
 
+  evaluation.cpp
+  expression_evaluation.cpp
+  statement_evaluation.cpp
+  declaration_evaluation.cpp
+  value.cpp
+  object.cpp
+
   generation.cpp
   global_generation.cpp
   module_generation.cpp

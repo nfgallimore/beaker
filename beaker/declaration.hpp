@@ -412,15 +412,27 @@ namespace beaker
     /// Returns the type specifier for the declaration.
     Type_specifier* get_type_specifier() const { return m_ts; }
 
-    /// Sets the type specifier for the declaration. Note that this
-    /// will also update the type.
+    /// Sets the type specifier for the declaration. Note that this will also 
+    /// update the type.
     void set_type_specifier(Type_specifier* ts);
 
     /// Returns the initializer.
-    Initializer* get_initializer() const { return m_init; }
+    Expression* get_initializer() const { return m_init; }
 
     /// Sets the initializer.
-    void set_initializer(Initializer* e);
+    void set_initializer(Expression* e);
+
+    // Storage class
+
+    /// Returns true if the declaration has static storage. This is the case
+    /// when the declaration is global.
+    ///
+    /// \todo Allow for local statics?
+    bool has_static_storage() const;
+
+    /// Returns true if the declaration has automatic storage. This is the
+    /// case for local variables.
+    bool has_automatic_storage() const;
 
   private:
     /// The type specifier of data declaration. This may be omitted.
@@ -428,7 +440,7 @@ namespace beaker
 
     /// The initializer for the data declaration. For parameters,
     /// this is interpreted as the default argument.
-    Initializer* m_init;
+    Expression* m_init;
   };
 
   inline

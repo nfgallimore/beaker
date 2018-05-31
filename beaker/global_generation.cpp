@@ -1,11 +1,14 @@
 #include "global_generation.hpp"
 #include "type.hpp"
 #include "declaration.hpp"
+#include "value.hpp"
+#include "object.hpp"
 
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
 #include <llvm/IR/Type.h>
 #include <llvm/IR/Constant.h>
+#include <llvm/IR/Constants.h>
 
 namespace beaker
 {
@@ -26,6 +29,56 @@ namespace beaker
   Global_context::get_llvm_int_type(int n) const
   {
     return llvm::Type::getIntNTy(*m_llvm, n);
+  }
+
+  llvm::Constant*
+  Global_context::get_llvm_true()
+  {
+    return llvm::ConstantInt::getTrue(*m_llvm);
+  }
+
+  llvm::Constant*
+  Global_context::get_llvm_false()
+  {
+    return llvm::ConstantInt::getFalse(*m_llvm);
+  }
+
+  llvm::Constant*
+  Global_context::get_llvm_int(const Type* t, std::intmax_t n)
+  {
+    return get_llvm_int(generate_type(t), n);
+  }
+
+  llvm::Constant*
+  Global_context::get_llvm_int(llvm::Type* t, std::intmax_t n) const
+  {
+    // FIXME: Handle unsigned integer constants.
+    return llvm::ConstantInt::getSigned(t, n);    
+  }
+
+  llvm::Constant*
+  Global_context::get_llvm_float(const Type* t, double n)
+  {
+    llvm::Type* type = generate_type(t);
+    return llvm::ConstantFP::get(type, n);
+  }
+
+  llvm::Constant*
+  Global_context::get_llvm_null(llvm::Type* t) const
+  {
+    return llvm::ConstantPointerNull::get(llvm::cast<llvm::PointerType>(t)); 
+  }
+
+  llvm::Constant*
+  Global_context::get_llvm_zero(const Type* t)
+  {
+    return get_llvm_zero(generate_type(t));
+  }
+
+  llvm::Constant*
+  Global_context::get_llvm_zero(llvm::Type* t) const
+  {
+    return llvm::Constant::getNullValue(t);
   }
 
   /// \todo We'll have to mangle the name based on the properties of the
@@ -50,14 +103,14 @@ namespace beaker
     if (iter != m_types.end())
       return iter->second;
     
-    // Generate the type and memoize the result.
-    llvm::Type* result = generate_type_impl(t);
+    // Translate the type and memoize the result.
+    llvm::Type* result = translate_type(t);
     m_types.emplace(t, result);
     return result;
   }
 
   llvm::Type*
-  Global_context::generate_type_impl(const Type* t)
+  Global_context::translate_type(const Type* t)
   {
     switch (t->get_kind()) {
     default:
@@ -114,6 +167,29 @@ namespace beaker
   {
     llvm::Type* obj = generate_type(t->get_object_type());
     return obj->getPointerTo();
+  }
+
+  llvm::Constant*
+  Global_context::generate_constant(const Type* t, const Value& v)
+  {
+    // FIXME: We can actually genenerte 
+    switch (v.get_kind()) {
+    default:
+      break;
+    case Value::int_kind:
+      return get_llvm_int(t, v.get_int());
+    case Value::float_kind:
+      return get_llvm_float(t, v.get_float());
+    }
+    assert(false);
+  }
+
+
+  llvm::Constant*
+  Global_context::generate_constant(const Object* o)
+  {
+    // FIXME: Generate aggregate constants for aggregate objects.
+    return generate_constant(o->get_type(), o->load());
   }
 
 } // namespace beaker

@@ -18,6 +18,7 @@ namespace llvm
 namespace beaker
 {
   class Function_declaration;
+  class Global_context;
   class Module_context;
 
   /// Provides context for translating function definitions.
@@ -38,6 +39,12 @@ namespace beaker
 
     /// Returns the LLVM module.
     llvm::Module* get_llvm_module() const;
+
+    /// Returns the global code generation context.
+    Global_context& get_global_context();
+
+    /// Returns the module code generation context.
+    Module_context& get_module_context() { return m_parent; }
 
     // Blocks
 
@@ -79,10 +86,24 @@ namespace beaker
     /// Recursively generate the definition of the function.
     void generate(const Function_declaration* d);
 
-    /// Generate a function definiton comprised of a single expression.
+    /// Generate a function definition comprised of a single expression.
     /// This is used to generate internally used functions or thunks whose
     /// definitions are trivial (e.g., dynamic initializers).
     void generate_definition(const Expression* e);
+
+    // Definition
+
+    // Used to establish the entry block and initialize arguments. 
+    //
+    // \note This can be called externally when defining a function whose 
+    // definition is not generated.
+    void start_definition();
+
+    // Used to perform final cleanups of the function definition.
+    //
+    // \note This can be called externally when defining a function whose 
+    // definition is not generated.
+    void finish_definition();
 
   private:
     /// The parent context.

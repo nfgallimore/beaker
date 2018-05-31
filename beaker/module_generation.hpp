@@ -2,6 +2,8 @@
 
 #include <beaker/common.hpp>
 
+#include <queue>
+#include <stack>
 #include <unordered_map>
 
 namespace llvm
@@ -9,6 +11,7 @@ namespace llvm
   class LLVMContext;
   class Module;
   class Type;
+  class Constant;
   class GlobalValue;
   class Function;
 } // namespace llvm
@@ -40,6 +43,9 @@ namespace beaker
     /// Returns the LLVM module.
     llvm::Module* get_llvm_module() const { return m_llvm; }
 
+    /// Returns the global code generation context.
+    Global_context& get_global_context() { return m_parent; }
+
     // Declarations
 
     /// Globally associate a declaration with its value.
@@ -59,6 +65,12 @@ namespace beaker
     /// Generates the type for `d`.
     llvm::Type* generate_type(const Typed_declaration* d);
 
+    /// Generates a constant from a value.
+    llvm::Constant* generate_constant(const Type* t, const Value& v);
+
+    /// Generate a constant from an object.
+    llvm::Constant* generate_constant(const Object* o);
+
     /// Recursively generate the contents of the translation unit.
     void generate_module(const Translation_unit* tu);
 
@@ -76,8 +88,20 @@ namespace beaker
     /// Returns a function that acts as a constructor for the module. This
     /// will also append the function to the list of constructors for the
     /// module.
-    llvm::Function* make_constructor(const char* name);
-  
+    llvm::Function* get_constructor(const char* name);
+
+    // Constructors and destructors
+
+    /// Called by variable initialization to generate a dynamic initialization
+    /// function for given global variable.
+    void add_constructor(const Variable_declaration* d);
+
+    /// Generates a dynamic initialization function.
+    llvm::Function* generate_constructor(const Variable_declaration* d, std::size_t);
+
+    /// Generates the constructors for the module.
+    void generate_constructors();
+
   private:
     /// The parent context.
     Global_context& m_parent;
@@ -85,8 +109,11 @@ namespace beaker
     /// The Module being generated.
     llvm::Module* m_llvm;
 
-    /// Global name bindings
+    /// Global name bindings.
     Global_map m_globals;
+
+    /// The list of global variables requiring global initialization.
+    std::vector<const Variable_declaration*> m_ctors;
   };
 
 } // namespace beaker

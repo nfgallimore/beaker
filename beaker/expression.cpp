@@ -15,6 +15,7 @@ namespace beaker
 
     // id expressions
     case id_kind: return "id-expression";
+    case init_kind: return "init-expression";
 
     // arithmetic expressions
     case add_kind: return "addition-expression";

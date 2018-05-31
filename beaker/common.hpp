@@ -29,18 +29,39 @@ namespace beaker
   class Context;
   class Type;
   class Type_specifier;
+ 
   class Expression;
+  class Bool_literal;
+  class Int_literal;
+  class Id_expression;
+  class Conditional_expression;
+  class Logical_and_expression;
+  class Logical_or_expression;
+  class Logical_not_expression;
+
   class Conversion;
+  class Implicit_conversion;
+
   class Initializer;
-  class Condition;
+  class Empty_initializer;
+  class Default_initializer;
+  class Value_initializer;
+ 
   class Statement;
+  class Condition;
+  
   class Declaration;
   class Scoped_declaration;
   class Named_declaration;
   class Typed_declaration;
   class Data_declaration;
+  class Variable_declaration;
   class Function_declaration;
+  
   class Parameter;
+
+  class Value;
+  class Object;
 
   /// A sequence of types.
   using Type_seq = std::vector<Type*>;

@@ -39,7 +39,19 @@ namespace beaker
   {
     return m_parent.get_llvm_module();
   }
-  
+
+  Global_context&
+  Instruction_generator::get_global_context()
+  {
+    return m_parent.get_global_context();
+  }
+
+  Module_context&
+  Instruction_generator::get_module_context()
+  {
+    return m_parent.get_module_context();
+  }
+
   llvm::BasicBlock*
   Instruction_generator::get_current_block() const
   {
@@ -82,9 +94,12 @@ namespace beaker
     switch (e->get_kind()) {
     case Expression::bool_kind:
       return generate_bool_literal(static_cast<const Bool_literal*>(e));
+    
     case Expression::int_kind:
       return generate_int_literal(static_cast<const Int_literal*>(e));
+    
     case Expression::id_kind:
+    case Expression::init_kind:
       return generate_id_expression(static_cast<const Id_expression*>(e));
 
     // arithmetic expressions
@@ -123,14 +138,14 @@ namespace beaker
 
     // conversions
     case Expression::imp_conv:
-      break;
+      return generate_implicit_conversion(static_cast<const Implicit_conversion*>(e));
       
     // initializers
     case Expression::empty_init:
     case Expression::def_init:
       break;
     case Expression::val_init:
-      return generate_value_init(static_cast<const Value_initializer*>(e));
+      return generate_value_initialization(static_cast<const Value_initializer*>(e));
     }
     e->dump();
     assert(false);
@@ -160,7 +175,36 @@ namespace beaker
   }
 
   llvm::Value*
-  Instruction_generator::generate_value_init(const Value_initializer* e)
+  Instruction_generator::generate_implicit_conversion(const Implicit_conversion* e)
+  {
+    switch (e->get_conversion_kind()) {
+    case Conversion::value_conv:
+      return generate_value_conversion(e);
+    case Conversion::bool_conv:
+    case Conversion::int_prom:
+    case Conversion::sign_ext:
+    case Conversion::zero_ext:
+    case Conversion::int_trunc:
+    case Conversion::float_prom:
+    case Conversion::float_dem:
+    case Conversion::float_ext:
+    case Conversion::float_trunc:
+      break;
+    }
+    assert(false);
+  }
+
+  // A reference-to-value conversion is simply a load of the operand.
+  llvm::Value*
+  Instruction_generator::generate_value_conversion(const Conversion* e)
+  {
+    llvm::Value* ref = generate_expression(e->get_source());
+    llvm::IRBuilder<> ir(get_current_block());
+    return ir.CreateLoad(ref);
+  }
+
+  llvm::Value*
+  Instruction_generator::generate_value_initialization(const Value_initializer* e)
   {
     llvm::Value* ref = generate_expression(e->get_object());
     llvm::Value* val = generate_expression(e->get_value());
@@ -168,7 +212,6 @@ namespace beaker
     llvm::IRBuilder<> ir(get_current_block());
     return ir.CreateStore(val, ref);
   }
-
 
   void
   Instruction_generator::generate_statement(const Statement* s)

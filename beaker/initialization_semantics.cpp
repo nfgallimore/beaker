@@ -27,7 +27,8 @@ namespace beaker
     }
 
     // Build the object expression.
-    Expression* obj = make_id_expression(d);
+    Variable_declaration* var = static_cast<Variable_declaration*>(d);
+    Expression* obj = make_init_expression(var);
 
     // Build the initializer. 
     Initializer* init = new Default_initializer(obj);
@@ -52,12 +53,19 @@ namespace beaker
     // Convert the initializer to the entity's type.
     e = convert_to_type(e, get_entity_type(m_cxt, d));
 
-    // Build the object expression.
-    Expression* obj = make_id_expression(d);
+    if (Variable_declaration* var = dynamic_cast<Variable_declaration*>(d)) {
+      // Build the object expression.
+      Expression* obj = make_init_expression(var);
 
-    // Build the initializer.
-    Initializer* init = new Value_initializer(obj, e);
-    d->set_initializer(init);
+      // Build the initializer.
+      Initializer* init = new Value_initializer(obj, e);
+      d->set_initializer(init);
+    }
+    else {
+      // Just set the expression to the initializer.
+      d->set_initializer(e);
+    }
+
   }
 
 } // namespace beaker

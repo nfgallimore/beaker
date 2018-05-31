@@ -205,6 +205,12 @@ namespace beaker
   }
 
   static void
+  dump_conversion_attributes(Dump_context& dc, const Implicit_conversion* e)
+  {
+    dc.get_stream() << " conv=" << e->get_conversion_name();
+  }
+
+  static void
   dump_attributes(Dump_context& dc, const Expression* e)
   {
     Newline_finally nl(dc);
@@ -221,7 +227,11 @@ namespace beaker
       return dump_literal_attributes(dc, static_cast<const Literal*>(e));
     
     case Expression::id_kind:
+    case Expression::init_kind:
       return dump_id_attributes(dc, static_cast<const Id_expression*>(e));
+
+    case Expression::imp_conv:
+      return dump_conversion_attributes(dc, static_cast<const Implicit_conversion*>(e));
 
     default:
       break;

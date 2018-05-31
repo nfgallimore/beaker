@@ -14,6 +14,7 @@ namespace beaker
       bool_kind,
       int_kind,
       id_kind,
+      init_kind,
 
       // arithmetic expressions
       add_kind,
@@ -143,21 +144,26 @@ namespace beaker
   class Int_literal : public Literal
   {
   public:
-    Int_literal(Type* t, const Token& tok, bool val)
+    Int_literal(Type* t, const Token& tok, std::intmax_t val)
       : Literal(int_kind, t, tok), m_value(val)
     { }
 
     /// Returns the value of the literal.
-    int get_value() const { return m_value; }
+    std::intmax_t get_value() const { return m_value; }
   
   private:
-    int m_value;
+    std::intmax_t m_value;
   };
 
 
   /// Represents expressions that refer to declarations.
   class Id_expression : public Expression
   {
+  protected:
+    Id_expression(Kind k, Type* t, Typed_declaration* d)
+      : Expression(k, t), m_decl(d)
+    { }
+  
   public:
     Id_expression(Type* t, Typed_declaration* d)
       : Expression(id_kind, t), m_decl(d)
@@ -169,6 +175,18 @@ namespace beaker
   private:
     Typed_declaration* m_decl;
   };
+
+
+  /// A special kind of id-expression used to refer to an object being
+  /// initialized. This only appears as the object operand of an initializer.
+  class Init_expression : public Id_expression
+  {
+  public:
+    Init_expression(Type* t, Typed_declaration* d)
+      : Id_expression(init_kind, t, d)
+    { }
+  };
+
 
   /// The base class of all unary expressions.
   class Unary_expression : public Expression

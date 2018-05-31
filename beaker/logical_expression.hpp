@@ -16,6 +16,15 @@ namespace beaker
                            const Token& tok2)
       : Ternary_operator(cond_kind, t, e1, e2, e3, tok1, tok2)
     { }
+
+    /// Returns the condition of the expression.
+    Expression* get_condition() const { return get_first(); }
+
+    /// Returns the value when the condition is true.
+    Expression* get_true_value() const { return get_second(); }
+
+    /// Returns the value when the condition is false.
+    Expression* get_false_value() const { return get_third(); }
   };
 
 
@@ -27,6 +36,7 @@ namespace beaker
       : Binary_operator(and_kind, t, lhs, rhs, op)
     { }
   };
+
 
   /// Represents logical and expressions.
   class Logical_or_expression : public Binary_operator
