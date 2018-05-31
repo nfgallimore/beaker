@@ -15,6 +15,7 @@
 #include <llvm/Support/raw_ostream.h>
 
 #include <iostream>
+#include <sstream>
 
 namespace beaker
 {
@@ -79,6 +80,22 @@ namespace beaker
   void
   Variable_context::generate(const Data_declaration* d)
   {
+    switch (d->get_kind()) {
+    case Declaration::var_kind:
+      return generate_variable(static_cast<const Variable_declaration*>(d));
+    case Declaration::val_kind:
+      return generate_value(static_cast<const Value_declaration*>(d));
+    case Declaration::ref_kind:
+      return generate_reference(static_cast<const Reference_declaration*>(d));
+    default:
+      break;
+    }
+    assert(false);
+  }
+
+  void
+  Variable_context::generate_variable(const Variable_declaration* d)
+  {
     llvm::Module* mod = get_llvm_module();
     std::string name = generate_external_name(d);
 
@@ -101,6 +118,30 @@ namespace beaker
     // to worry about until we have classes, however.
   }
 
+  void
+  Variable_context::generate_value(const Value_declaration* d)
+  {
+    // Evaluate the initializer as a constant and associate with the 
+    // declaration. Note that no storage is associated with the value.
+    Value v;
+    try {
+      v = evaluate(get_beaker_context(), d->get_initializer());
+    }
+    catch (std::runtime_error& err) {
+      std::stringstream ss;
+      ss << "cannot initialize constant " << '(' << err.what() << ')';
+      throw std::runtime_error(ss.str());
+    }
+    llvm::Constant* c = generate_constant(d->get_type(), v);
+    m_parent.declare(d, c);
+  }
+
+  void
+  Variable_context::generate_reference(const Reference_declaration* d)
+  {
+    assert(false);
+  }
+
   llvm::Constant*
   Variable_context::generate_static_initializer(const Data_declaration* d)
   {
@@ -109,7 +150,7 @@ namespace beaker
 
     // Request the construction of a dynamic constructor.
     assert(d->is_variable());
-    const Variable_declaration* var = static_cast<const Variable_declaration*>(d);
+    const auto* var = static_cast<const Variable_declaration*>(d);
     get_module_context().add_constructor(var);
     
     // The static object is zero-initialized.
@@ -128,7 +169,7 @@ namespace beaker
 
       // For variables, generate the constant from the stored value. Otherwise,
       // the value is just the associated constant.
-      if (const Variable_declaration* var = dynamic_cast<const Variable_declaration*>(d))
+      if (const auto* var = dynamic_cast<const Variable_declaration*>(d))
         init = generate_constant(val.get_reference());
       else
         init = generate_constant(d->get_type(), val);

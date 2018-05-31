@@ -89,6 +89,10 @@ namespace beaker
     // Set the type specifier for the declaration.
     data->set_type_specifier(ts);
 
+    if (auto* ref = dynamic_cast<Reference_declaration*>(d)) {
+      std::cout << "REF DECL\n";
+    }
+
     // Declare the value or object.
     declare(data);
 

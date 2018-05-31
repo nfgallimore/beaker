@@ -34,13 +34,13 @@ namespace beaker
   }
 
   void
-  Module_context::declare(const Typed_declaration* d, llvm::GlobalValue* v)
+  Module_context::declare(const Typed_declaration* d, llvm::Constant* c)
   {
     assert(m_globals.count(d) == 0);
-    m_globals.emplace(d, v);
+    m_globals.emplace(d, c);
   }
 
-  llvm::GlobalValue*
+  llvm::Constant*
   Module_context::lookup(const Typed_declaration* d)
   {
     assert(m_globals.count(d) != 0);

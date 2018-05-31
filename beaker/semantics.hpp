@@ -407,6 +407,8 @@ namespace beaker
 
     /// Initialize the variable `d` with `e`.
     void value_initialize(Data_declaration* d, Expression* e);
+    void value_initialize_variable(Variable_declaration* d, Expression* e);
+    void value_initialize_constant(Data_declaration* d, Expression* e);
 
   private:
     /// The translation context. This provides access to compiler resources.

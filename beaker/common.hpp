@@ -56,6 +56,8 @@ namespace beaker
   class Typed_declaration;
   class Data_declaration;
   class Variable_declaration;
+  class Value_declaration;
+  class Reference_declaration;
   class Function_declaration;
   
   class Parameter;

@@ -12,7 +12,6 @@ namespace llvm
   class Module;
   class Type;
   class Constant;
-  class GlobalValue;
   class Function;
 } // namespace llvm
 
@@ -28,7 +27,7 @@ namespace beaker
   /// Provides context for translating module-level constructs.
   class Module_context
   {
-    using Global_map = std::unordered_map<const Typed_declaration*, llvm::GlobalValue*>;
+    using Global_map = std::unordered_map<const Typed_declaration*, llvm::Constant*>;
   public:
     Module_context(Global_context& parent);
 
@@ -49,10 +48,10 @@ namespace beaker
     // Declarations
 
     /// Globally associate a declaration with its value.
-    void declare(const Typed_declaration* d, llvm::GlobalValue* v);
+    void declare(const Typed_declaration* d, llvm::Constant* c);
 
     /// Returns the value associated with `d`.
-    llvm::GlobalValue* lookup(const Typed_declaration* d);
+    llvm::Constant* lookup(const Typed_declaration* d);
 
     // Generation
 

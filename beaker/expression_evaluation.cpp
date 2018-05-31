@@ -55,13 +55,13 @@ namespace beaker
 
     // logical expressions
     case Expression::cond_kind:
-      break;
+      return evaluate_conditional_expression(static_cast<const Conditional_expression*>(e));
     case Expression::and_kind:
-      break;
+      return evaluate_logical_and_expression(static_cast<const Logical_and_expression*>(e));
     case Expression::or_kind:
-      break;
+      return evaluate_logical_or_expression(static_cast<const Logical_or_expression*>(e));
     case Expression::not_kind:
-      break;
+      return evaluate_logical_not_expression(static_cast<const Logical_not_expression*>(e));
 
     // relational expressions
     case Expression::eq_kind:

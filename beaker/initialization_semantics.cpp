@@ -53,19 +53,30 @@ namespace beaker
     // Convert the initializer to the entity's type.
     e = convert_to_type(e, get_entity_type(m_cxt, d));
 
-    if (Variable_declaration* var = dynamic_cast<Variable_declaration*>(d)) {
-      // Build the object expression.
-      Expression* obj = make_init_expression(var);
+    if (auto* var = dynamic_cast<Variable_declaration*>(d))
+      value_initialize_variable(var, e);
+    else
+      value_initialize_constant(d, e);
+  }
 
-      // Build the initializer.
-      Initializer* init = new Value_initializer(obj, e);
-      d->set_initializer(init);
-    }
-    else {
-      // Just set the expression to the initializer.
-      d->set_initializer(e);
-    }
+  /// Construct an initializer for the variable.
+  void
+  Semantics::value_initialize_variable(Variable_declaration* d, Expression* e)
+  {
+    /// Build the initialization reference.
+    Expression* obj = make_init_expression(d);
 
+    /// Build the initializer.
+    Initializer* init = new Value_initializer(obj, e);
+
+    d->set_initializer(init);
+  }
+
+  /// Associate the value with the declaration.
+  void
+  Semantics::value_initialize_constant(Data_declaration* d, Expression* e)
+  {
+    d->set_initializer(e);
   }
 
 } // namespace beaker

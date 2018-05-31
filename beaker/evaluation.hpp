@@ -157,4 +157,15 @@ namespace beaker
   };
 
 
+  // ------------------------------------------------------------------------ //
+  // Helper functions
+
+  inline Value 
+  evaluate(Context& cxt, const Expression* e)
+  {
+    Constant_evaluator eval(cxt);
+    return eval.evaluate(e);
+  }
+
+
 } // namespace beaker

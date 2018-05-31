@@ -14,7 +14,6 @@ namespace llvm
 
 namespace beaker
 {
-  class Function_declaration;
   class Global_context;
   class Module_context;
 
@@ -60,6 +59,9 @@ namespace beaker
 
     /// Generate the global variable `d`.
     void generate(const Data_declaration* d);
+    void generate_variable(const Variable_declaration* d);
+    void generate_value(const Value_declaration* d);
+    void generate_reference(const Reference_declaration* d);
 
     llvm::Constant* generate_static_initializer(const Data_declaration* d);
     llvm::Constant* generate_constant_initializer(const Data_declaration* d);
