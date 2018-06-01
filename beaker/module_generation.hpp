@@ -1,19 +1,12 @@
 #pragma once
 
+#include <beaker/global_generation.hpp>
+
 #include <beaker/common.hpp>
 
 #include <queue>
 #include <stack>
 #include <unordered_map>
-
-namespace llvm
-{
-  class LLVMContext;
-  class Module;
-  class Type;
-  class Constant;
-  class Function;
-} // namespace llvm
 
 namespace beaker
 {
@@ -25,7 +18,7 @@ namespace beaker
   class Global_context;
 
   /// Provides context for translating module-level constructs.
-  class Module_context
+  class Module_context : public cg::Factory
   {
     using Global_map = std::unordered_map<const Typed_declaration*, llvm::Constant*>;
   public:
@@ -52,6 +45,29 @@ namespace beaker
 
     /// Returns the value associated with `d`.
     llvm::Constant* lookup(const Typed_declaration* d);
+
+    /// Creates a new external function declaration in this module.
+    llvm::Function* make_external_function(const std::string& name, 
+                                           llvm::FunctionType* type);
+
+    /// Creates a new internal function declaration in this module.
+    llvm::Function* make_internal_function(const std::string& name, 
+                                           llvm::FunctionType* type);
+
+    /// Returns a new appending variable.
+    llvm::GlobalVariable* make_appending_variable(const std::string& name, 
+                                                  llvm::Type* type);
+
+    /// Returns a new appending variable.
+    llvm::GlobalVariable* make_appending_variable(const std::string& name, 
+                                                  llvm::Type* type, 
+                                                  llvm::Constant* init);
+
+    /// Creates the global variable llvm.global.ctors.
+    llvm::GlobalVariable* make_llvm_global_ctors(llvm::Constant* init);
+
+    /// Creates the global variable llvm.global.dtors.
+    llvm::GlobalVariable* make_llvm_global_dtors(llvm::Constant* init);
 
     // Generation
 
@@ -100,6 +116,9 @@ namespace beaker
 
     /// Generates the constructors for the module.
     void generate_constructors();
+
+    /// Generates the initializer for the llvm.global.ctors module.
+    llvm::Constant* generate_constructors(const std::vector<llvm::Function*>& fns);
 
   private:
     /// The parent context.

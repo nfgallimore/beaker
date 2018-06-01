@@ -1,12 +1,13 @@
 val b1 : bool = true;
 val b2 : bool = b1;
 
-var b3 : bool = true; # Okay: constant initialization
-var b4 : bool = b3; # Okay: dynamic initialization
-var b5 : bool = b2; # Okay: b2 is a constant
+var b3 : bool = true; # OK: constant initialization
+var b4 : bool = b3; # OK: dynamic initialization
+var b5 : bool = b2; # OK: constant initialization
 
 # val b6 : bool = b3; # error: cannot initialize constant
 
-ref b7 : bool = b3; # Okay: constant initialization
+ref b7 : bool = b3; # OK: constant initialization
+# ref b8 : bool = b1; # error: cannot bind
 
-var b8 : bool = b7; # Okay: constant initialization
+var b9 : bool = b7; # OK: dynamic initialization

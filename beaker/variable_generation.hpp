@@ -1,5 +1,7 @@
 #pragma once
 
+#include <beaker/global_generation.hpp>
+
 #include <beaker/common.hpp>
 
 namespace llvm
@@ -18,7 +20,7 @@ namespace beaker
   class Module_context;
 
   /// Provides context for translating global variables.
-  class Variable_context
+  class Variable_context : public cg::Factory
   {
   public:
     Variable_context(Module_context& parent);

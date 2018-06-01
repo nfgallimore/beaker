@@ -20,7 +20,7 @@
 namespace beaker
 {
   Variable_context::Variable_context(Module_context& parent)
-    : m_parent(parent), m_llvm()
+    : cg::Factory(parent.get_llvm_context()), m_parent(parent), m_llvm()
   { }
 
   Context& 
@@ -206,7 +206,7 @@ namespace beaker
   llvm::Constant*
   Variable_context::generate_zero_initializer(const Variable_declaration* d)
   {
-    return get_global_context().get_llvm_zero(d->get_type());
+    return get_llvm_zero(generate_type(d->get_type()));
   }
 
 } // namespace beaker

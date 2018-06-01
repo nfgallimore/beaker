@@ -18,7 +18,7 @@
 namespace beaker
 {
   Module_context::Module_context(Global_context& parent)
-    : m_parent(parent), m_llvm()
+    : cg::Factory(parent.get_llvm_context()), m_parent(parent), m_llvm()
   { }
 
   Context& 
@@ -47,34 +47,82 @@ namespace beaker
     return m_globals.find(d)->second;
   }
 
+  llvm::Function*
+  Module_context::make_external_function(const std::string& name, 
+                                         llvm::FunctionType* type)
+  {
+    auto link = llvm::Function::ExternalLinkage;
+    return llvm::Function::Create(type, link, name, m_llvm);
+  }
+
+  llvm::Function*
+  Module_context::make_internal_function(const std::string& name,
+                                         llvm::FunctionType* type)
+  {
+    auto link = llvm::Function::InternalLinkage;
+    return llvm::Function::Create(type, link, name, m_llvm);
+  }
+
+  llvm::GlobalVariable*
+  Module_context::make_appending_variable(const std::string& name, 
+                                          llvm::Type* type)
+  {
+    return make_appending_variable(name, type, nullptr);
+  }
+
+  llvm::GlobalVariable*
+  Module_context::make_appending_variable(const std::string& name, 
+                                          llvm::Type* type,
+                                          llvm::Constant* init)
+  {
+    auto link = llvm::GlobalVariable::AppendingLinkage;
+    return new llvm::GlobalVariable(*m_llvm, type, false, link, init, name);
+  }
+
+  llvm::GlobalVariable*
+  Module_context::make_llvm_global_ctors(llvm::Constant* init)
+  {
+    std::string name = "llvm.global_ctors";
+    llvm::Type* type = init->getType();
+    return make_appending_variable(name, type, init);
+  }
+
+  llvm::GlobalVariable*
+  Module_context::make_llvm_global_dtors(llvm::Constant* init)
+  {
+    std::string name = "llvm.global_dtors";
+    llvm::Type* type = init->getType();
+    return make_appending_variable(name, type, init);
+  }
+
   std::string
   Module_context::generate_external_name(const Named_declaration* d)
   {
-    return m_parent.generate_external_name(d);
+    return get_global_context().generate_external_name(d);
   }
 
   llvm::Type*
   Module_context::generate_type(const Type* t)
   {
-    return m_parent.generate_type(t);
+    return get_global_context().generate_type(t);
   }
 
   llvm::Type*
   Module_context::generate_type(const Typed_declaration* d)
   {
-    return m_parent.generate_type(d);
+    return get_global_context().generate_type(d);
   }
 
   llvm::Constant*
   Module_context::generate_constant(const Type* t, const Value& v)
   {
-    return m_parent.generate_constant(t, v);
+    return get_global_context().generate_constant(t, v);
   }
 
   llvm::Constant*
   Module_context::generate_constant(const Object* o)
   {
-    return m_parent.generate_constant(o);
+    return get_global_context().generate_constant(o);
   }
 
   void
@@ -83,6 +131,8 @@ namespace beaker
     assert(!m_llvm);
 
     // Create the module.
+    //
+    // FIXME: The name of the output file depends on configuration.
     m_llvm = new llvm::Module("a.ll", *get_llvm_context());
     
     // Generate top-level declarations.
@@ -139,10 +189,9 @@ namespace beaker
   {
     // Generate the declaration. Note that the name is based on index and
     // not the name of the declaration.
-    auto link = llvm::Function::PrivateLinkage;
     std::string name = "__bkr_global_var_init_" + std::to_string(n) + "__";
-    auto type = llvm::FunctionType::get(m_parent.get_llvm_void_type(), {}, false);
-    auto fn = llvm::Function::Create(type, link, name, m_llvm);
+    llvm::FunctionType* type = get_llvm_void_function_type();
+    llvm::Function* fn = make_internal_function(name, type);
 
     // Generate the function definition.
     Function_context cxt(*this, fn);
@@ -165,52 +214,34 @@ namespace beaker
       ctors.push_back(ctor);
     }
 
+    // FIXME: Are there any other constructors to initialize?
+
     // Generate the global variable initialization function.
-    auto link = llvm::Function::PrivateLinkage;
     std::string name = "__bkr_global_vars_init__";
-    auto type = llvm::FunctionType::get(m_parent.get_llvm_void_type(), {}, false);
-    auto fn = llvm::Function::Create(type, link, name, m_llvm);
+    llvm::FunctionType* type = get_llvm_void_function_type();
+    llvm::Function* fn = make_internal_function(name, type);
 
     // Generate the definition as a sequence of calls to constructors.
     Function_context cxt(*this, fn);
     cxt.start_definition();
+    llvm::IRBuilder<> ir(cxt.get_current_block());
     for (llvm::Function* ctor : ctors) {
-      llvm::IRBuilder<> ir(cxt.get_current_block());
-      llvm::Value* c = ir.CreateCall(ctor, llvm::None);
+      ir.CreateCall(ctor, llvm::None);
     }
+    ir.CreateRetVoid();
     cxt.finish_definition();
 
-    {
-      // Generate the @llvm.global.ctors variable.
-      //
-      // FIXME: Move this to a different function. And simplify.
-      auto link = llvm::Function::AppendingLinkage;
-      std::string name = "llvm.global.ctors";
-      
-      // Build the record type.
-      llvm::Type* elem_types[] {
-        m_parent.get_llvm_i32_type(), // i32
-        ctors[0]->getType(), // void()*
-        m_parent.get_llvm_i8_type()->getPointerTo() // i8*
-      };
-      llvm::StructType* elem_type = llvm::StructType::create(*get_llvm_context(), elem_types);
-
-      /// Build the record.
-      llvm::Constant* elems[] {
-        m_parent.get_llvm_int(elem_types[0], 1 << 16),
-        fn,
-        m_parent.get_llvm_null(elem_types[2])
-      };
-      llvm::Constant* inits[1] { 
-        llvm::ConstantStruct::get(elem_type, elems)
-      };
-
-      // Build the initializer type and value.
-      llvm::ArrayType* init_type = llvm::ArrayType::get(elem_type, 1);
-      llvm::Constant* init = llvm::ConstantArray::get(init_type, inits);
-      
-      auto var = new llvm::GlobalVariable(*m_llvm, type, false, link, init, name);
-    }
+    /// Build the initializer for the global constructors.
+    llvm::Constant* elems[] {
+      get_llvm_int(get_llvm_i32_type(), 1 << 16),
+      fn,
+      get_llvm_null_byte_pointer()
+    };
+    llvm::Constant* inits[] { 
+      get_llvm_struct(get_llvm_global_xtor_type(), elems)
+    };
+    llvm::Constant* init = get_llvm_array(inits);
+    make_llvm_global_ctors(init);
   }
 
 } // namespace beaker

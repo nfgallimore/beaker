@@ -7,79 +7,194 @@
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
 #include <llvm/IR/Type.h>
+#include <llvm/IR/DerivedTypes.h>
 #include <llvm/IR/Constant.h>
 #include <llvm/IR/Constants.h>
 
 namespace beaker
 {
+  namespace cg
+  {
+    // ------------------------------------------------------------------------ //
+    // Factory
+
+    llvm::Type*
+    Factory::get_llvm_void_type()
+    {
+      return llvm::Type::getVoidTy(*m_cxt);
+    }
+
+    llvm::IntegerType*
+    Factory::get_llvm_int_type(int n)
+    {
+      return llvm::Type::getIntNTy(*m_cxt, n);
+    }
+
+    llvm::IntegerType*
+    Factory::get_llvm_byte_type()
+    {
+      // FIXME: This actually depends on the target architecture.
+      return get_llvm_i8_type();
+    }
+
+    llvm::PointerType*
+    Factory::get_llvm_pointer_type(llvm::Type* t)
+    {
+      return t->getPointerTo();
+    }
+
+    llvm::PointerType*
+    Factory::get_llvm_void_pointer_type()
+    {
+      return get_llvm_pointer_type(get_llvm_void_type());
+    }
+
+    llvm::PointerType*
+    Factory::get_llvm_void_function_pointer_type()
+    {
+      return get_llvm_pointer_type(get_llvm_void_function_type());
+    }
+
+    llvm::PointerType*
+    Factory::get_llvm_byte_pointer_type()
+    {
+      return get_llvm_pointer_type(get_llvm_byte_type());
+    }
+
+    llvm::FunctionType*
+    Factory::get_llvm_function_type(llvm::Type* r, llvm::ArrayRef<llvm::Type*> ts)
+    {
+      return llvm::FunctionType::get(r, ts, false);
+    }
+
+    llvm::FunctionType*
+    Factory::get_llvm_nullary_function_type(llvm::Type* r)
+    {
+      return get_llvm_function_type(r, {});
+    }
+
+    llvm::FunctionType*
+    Factory::get_llvm_void_function_type()
+    {
+      return get_llvm_nullary_function_type(get_llvm_void_type());
+    }
+
+    llvm::ArrayType*
+    Factory::get_llvm_array_type(llvm::Type* t, std::size_t n)
+    {
+      return llvm::ArrayType::get(t, n);
+    }
+
+    llvm::StructType*
+    Factory::get_llvm_struct_type(llvm::ArrayRef<llvm::Type*> a)
+    {
+      return llvm::StructType::create(a);
+    }
+
+    llvm::StructType*
+    Factory::get_llvm_global_xtor_type()
+    {
+      if (!m_xtor_type) {
+        llvm::Type* types[] {
+          get_llvm_i32_type(), // i32
+          get_llvm_void_function_pointer_type(), // void()*
+          get_llvm_byte_pointer_type() // i8*
+        };
+        m_xtor_type = get_llvm_struct_type(types);
+      }
+      return m_xtor_type;
+    }
+
+    llvm::Constant*
+    Factory::get_llvm_true()
+    {
+      return llvm::ConstantInt::getTrue(*m_cxt);
+    }
+
+    llvm::Constant*
+    Factory::get_llvm_false()
+    {
+      return llvm::ConstantInt::getFalse(*m_cxt);
+    }
+
+    llvm::Constant*
+    Factory::get_llvm_int(llvm::Type* t, std::intmax_t n)
+    {
+      // FIXME: Handle unsigned integer constants.
+      return llvm::ConstantInt::getSigned(t, n);    
+    }
+
+    llvm::Constant*
+    Factory::get_llvm_float(llvm::Type* t, double n)
+    {
+      return llvm::ConstantFP::get(t, n);
+    }
+
+    llvm::Constant*
+    Factory::get_llvm_null_pointer(llvm::Type* t)
+    {
+      return llvm::ConstantPointerNull::get(llvm::cast<llvm::PointerType>(t)); 
+    }
+
+    llvm::Constant*
+    Factory::get_llvm_null_void_pointer()
+    {
+      return llvm::ConstantPointerNull::get(get_llvm_void_pointer_type()); 
+    }
+
+    llvm::Constant*
+    Factory::get_llvm_null_byte_pointer()
+    {
+      return llvm::ConstantPointerNull::get(get_llvm_byte_pointer_type()); 
+    }
+
+    llvm::Constant*
+    Factory::get_llvm_zero(llvm::Type* t)
+    {
+      return llvm::Constant::getNullValue(t);
+    }
+
+    llvm::Constant*
+    Factory::get_llvm_array(llvm::ArrayRef<llvm::Constant*> a)
+    {
+      assert(!a.empty());
+      llvm::ArrayType* t = get_llvm_array_type(a[0]->getType(), a.size());
+      return get_llvm_array(t, a);
+    }
+
+    llvm::Constant*
+    Factory::get_llvm_array(llvm::ArrayType* t, llvm::ArrayRef<llvm::Constant*> a)
+    {
+      return llvm::ConstantArray::get(t, a);
+    }
+
+    llvm::Constant*
+    Factory::get_llvm_struct(llvm::ArrayRef<llvm::Constant*> a)
+    {
+      return llvm::ConstantStruct::getAnon(a);
+    }
+
+    llvm::Constant*
+    Factory::get_llvm_struct(llvm::StructType* t, llvm::ArrayRef<llvm::Constant*> a)
+    {
+      return llvm::ConstantStruct::get(t, a);
+    }
+
+  } // namespace cg
+
+  // ------------------------------------------------------------------------ //
+  // Global context
+
+  Global_context_base::Global_context_base()
+    : m_llvm(new llvm::LLVMContext())
+  { }
+
   Global_context::Global_context(Context& cxt)
-    : m_cxt(cxt), m_llvm(new llvm::LLVMContext())
+    : m_cxt(cxt), Global_context_base(), cg::Factory(m_llvm.get())
   { }
 
   Global_context::~Global_context()
   { }
-
-  llvm::Type*
-  Global_context::get_llvm_void_type() const
-  {
-    return llvm::Type::getVoidTy(*m_llvm);
-  }
-
-  llvm::Type*
-  Global_context::get_llvm_int_type(int n) const
-  {
-    return llvm::Type::getIntNTy(*m_llvm, n);
-  }
-
-  llvm::Constant*
-  Global_context::get_llvm_true()
-  {
-    return llvm::ConstantInt::getTrue(*m_llvm);
-  }
-
-  llvm::Constant*
-  Global_context::get_llvm_false()
-  {
-    return llvm::ConstantInt::getFalse(*m_llvm);
-  }
-
-  llvm::Constant*
-  Global_context::get_llvm_int(const Type* t, std::intmax_t n)
-  {
-    return get_llvm_int(generate_type(t), n);
-  }
-
-  llvm::Constant*
-  Global_context::get_llvm_int(llvm::Type* t, std::intmax_t n) const
-  {
-    // FIXME: Handle unsigned integer constants.
-    return llvm::ConstantInt::getSigned(t, n);    
-  }
-
-  llvm::Constant*
-  Global_context::get_llvm_float(const Type* t, double n)
-  {
-    llvm::Type* type = generate_type(t);
-    return llvm::ConstantFP::get(type, n);
-  }
-
-  llvm::Constant*
-  Global_context::get_llvm_null(llvm::Type* t) const
-  {
-    return llvm::ConstantPointerNull::get(llvm::cast<llvm::PointerType>(t)); 
-  }
-
-  llvm::Constant*
-  Global_context::get_llvm_zero(const Type* t)
-  {
-    return get_llvm_zero(generate_type(t));
-  }
-
-  llvm::Constant*
-  Global_context::get_llvm_zero(llvm::Type* t) const
-  {
-    return llvm::Constant::getNullValue(t);
-  }
 
   /// \todo We'll have to mangle the name based on the properties of the
   /// declaration. Note that only typed declarations have mangled names.
@@ -177,9 +292,9 @@ namespace beaker
     default:
       break;
     case Value::int_kind:
-      return get_llvm_int(t, v.get_int());
+      return get_llvm_int(generate_type(t), v.get_int());
     case Value::float_kind:
-      return get_llvm_float(t, v.get_float());
+      return get_llvm_float(generate_type(t), v.get_float());
     }
     assert(false);
   }
