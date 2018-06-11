@@ -39,6 +39,18 @@ namespace beaker
   }
 
   bool
+  Parse_context::next_token_is(Token::Name k1, Token::Name k2) 
+  {
+    return next_token_is(k1) || next_token_is(k2);
+  }
+
+  bool
+  Parse_context::next_token_is(Token::Name k1, Token::Name k2, Token::Name k3) 
+  {
+    return next_token_is(k1, k2) || next_token_is(k3);
+  }
+
+  bool
   Parse_context::next_token_is_not(Token::Name k) 
   {
     return lookahead() != k;

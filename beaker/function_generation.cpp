@@ -120,14 +120,76 @@ namespace beaker
     m_parent.declare(d, m_llvm);
 
     start_definition();
-
-    // FIXME: Emit the definition.
-    // Set up function arguments, initialize variable parms, create
-    // the entry block, generate the definition.
-
+    generate_parameters(d);
+    generate_definition(d->get_body());    
     finish_definition();
   }
-  
+
+  void
+  Function_context::generate_parameters(const Function_declaration* d)
+  {
+    const Parameter_seq& parms = d->get_parameters();
+    auto args = m_llvm->args();
+    
+    auto pi = parms.begin();
+    auto ai = args.begin();
+    while (pi != parms.end() && ai != args.end()) {
+      const Parameter* parm = *pi++;
+      llvm::Argument* arg = &*ai++;
+
+      // Set the name and other attributes.
+      //
+      // FIXME: Actually set attributes based on the parameter.
+      arg->setName(*parm->get_name());
+
+      // Declare the parameter. Note that we can't have non-typed parameters.
+      Named_declaration* nd = parm->get_declaration();
+      switch (nd->get_kind()) {
+        case Declaration::val_kind:
+        case Declaration::ref_kind: {
+          // Value and reference parameters are bound directly to their
+          // corresponding arguments.
+          const auto* data = static_cast<const Data_declaration*>(nd);
+          declare(data, arg);
+          break;
+        }
+
+        case Declaration::var_kind: {
+          // Variable declarations require local storage. Allocate stack
+          // space and initialize that storage with the variable.
+          //
+          // FIXME: For aggregates, the copy occurs in the caller's space
+          // and we're going to pass a byval pointer.
+          const auto* var = static_cast<const Variable_declaration*>(nd);
+          llvm::IRBuilder<> ir(get_current_block());
+          llvm::Type* type = generate_type(var->get_type());
+          llvm::Value* local = ir.CreateAlloca(type);
+          ir.CreateStore(arg, local);
+          declare(var, local);
+          break;
+        }
+
+      default:
+        // We don't allow other kinds of parameters here.
+        assert(false);
+      }
+    }
+    assert(pi == parms.end() && ai == args.end());
+  }
+
+  void
+  Function_context::generate_definition(const Statement* s)
+  {
+    Instruction_generator gen(*this);
+    gen.generate_statement(s);
+  }
+
+  /// \todo I don't really like this, but it works... It would be nice if
+  /// we could make it easier to synthesize functions from arbitrary 
+  /// expressions, but that might require generating captures.
+  ///
+  /// \note This only works if all names referenced in the expression are
+  /// global.
   void
   Function_context::generate_definition(const Expression* e)
   {
@@ -137,7 +199,7 @@ namespace beaker
     Instruction_generator gen(*this);
     llvm::Value* val = gen.generate_expression(e);
 
-    // Create a return statemnet.
+    // Create a return statement.
     //
     // FIXME: That e might not have a type is a bit of a hack. We need
     // to ensure that the type of the expression agrees with the type of
@@ -162,7 +224,13 @@ namespace beaker
   void
   Function_context::finish_definition()
   {
-    // FIXME: Anything to do here?
+    // If the last block doesn't have a terminator, then make it well-formed,
+    // but terminate the call with unreachable.
+    llvm::BasicBlock* bb = get_current_block();
+    if (!bb->getTerminator()) {
+      llvm::IRBuilder<> ir(bb);
+      ir.CreateUnreachable();
+    }
   }
 
 } // namespace beaker

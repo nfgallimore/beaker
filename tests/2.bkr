@@ -1,16 +1,9 @@
 
-var global : int = 42;
+# func f0() -> int 
+# {
+#   # error: should be be diagnosed.
+# }
 
-func f(a : int, b : bool) -> int {
-  var x : int = 0;
-
-  if (3 == 4)
-    return 0;
-  else
-    return 42;
-
-  # 0;
-  # a;
-  # return global;
-  # return a + a; 
-}
+func f1() -> int { return 0; }
+func f2(a : int) -> int { return a; }
+func f3(var a : int) -> int { return a; }

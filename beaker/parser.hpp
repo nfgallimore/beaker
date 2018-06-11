@@ -30,16 +30,22 @@ namespace beaker
     /// Returns the name of the nth lookahead token.
     Token::Name lookahead(int n);
     
-    /// Returns true if the next token is `n`.
+    /// Returns true if the next token is `k`.
     bool next_token_is(Token::Name k);
+
+    /// Returns true if the next token is `k1` or `k2`.
+    bool next_token_is(Token::Name k1, Token::Name k2);
+
+    /// Returns true if the next token is `k1`, `k2`, or `k3`.
+    bool next_token_is(Token::Name k1, Token::Name k2, Token::Name k3);
 
     /// Returns true if the next token is not `n`.
     bool next_token_is_not(Token::Name k);
 
-    /// Returns true if the nth token is `n`.
+    /// Returns true if the nth token is `k`.
     bool nth_token_is(int n, Token::Name k);
 
-    /// Returns true if the nth token is not `n`.
+    /// Returns true if the nth token is not `k`.
     bool nth_token_is_not(int n, Token::Name k);
 
     Token match(Token::Name n);
@@ -117,6 +123,12 @@ namespace beaker
     
     /// Returns true if the name of the next token is `k`.
     bool next_token_is(Token::Name k) { return m_cxt.next_token_is(k); }
+
+    /// Returns true if the name of the next token is `k1` or `k2`.
+    bool next_token_is(Token::Name k1, Token::Name k2);
+
+    /// Returns true if the name of the next token is `k1`, `k2`, or `k3`.
+    bool next_token_is(Token::Name k1, Token::Name k2, Token::Name k3);
     
     /// Returns true if the name of the next token is not `k`.
     bool next_token_is_not(Token::Name k) { return m_cxt.next_token_is_not(k); }
@@ -165,6 +177,18 @@ namespace beaker
     /// parsers direct access to the object.
     Semantics& m_act;
   };
+
+  inline bool
+  Parser::next_token_is(Token::Name k1, Token::Name k2)
+  {
+    return m_cxt.next_token_is(k1, k2); 
+  }
+
+  inline bool
+  Parser::next_token_is(Token::Name n1, Token::Name k2, Token::Name k3) 
+  {
+    return m_cxt.next_token_is(n1, k2, k3); 
+  }
 
 
   /// A helper class that constructs a declarative region over a particular

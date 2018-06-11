@@ -53,7 +53,9 @@ add_library(beaker.lang
   module_generation.cpp
   variable_generation.cpp
   function_generation.cpp
-  instruction_generation.cpp)
+  instruction_generation.cpp
+  expression_generation.cpp
+  statement_generation.cpp)
 target_link_libraries(beaker.lang )
 
 add_executable(beaker.compile main.cpp)

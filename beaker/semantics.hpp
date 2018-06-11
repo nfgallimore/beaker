@@ -22,7 +22,7 @@ namespace beaker
     ~Semantics();
 
     /// Returns the underlying context.
-    Context& get_context() const;
+    Context& get_context() const { return m_cxt; }
 
     /// Invoked to construct a reference type.
     Type_specifier* on_reference_type(Type_specifier* ts, const Token& tok);
@@ -225,7 +225,7 @@ namespace beaker
     Declaration* on_finish_translation(Declaration*);
 
     /// Called to note the identification of a data entity.
-    Declaration* on_data_identification(const Token& id, const Token& kw);
+    Declaration* on_data_identification(const Token& kw, const Token& id);
 
     /// Called to note the declaration of an untyped data entity.
     Declaration* on_data_declaration(Declaration* d);
@@ -264,8 +264,15 @@ namespace beaker
                                                const Token& lbrace,
                                                const Token& rbrace);
 
-    Parameter* on_function_parameter(const Token& n, 
-                                     Type_specifier* t, 
+    /// Called to analyze the declaration of a function parameter.
+    Parameter* on_function_parameter(const Token& kind,
+                                     const Token& id, 
+                                     Type_specifier* type, 
+                                     const Token& colon);
+
+    /// Called to analyze the declaration of a function parameter.
+    Parameter* on_function_parameter(const Token& kind, 
+                                     Type_specifier* type, 
                                      const Token& colon);
 
     Parameter* on_variadic_parameter(const Token& ellipsis);

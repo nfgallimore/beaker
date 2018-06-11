@@ -48,6 +48,14 @@ namespace beaker
   class Value_initializer;
  
   class Statement;
+  class Block_statement;
+  class If_statement;
+  class While_statement;
+  class Break_statement;
+  class Continue_statement;
+  class Return_statement;
+  class Expression_statement;
+  class Declaration_statement;
   class Condition;
   
   class Declaration;

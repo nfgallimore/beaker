@@ -95,7 +95,7 @@ namespace beaker
     Token id = match(Token::identifier);
 
     // Point of identification.
-    Declaration* data = m_act.on_data_identification(id, kw);
+    Declaration* data = m_act.on_data_identification(kw, id);
     
     // Consume the tokens denoting the type.
     Token_seq type = consume_to(Token::equal);
@@ -120,7 +120,7 @@ namespace beaker
     Token id = match(Token::identifier);
 
     // Point of identification.
-    Declaration* fn = m_act.on_function_identification(id, kw);
+    Declaration* fn = m_act.on_function_identification(kw, id);
 
     // Consume up to the opening brace.
     Token_seq sig = consume_to(Token::lbrace);

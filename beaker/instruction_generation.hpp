@@ -82,8 +82,10 @@ namespace beaker
     llvm::Value* generate_value_conversion(const Conversion* e);
     llvm::Value* generate_value_initialization(const Value_initializer* e);
 
-    /// Generate the sequence of statements for to execute `s`.
+    /// Recursively generate the statement `s`.
     void generate_statement(const Statement* s);
+    void generate_block_statement(const Block_statement* s);
+    void generate_return_statement(const Return_statement* s);
 
   private:
     /// The parent context.

@@ -34,30 +34,85 @@ namespace beaker
     return d;
   }
 
-  // Allocate a declaration of the appropriate kind.
+  // Create a value declaration without an introducer.
   static Data_declaration*
-  make_data_decl(const Token& id, const Token& kw, Scoped_declaration* sd)
+  make_value_decl(Semantics& sema, const Token& id)
   {
+    Scoped_declaration* owner = sema.get_current_declaration();
     Symbol sym = id.get_symbol();
     Location loc = id.get_location();
-    Location start = kw.get_location();
-    switch (kw.get_name()) {
+    return new Value_declaration(owner, sym, loc, loc);
+  }
+
+  // Create a value declaration with an introducer.
+  static Data_declaration*
+  make_value_decl(Semantics& sema, const Token& intro, const Token& id)
+  {
+    Scoped_declaration* owner = sema.get_current_declaration();
+    Location start = intro.get_location();
+    Location loc = id.get_location();
+    Symbol sym = id.get_symbol();
+    return new Value_declaration(owner, sym, start, loc);
+  }
+
+  // Create a variable declaration with an introducer.
+  static Data_declaration*
+  make_variable_decl(Semantics& sema, const Token& intro, const Token& id)
+  {
+    Scoped_declaration* owner = sema.get_current_declaration();
+    Location start = intro.get_location();
+    Location loc = id.get_location();
+    Symbol sym = id.get_symbol();
+    return new Variable_declaration(owner, sym, start, loc);
+  }
+
+  // Create a reference declaration with an introducer.
+  static Data_declaration*
+  make_reference_decl(Semantics& sema, const Token& intro, const Token& id)
+  {
+    Scoped_declaration* owner = sema.get_current_declaration();
+    Location start = intro.get_location();
+    Location loc = id.get_location();
+    Symbol sym = id.get_symbol();
+    return new Reference_declaration(owner, sym, start, loc);
+  }
+
+  // Allocate a declaration of the appropriate kind.
+  static Data_declaration*
+  make_data_decl(Semantics& sema, const Token& intro, const Token& id)
+  {
+    switch (intro.get_name()) {
     default:
-      __builtin_unreachable();
+      break;
     case Token::val_kw:
-      return new Value_declaration(sd, sym, start, loc);
+      return make_value_decl(sema, intro, id);
     case Token::var_kw:
-      return new Variable_declaration(sd, sym, start, loc);
+      return make_variable_decl(sema, intro, id);
     case Token::ref_kw:
-      return new Reference_declaration(sd, sym, start, loc);
+      return make_reference_decl(sema, intro, id);
     }
+    assert(false);
+  }
+
+  // Sets the adjusted type of the data declaration.
+  static void
+  set_data_type(Semantics& sema, Data_declaration* d, Type_specifier* ts)
+  {
+    // Set the type specifier.
+    d->set_type_specifier(ts);
+
+    // Set the adjusted type of the data declaration.
+    Type* t = ts->get_type();
+    if (auto* ref = dynamic_cast<Reference_declaration*>(d))
+      t = sema.get_context().get_reference_type(t);
+    d->set_type(t);
   }
 
   Declaration* 
-  Semantics::on_data_identification(const Token& id, const Token& kw)
+  Semantics::on_data_identification(const Token& kind, const Token& id)
   {
     // Create the entity.
-    Data_declaration* data = make_data_decl(id, kw, m_decl);
+    Data_declaration* data = make_data_decl(*this, kind, id);
 
     // Identify the declaration.
     identify(data);
@@ -67,17 +122,14 @@ namespace beaker
 
   // Data declarations
 
+  /// Creates a data declaration with the type set to auto. The type specifier
+  /// is omitted.
   Declaration*
   Semantics::on_data_declaration(Declaration* d)
   {
     Data_declaration* data = static_cast<Data_declaration*>(d);
-
-    // Set the type to auto.
     data->set_type(m_cxt.get_auto_type());
-
-    // Declare the value or object.
     declare(data);
-
     return data;
   }
 
@@ -85,20 +137,8 @@ namespace beaker
   Semantics::on_data_declaration(Declaration* d, Type_specifier* ts)
   {
     Data_declaration* data = static_cast<Data_declaration*>(d);
-
-    // Set the type specifier for the declaration.
-    data->set_type_specifier(ts);
-
-    // The the type of declaration. For references the type is adjusted to
-    // ref t.
-    Type* t = ts->get_type();
-    if (auto* ref = dynamic_cast<Reference_declaration*>(d))
-      t = m_cxt.get_reference_type(t);
-    data->set_type(t);
-
-    // Declare the value or object.
+    set_data_type(*this, data, ts);
     declare(data);
-
     return d;
   }
 
@@ -124,12 +164,12 @@ namespace beaker
   // Function declarations
 
   Declaration* 
-  Semantics::on_function_identification(const Token& id, const Token& kw)
+  Semantics::on_function_identification(const Token& kw, const Token& id)
   {
     // Create the entity.
-    Symbol sym = id.get_symbol();
-    Location loc = id.get_location();
     Location start = kw.get_location();
+    Location loc = id.get_location();
+    Symbol sym = id.get_symbol();
     Function_declaration* fn = new Function_declaration(m_decl, sym, start, loc);
 
     // Identify the declaration
@@ -211,23 +251,39 @@ namespace beaker
     return fn;
   }
 
+  /// Constructs a parameter whose kind is determined by its introducer token.
+  Parameter*
+  Semantics::on_function_parameter(const Token& kind,
+                                   const Token& id, 
+                                   Type_specifier* type, 
+                                   const Token& colon)
+  {
+    // Build underlying declaration.
+    Data_declaration* inner = make_data_decl(*this, kind, id);
+    set_data_type(*this, inner, type);
+
+    // Build the parameter over the underlying declaration. 
+    Parameter* parm = new Parameter(inner);
+
+    // Identify and declare the parameter.
+    identify(parm);
+    declare(parm);
+
+    return parm;
+  }
+
+  /// Constructs a value parameter.
   Parameter*
   Semantics::on_function_parameter(const Token& id, 
                                    Type_specifier* type, 
                                    const Token& colon)
   {
     // Build underlying declaration.
-    //
-    // FIXME: Parameters can be variables or references.
-    Symbol sym = id.get_symbol();
-    Location loc = id.get_location();
-    Value_declaration* val = new Value_declaration(m_decl, sym, loc, loc);
-    val->set_type_specifier(type);
+    Data_declaration* inner = make_value_decl(*this, id);
+    set_data_type(*this, inner, type);
 
     // Build the parameter over the underlying declaration. 
-    //
-    // FIXME: When is the right time to set the depth and index?
-    Parameter* parm = new Parameter(val);
+    Parameter* parm = new Parameter(inner);
 
     // Identify and declare the parameter.
     identify(parm);

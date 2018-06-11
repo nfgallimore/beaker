@@ -220,6 +220,8 @@ namespace beaker
     
     if (Type* t = e->get_type())
       dc.get_stream() << " type=" << '\'' << *t << '\'';
+    else
+      dc.get_stream() << " type=<missing>";
 
     switch (e->get_kind()) {
     case Expression::bool_kind:

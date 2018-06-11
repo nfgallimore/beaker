@@ -90,7 +90,8 @@ namespace beaker
   ///   data-head identifier ':' value-type-specifier
   ///   identifier ':' value-type-specifier
   ///
-  /// \todo Implement support for val and var parameters.
+  /// data-head:
+  ///   'val' | 'var' | 'kind'
   ///
   /// \todo Allow for unnamed parameters.
   ///
@@ -98,13 +99,20 @@ namespace beaker
   Parameter*
   Function_parser::parse_function_parameter()
   {
+    Token kind;
+    if (next_token_is(Token::val_kw, Token::var_kw, Token::ref_kw))
+      kind = consume();
+
     Token id = require(Token::identifier);
     
     Token colon = match(Token::colon);
     Type_parser tp(m_cxt);
     Type_specifier* type = tp.parse_value_type_specifier();
     
-    return m_act.on_function_parameter(id, type, colon);
+    if (kind)
+      return m_act.on_function_parameter(kind, id, type, colon);
+    else
+      return m_act.on_function_parameter(id, type, colon);
   }
 
   /// variadic-parameter:

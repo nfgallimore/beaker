@@ -86,6 +86,12 @@ namespace beaker
     /// Recursively generate the definition of the function.
     void generate(const Function_declaration* d);
 
+    /// Generate declarations for the parameters of the function.
+    void generate_parameters(const Function_declaration* d);
+
+    /// Generate a function definition comprised of a compound statement.
+    void generate_definition(const Statement* s);
+
     /// Generate a function definition comprised of a single expression.
     /// This is used to generate internally used functions or thunks whose
     /// definitions are trivial (e.g., dynamic initializers).
