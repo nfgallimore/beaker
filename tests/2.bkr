@@ -6,4 +6,5 @@
 
 func f1() -> int { return 0; }
 func f2(a : int) -> int { return a; }
-func f3(var a : int) -> int { return a; }
+func f3(val a : int) -> int { return a; }
+func f4(var a : int) -> int { return a; }
