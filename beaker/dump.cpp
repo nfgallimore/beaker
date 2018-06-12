@@ -491,19 +491,21 @@ namespace beaker
     
     switch (d->get_kind()) {
     case Declaration::tu_kind:
-      dump_translation_attributes(dc, static_cast<const Translation_unit*>(d));
-      break;
+      return dump_translation_attributes(dc, static_cast<const Translation_unit*>(d));
+    
     case Declaration::func_kind:
-      dump_function_attributes(dc, static_cast<const Function_declaration*>(d));
-      break;
+      return dump_function_attributes(dc, static_cast<const Function_declaration*>(d));
+    
     case Declaration::val_kind:
     case Declaration::var_kind:
     case Declaration::ref_kind:
-      dump_data_attributes(dc, static_cast<const Data_declaration*>(d));
-      break;
+      return dump_data_attributes(dc, static_cast<const Data_declaration*>(d));
+    
     case Declaration::parm_kind:
-      dump_parameter_attributes(dc, static_cast<const Parameter*>(d));
-      break;
+      return dump_parameter_attributes(dc, static_cast<const Parameter*>(d));
+    
+    case Declaration::assert_kind:
+      return;
     }
   }
 
@@ -564,6 +566,13 @@ namespace beaker
     dump(dc, d->get_declaration());
   }
 
+  static void
+  dump_assertion_children(Dump_context& dc, const Assertion* d)
+  {
+    Indent_around nested(dc);
+    dump(dc, d->get_condition());
+  }
+
   // Emit the children of a declaration.
   static void
   dump_children(Dump_context& dc, const Declaration* d)
@@ -573,19 +582,21 @@ namespace beaker
 
     switch (d->get_kind()) {
     case Declaration::tu_kind:
-      dump_translation_children(dc, static_cast<const Translation_unit*>(d));
-      break;
+      return dump_translation_children(dc, static_cast<const Translation_unit*>(d));
+    
     case Declaration::func_kind:
-      dump_function_children(dc, static_cast<const Function_declaration*>(d));
-      break;
+      return dump_function_children(dc, static_cast<const Function_declaration*>(d));
+    
     case Declaration::val_kind:
     case Declaration::var_kind:
     case Declaration::ref_kind:
-      dump_data_children(dc, static_cast<const Data_declaration*>(d));
-      break;
+      return dump_data_children(dc, static_cast<const Data_declaration*>(d));
+    
     case Declaration::parm_kind:
-      dump_parameter_children(dc, static_cast<const Parameter*>(d));
-      break;
+      return dump_parameter_children(dc, static_cast<const Parameter*>(d));
+
+    case Declaration::assert_kind:
+      return dump_assertion_children(dc, static_cast<const Assertion*>(d));
     }
   }
 

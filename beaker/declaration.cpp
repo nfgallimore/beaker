@@ -31,10 +31,11 @@ namespace beaker
     case var_kind: return "variable-declaration";
     case ref_kind: return "reference-declaration";
     case parm_kind: return "parameter";
+    case assert_kind: return "assertion";
     default:
       break;
     }
-    __builtin_unreachable();
+    assert(false);
   }
 
   bool 

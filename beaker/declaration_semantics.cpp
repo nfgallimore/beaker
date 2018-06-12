@@ -7,6 +7,7 @@
 #include "statement.hpp"
 #include "scope.hpp"
 #include "context.hpp"
+#include "evaluation.hpp"
 #include "print.hpp"
 
 #include <algorithm>
@@ -302,6 +303,28 @@ namespace beaker
   Semantics::on_variadic_parameter(const Token& ellipsis, const Token& id)
   {
     __builtin_unreachable();
+  }
+
+  Declaration*
+  Semantics::on_assertion(Expression* cond, const Token& kw, const Token& semi)
+  {
+    // The expression is converted to bool.
+    cond = convert_to_bool(cond);
+
+    // Create the assertion and add it to the owner.
+    Scoped_declaration* owner = get_current_declaration();
+    auto* decl = new Assertion(owner, cond, kw.get_location());
+    owner->add_hidden_declaration(decl);
+
+    // If we're not in block scope, evaluate the condition, possibly making
+    // the program ill-formed.
+    if (!get_current_block()) {
+      Value result = evaluate(m_cxt, cond);
+      if (!result.get_int())
+        throw std::runtime_error("static assertion failed");
+    }
+
+    return decl;
   }
 
   // Declaration

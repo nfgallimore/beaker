@@ -77,13 +77,17 @@ namespace beaker
       return generate_variable_declaration(static_cast<const Variable_declaration*>(d));
     case Declaration::ref_kind:
       return generate_reference_declaration(static_cast<const Reference_declaration*>(d));
+    case Declaration::assert_kind:
+      return generate_assertion(static_cast<const Assertion*>(d));
     default:
       break;
     }
     assert(false);
   }
 
-  /// Bind the declaration to it's computed initializer.
+  /// Bind the declaration to it's computed initializer. Note that the
+  /// initializer forces a load, which makes the value immutable, even when
+  /// acquired from a variable.
   void
   Instruction_generator::generate_value_declaration(const Value_declaration* d)
   {
@@ -114,5 +118,33 @@ namespace beaker
     declare(d, val);
   }
 
+  void
+  Instruction_generator::generate_assertion(const Assertion* d)
+  {
+    llvm::Value* cond = generate_expression(d->get_condition());
+
+    // FIXME: If the assertion is enabled, this should produce a call to a
+    // builtin function that tests the condition. We shouldn't do it in
+    // code.
+    llvm::BasicBlock* ok = make_block("ok");
+    llvm::BasicBlock* fail = make_block("fail");
+
+    llvm::IRBuilder<> ir(get_current_block());
+    ir.CreateCondBr(cond, ok, fail);
+
+    // FIXME: Put intrinsics into the module.
+    //
+    // FIXME: Emit debugtrap only in debug mode. Or, however assertions end
+    // up working at the end of the day.
+    emit_block(fail);
+    ir.SetInsertPoint(fail);
+    llvm::Function* fn = 
+      llvm::Intrinsic::getDeclaration(get_llvm_module(), llvm::Intrinsic::debugtrap);
+    ir.CreateCall(fn, {});
+    ir.CreateUnreachable();
+
+    // Make this block the current one.
+    emit_block(ok);
+  }
 
 } // namespace beaker

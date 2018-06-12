@@ -1,5 +1,6 @@
 #include "instruction_generation.hpp"
 #include "expression.hpp"
+#include "relational_expression.hpp"
 #include "conversion.hpp"
 #include "initializer.hpp"
 
@@ -53,12 +54,17 @@ namespace beaker
 
     // relational expressions
     case Expression::eq_kind:
+      return generate_equal_to_expression(static_cast<const Equal_to_expression*>(e));
     case Expression::ne_kind:
+      return generate_not_equal_to_expression(static_cast<const Not_equal_to_expression*>(e));
     case Expression::lt_kind:
-    case Expression::gt_kind:
-    case Expression::ng_kind:
+      return generate_less_than_expression(static_cast<const Less_than_expression*>(e));
     case Expression::nl_kind:
-      break;
+      return generate_not_less_than_expression(static_cast<const Not_less_than_expression*>(e));
+    case Expression::gt_kind:
+      return generate_greater_than_expression(static_cast<const Greater_than_expression*>(e));
+    case Expression::ng_kind:
+      return generate_not_greater_than_expression(static_cast<const Not_greater_than_expression*>(e));
 
     // object expressions
     case Expression::assign_kind:
@@ -100,6 +106,66 @@ namespace beaker
   Instruction_generator::generate_id_expression(const Id_expression* e)
   {
     return lookup(e->get_declaration());
+  }
+
+  /// \todo Handle floating point types.
+  llvm::Value*
+  Instruction_generator::generate_equal_to_expression(const Equal_to_expression* e)
+  {
+    llvm::Value* lhs = generate_expression(e->get_lhs());
+    llvm::Value* rhs = generate_expression(e->get_rhs());
+    llvm::IRBuilder<> ir(get_current_block());
+    return ir.CreateICmpEQ(lhs, rhs);
+  }
+  
+  /// \todo Handle floating point types.
+  llvm::Value*
+  Instruction_generator::generate_not_equal_to_expression(const Not_equal_to_expression* e)
+  {
+    llvm::Value* lhs = generate_expression(e->get_lhs());
+    llvm::Value* rhs = generate_expression(e->get_rhs());
+    llvm::IRBuilder<> ir(get_current_block());
+    return ir.CreateICmpNE(lhs, rhs);
+  }
+  
+  /// \todo Handle unsigned and floating point types.
+  llvm::Value*
+  Instruction_generator::generate_less_than_expression(const Less_than_expression* e)
+  {
+    llvm::Value* lhs = generate_expression(e->get_lhs());
+    llvm::Value* rhs = generate_expression(e->get_rhs());
+    llvm::IRBuilder<> ir(get_current_block());
+    return ir.CreateICmpSLT(lhs, rhs);
+  }
+  
+  /// \todo Handle unsigned and floating point types.
+  llvm::Value*
+  Instruction_generator::generate_not_less_than_expression(const Not_less_than_expression* e)
+  {
+    llvm::Value* lhs = generate_expression(e->get_lhs());
+    llvm::Value* rhs = generate_expression(e->get_rhs());
+    llvm::IRBuilder<> ir(get_current_block());
+    return ir.CreateICmpSGE(lhs, rhs);
+  }
+  
+  /// \todo Handle unsigned and floating point types.
+  llvm::Value*
+  Instruction_generator::generate_greater_than_expression(const Greater_than_expression* e)
+  {
+    llvm::Value* lhs = generate_expression(e->get_lhs());
+    llvm::Value* rhs = generate_expression(e->get_rhs());
+    llvm::IRBuilder<> ir(get_current_block());
+    return ir.CreateICmpSGT(lhs, rhs);
+  }
+  
+  /// \todo Handle unsigned and floating point types.
+  llvm::Value*
+  Instruction_generator::generate_not_greater_than_expression(const Not_greater_than_expression* e)
+  {
+    llvm::Value* lhs = generate_expression(e->get_lhs());
+    llvm::Value* rhs = generate_expression(e->get_rhs());
+    llvm::IRBuilder<> ir(get_current_block());
+    return ir.CreateICmpSLE(lhs, rhs);
   }
 
   llvm::Value*

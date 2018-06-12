@@ -64,6 +64,12 @@ namespace beaker
     return m_parent.get_entry_block();
   }
 
+  llvm::BasicBlock*
+  Instruction_generator::make_block(const char* label)
+  {
+    return m_parent.make_block(label);
+  }
+
   void
   Instruction_generator::emit_block(llvm::BasicBlock* b)
   {

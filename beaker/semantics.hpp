@@ -278,6 +278,9 @@ namespace beaker
     Parameter* on_variadic_parameter(const Token& ellipsis);
     Parameter* on_variadic_parameter(const Token& ellipsis, const Token& id);
 
+    /// Called to analyze an assertion.
+    Declaration* on_assertion(Expression* e, const Token& kw, const Token& semi);
+
     // Scope and declaration
 
     /// Make `d` the active declarative region.

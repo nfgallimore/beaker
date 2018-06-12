@@ -61,6 +61,8 @@ namespace beaker
     case Token::var_kw:
     case Token::ref_kw:
       return parse_data_definition();
+    case Token::assert_kw:
+      return parse_assertion();
     default:
       break;
     }
@@ -131,6 +133,17 @@ namespace beaker
     defer_function_definition(fn, std::move(def));
 
     return fn;
+  }
+
+  /// Parse an expression.
+  Declaration*
+  Module_parser::parse_assertion()
+  {
+    Token kw = require(Token::assert_kw);
+    Expression_parser ep(m_cxt);
+    Expression* expr = ep.parse_conditional_expression();
+    Token semi = match(Token::semicolon);
+    return m_act.on_assertion(expr, kw, semi);
   }
 
   void

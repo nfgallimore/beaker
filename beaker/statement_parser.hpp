@@ -33,6 +33,9 @@ namespace beaker
     Declaration* parse_local_declaration();
     Declaration* parse_data_definition();
 
+    // Assertions
+    Declaration* parse_assertion();
+
     // Expressions
     Expression* parse_expression();
   };

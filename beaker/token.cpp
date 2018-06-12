@@ -147,6 +147,7 @@ namespace beaker
 
     // Keywords [lex.key]
     case auto_kw: return std::strlen("auto");
+    case assert_kw: return std::strlen("assert");
     case bool_kw: return std::strlen("bool");
     case break_kw: return std::strlen("break");
     case case_kw: return std::strlen("case");
@@ -249,6 +250,7 @@ namespace beaker
 
     // Keywords [lex.key]
     case auto_kw: return "auto";
+    case assert_kw: return "assert";
     case bool_kw: return "bool";
     case break_kw: return "break";
     case case_kw: return "case";

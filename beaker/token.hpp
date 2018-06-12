@@ -76,6 +76,7 @@ namespace beaker
 
       // Keywords [lex.key]
       auto_kw,
+      assert_kw,
       bool_kw,
       break_kw,
       case_kw,

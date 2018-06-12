@@ -79,6 +79,7 @@ namespace beaker
   {
     m_reserved.insert({
       {m_cxt.get_symbol("auto"), Token::auto_kw},
+      {m_cxt.get_symbol("assert"), Token::assert_kw},
       {m_cxt.get_symbol("bool"), Token::bool_kw},
       {m_cxt.get_symbol("break"), Token::break_kw},
       {m_cxt.get_symbol("case"), Token::case_kw},

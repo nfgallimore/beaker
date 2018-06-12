@@ -57,6 +57,9 @@ namespace beaker
     /// Returns the entry block.
     llvm::BasicBlock* get_entry_block() const;
 
+    /// Returns a new, unattached basic block.
+    llvm::BasicBlock* make_block(const char* label);
+
     /// Emits `b`, making it the current block.
     void emit_block(llvm::BasicBlock* b);
 
@@ -78,9 +81,21 @@ namespace beaker
 
     /// Generate the sequence of instructions to compute `e`.
     llvm::Value* generate_expression(const Expression* e);
+    
+    // Core expressions
     llvm::Value* generate_bool_literal(const Bool_literal* e);
     llvm::Value* generate_int_literal(const Int_literal* e);
     llvm::Value* generate_id_expression(const Id_expression* e);
+    
+    // Relational expressions
+    llvm::Value* generate_equal_to_expression(const Equal_to_expression* e);
+    llvm::Value* generate_not_equal_to_expression(const Not_equal_to_expression* e);
+    llvm::Value* generate_less_than_expression(const Less_than_expression* e);
+    llvm::Value* generate_not_less_than_expression(const Not_less_than_expression* e);
+    llvm::Value* generate_greater_than_expression(const Greater_than_expression* e);
+    llvm::Value* generate_not_greater_than_expression(const Not_greater_than_expression* e);
+    
+    // Object expressions
     llvm::Value* generate_assignment_expression(const Assignment_expression* e);
     
     llvm::Value* generate_implicit_conversion(const Implicit_conversion* e);
@@ -99,6 +114,7 @@ namespace beaker
     void generate_value_declaration(const Value_declaration* d);
     void generate_variable_declaration(const Variable_declaration* d);
     void generate_reference_declaration(const Reference_declaration* d);
+    void generate_assertion(const Assertion* d);
 
   private:
     /// The parent context.

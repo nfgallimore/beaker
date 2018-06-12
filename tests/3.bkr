@@ -1,0 +1,13 @@
+
+# Statements
+
+func f() -> int {
+  var v1 : int = 42;
+  val v2 : int = v1;
+  ref v3 : int = v1;
+
+  v1 = 17;
+  assert v1 == 17;
+
+  return v3;
+}

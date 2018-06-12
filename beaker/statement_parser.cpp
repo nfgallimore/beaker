@@ -43,6 +43,7 @@ namespace beaker
     case Token::var_kw:
     case Token::val_kw:
     case Token::ref_kw:
+    case Token::assert_kw:
       return parse_declaration_statement();
 
     default:
@@ -176,6 +177,8 @@ namespace beaker
     case Token::var_kw:
     case Token::ref_kw:
       return parse_data_definition();
+    case Token::assert_kw:
+      return parse_assertion();
     default:
       break;
     }
@@ -215,7 +218,21 @@ namespace beaker
     return data;
   }
 
-  /// Parses an expression.
+  /// assertion:
+  ///   'assert' expression ';'
+  ///
+  /// \todo Allow for "abort" statements of the form `assert;`? This might
+  /// be used as an alternative to unreachable.
+  Declaration*
+  Statement_parser::parse_assertion()
+  {
+    Token kw = require(Token::assert_kw);
+    Expression* expr = parse_expression();
+    Token semi = match(Token::semicolon);
+    return m_act.on_assertion(expr, kw, semi);
+  }
+
+  /// Parse an expression.
   Expression*
   Statement_parser::parse_expression()
   {

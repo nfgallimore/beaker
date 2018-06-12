@@ -38,6 +38,12 @@ namespace beaker
   class Logical_and_expression;
   class Logical_or_expression;
   class Logical_not_expression;
+  class Equal_to_expression;
+  class Not_equal_to_expression;
+  class Less_than_expression;
+  class Not_less_than_expression;
+  class Greater_than_expression;
+  class Not_greater_than_expression;
   class Assignment_expression;
 
   class Conversion;
@@ -68,6 +74,7 @@ namespace beaker
   class Value_declaration;
   class Reference_declaration;
   class Function_declaration;
+  class Assertion;
   
   class Parameter;
 

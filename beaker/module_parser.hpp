@@ -19,17 +19,9 @@ namespace beaker
 
     Declaration* parse_declaration();
     Declaration_seq parse_declaration_seq();
-
     Declaration* parse_data_definition();
-    void parse_data_type(Declaration* d);
-    void parse_data_initializer(Declaration* d);
-    
     Declaration* parse_function_definition();
-
-    Parameter* parse_function_parameter();
-    Parameter* parse_variadic_parameter();
-    Parameter_seq parse_parameter_list();
-    Parameter_seq parse_parameter_clause();
+    Declaration* parse_assertion();
 
   private:
     void defer_data_type(Declaration* d, Token_seq&& toks);

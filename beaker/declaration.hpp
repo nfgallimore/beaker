@@ -90,6 +90,7 @@ namespace beaker
       var_kind,
       ref_kind,
       parm_kind,
+      assert_kind,
     };
 
   protected:
@@ -543,5 +544,23 @@ namespace beaker
     assert(dynamic_cast<const Typed_declaration*>(m_decl));
     return static_cast<const Typed_declaration*>(m_decl)->get_type();
   }
+
+
+  /// An assertion verifies (statically or dynamically) that a condition
+  /// is true. Assertions outside of block scope are static; inside they are
+  /// dynamic, unless that static specifier is given.
+  class Assertion : public Declaration
+  {
+  public:
+    Assertion(Scoped_declaration* sd, Expression* e, Location kw)
+      : Declaration(assert_kind, sd, kw), m_expr(e)
+    { }
+
+    /// Returns the condition.
+    Expression* get_condition() const { return m_expr; }
+
+  private:
+    Expression* m_expr;
+  };
 
 } // namespace beaker

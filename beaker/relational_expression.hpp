@@ -34,6 +34,16 @@ namespace beaker
   };
 
 
+  /// Represents expressions of the form `e1 >= e2`.
+  class Not_less_than_expression : public Binary_operator
+  {
+  public:
+    Not_less_than_expression(Type* t, Expression* lhs, Expression* rhs, const Token& op)
+      : Binary_operator(nl_kind, t, lhs, rhs, op)
+    { }
+  };
+
+
   /// Represents expressions of the form `e1 > e2`.
   class Greater_than_expression : public Binary_operator
   {
@@ -52,16 +62,5 @@ namespace beaker
       : Binary_operator(ng_kind, t, lhs, rhs, op)
     { }
   };
-
-
-  /// Represents expressions of the form `e1 >= e2`.
-  class Not_less_than_expression : public Binary_operator
-  {
-  public:
-    Not_less_than_expression(Type* t, Expression* lhs, Expression* rhs, const Token& op)
-      : Binary_operator(nl_kind, t, lhs, rhs, op)
-    { }
-  };
-
 
 } // namespace beaker
