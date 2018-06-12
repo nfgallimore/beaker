@@ -14,13 +14,15 @@
 
 namespace beaker
 {
+  /// The first operand shall have type `ref t`, and the second shall be
+  /// converted to `t`.
   Expression*
   Semantics::on_assignment_expression(Expression* e1,
                                       Expression* e2,
                                       const Token& op)
   {
-    e2 = convert_to_value(e2);
-    e1 = require_reference_to(e1, e2->get_type());
+    e1 = require_reference(e1);
+    e2 = convert_to_value(e2, e1->get_type());
     return new Assignment_expression(e1->get_type(), e1, e2, op);
   }
 

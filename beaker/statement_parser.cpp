@@ -205,7 +205,7 @@ namespace beaker
     Token id = match(Token::identifier);
 
     // Point of identification.
-    Declaration* data = m_act.on_data_identification(id, kw);
+    Declaration* data = m_act.on_data_identification(kw, id);
 
     // Parse the type and initializer NOW.
     Data_parser dp(m_cxt);

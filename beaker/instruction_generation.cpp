@@ -58,6 +58,12 @@ namespace beaker
     return m_parent.get_current_block();
   }
 
+  llvm::BasicBlock*
+  Instruction_generator::get_entry_block() const
+  {
+    return m_parent.get_entry_block();
+  }
+
   void
   Instruction_generator::emit_block(llvm::BasicBlock* b)
   {

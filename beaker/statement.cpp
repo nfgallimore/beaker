@@ -1,4 +1,7 @@
 #include "statement.hpp"
+#include "dump.hpp"
+
+#include <iostream>
 
 namespace beaker
 {
@@ -19,7 +22,14 @@ namespace beaker
     default:
       break;
     }
-    __builtin_unreachable();
+    assert(false);
+  }
+
+  void
+  Statement::dump() const
+  {
+    Dump_context dc(std::cerr);
+    beaker::dump(dc, this);
   }
 
 } // namespace beaker

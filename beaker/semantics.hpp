@@ -332,8 +332,11 @@ namespace beaker
     /// Returns `e` converted to the type `t`.
     Expression* convert_to_type(Expression* e, Type* t);
 
-    /// Returns `e` converted to a value.
+    /// Returns `e` converted to a value (non-reference) type.
     Expression* convert_to_value(Expression* e);
+
+    /// Returns `e` converted to a value of type `t`.
+    Expression* convert_to_value(Expression* e, Type* t);
 
     /// Returns `e` converted to bool.
     Expression* convert_to_bool(Expression* e);

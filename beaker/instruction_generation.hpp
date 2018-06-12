@@ -54,6 +54,9 @@ namespace beaker
     /// Returns the current block.
     llvm::BasicBlock* get_current_block() const;
 
+    /// Returns the entry block.
+    llvm::BasicBlock* get_entry_block() const;
+
     /// Emits `b`, making it the current block.
     void emit_block(llvm::BasicBlock* b);
 
@@ -73,7 +76,7 @@ namespace beaker
     /// Generates the corresponding type for `d`.
     llvm::Type* generate_type(const Typed_declaration* d);
 
-    /// Recursively generate the sequence of instructions to compute `e`.
+    /// Generate the sequence of instructions to compute `e`.
     llvm::Value* generate_expression(const Expression* e);
     llvm::Value* generate_bool_literal(const Bool_literal* e);
     llvm::Value* generate_int_literal(const Int_literal* e);
@@ -82,10 +85,18 @@ namespace beaker
     llvm::Value* generate_value_conversion(const Conversion* e);
     llvm::Value* generate_value_initialization(const Value_initializer* e);
 
-    /// Recursively generate the statement `s`.
+    /// Generate the statement `s`.
     void generate_statement(const Statement* s);
     void generate_block_statement(const Block_statement* s);
     void generate_return_statement(const Return_statement* s);
+    void generate_expression_statement(const Expression_statement* s);
+    void generate_declaration_statement(const Declaration_statement* s);
+
+    /// Generate the local declaration `d`.
+    void generate_declaration(const Declaration* d);
+    void generate_value_declaration(const Value_declaration* d);
+    void generate_variable_declaration(const Variable_declaration* d);
+    void generate_reference_declaration(const Reference_declaration* d);
 
   private:
     /// The parent context.

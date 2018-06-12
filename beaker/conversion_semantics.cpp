@@ -162,6 +162,15 @@ namespace beaker
   }
 
   Expression*
+  Semantics::convert_to_value(Expression* e, Type* t)
+  {
+    // Make sure we're converting to a reference type.
+    if (auto* rt = dynamic_cast<Reference_type*>(t))
+      t = rt->get_object_type();
+    return convert_to_type(e, t);
+  }
+
+  Expression*
   Semantics::convert_to_bool(Expression* e)
   {
     // Convert references to values.

@@ -46,6 +46,11 @@ namespace beaker
     /// Returns the end location of the this statement.
     virtual Location get_end_location() const { return Location(); }
 
+    // Debugging
+
+    /// Emit a textual representation of the statement.
+    void dump() const;
+
   private:
     /// The kind of declaration.
     Kind m_kind;
