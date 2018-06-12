@@ -38,6 +38,7 @@ namespace beaker
   class Logical_and_expression;
   class Logical_or_expression;
   class Logical_not_expression;
+  class Assignment_expression;
 
   class Conversion;
   class Implicit_conversion;

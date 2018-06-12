@@ -81,6 +81,8 @@ namespace beaker
     llvm::Value* generate_bool_literal(const Bool_literal* e);
     llvm::Value* generate_int_literal(const Int_literal* e);
     llvm::Value* generate_id_expression(const Id_expression* e);
+    llvm::Value* generate_assignment_expression(const Assignment_expression* e);
+    
     llvm::Value* generate_implicit_conversion(const Implicit_conversion* e);
     llvm::Value* generate_value_conversion(const Conversion* e);
     llvm::Value* generate_value_initialization(const Value_initializer* e);

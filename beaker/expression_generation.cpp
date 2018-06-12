@@ -58,9 +58,11 @@ namespace beaker
     case Expression::gt_kind:
     case Expression::ng_kind:
     case Expression::nl_kind:
+      break;
 
     // object expressions
     case Expression::assign_kind:
+      return generate_assignment_expression(static_cast<const Assignment_expression*>(e));
 
     // conversions
     case Expression::imp_conv:
@@ -98,6 +100,15 @@ namespace beaker
   Instruction_generator::generate_id_expression(const Id_expression* e)
   {
     return lookup(e->get_declaration());
+  }
+
+  llvm::Value*
+  Instruction_generator::generate_assignment_expression(const Assignment_expression* e)
+  {
+    llvm::Value* lhs = generate_expression(e->get_lhs());
+    llvm::Value* rhs = generate_expression(e->get_rhs());
+    llvm::IRBuilder<> ir(get_current_block());
+    return ir.CreateStore(rhs, lhs);
   }
 
   llvm::Value*
