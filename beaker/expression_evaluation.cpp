@@ -34,6 +34,8 @@ namespace beaker
       break;
     case Expression::rem_kind:
       break;
+    case Expression::div_kind:
+      break;
     case Expression::neg_kind:
       break;
     case Expression::rec_kind:

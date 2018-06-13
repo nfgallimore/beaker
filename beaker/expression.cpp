@@ -20,10 +20,11 @@ namespace beaker
     // arithmetic expressions
     case add_kind: return "addition-expression";
     case sub_kind: return "subtraction-expression";
+    case neg_kind: return "negation-expression";
     case mul_kind: return "multiplication-expression";
     case quo_kind: return "quotient-expression";
     case rem_kind: return "remainder-expression";
-    case neg_kind: return "negation-expression";
+    case div_kind: return "division-expression";
     case rec_kind: return "reciprocal-expression";
 
     // bitwise expressions

@@ -34,16 +34,24 @@ namespace beaker
   class Bool_literal;
   class Int_literal;
   class Id_expression;
-  class Conditional_expression;
-  class Logical_and_expression;
-  class Logical_or_expression;
-  class Logical_not_expression;
+  class Addition_expression;
+  class Subtraction_expression;
+  class Negation_expression;
+  class Multiplication_expression;
+  class Quotient_expression;
+  class Remainder_expression;
+  class Division_expression;
+  class Reciprocal_expression;
   class Equal_to_expression;
   class Not_equal_to_expression;
   class Less_than_expression;
   class Not_less_than_expression;
   class Greater_than_expression;
   class Not_greater_than_expression;
+  class Conditional_expression;
+  class Logical_and_expression;
+  class Logical_or_expression;
+  class Logical_not_expression;
   class Assignment_expression;
 
   class Conversion;
@@ -56,6 +64,7 @@ namespace beaker
  
   class Statement;
   class Block_statement;
+  class When_statement;
   class If_statement;
   class While_statement;
   class Break_statement;

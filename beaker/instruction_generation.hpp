@@ -86,6 +86,16 @@ namespace beaker
     llvm::Value* generate_bool_literal(const Bool_literal* e);
     llvm::Value* generate_int_literal(const Int_literal* e);
     llvm::Value* generate_id_expression(const Id_expression* e);
+
+    // Arithmetic expressions
+    llvm::Value* generate_addition_expression(const Addition_expression* e);
+    llvm::Value* generate_subtraction_expression(const Subtraction_expression* e);
+    llvm::Value* generate_negation_expression(const Negation_expression* e);
+    llvm::Value* generate_multiplication_expression(const Multiplication_expression* e);
+    llvm::Value* generate_quotient_expression(const Quotient_expression* e);
+    llvm::Value* generate_remainder_expression(const Remainder_expression* e);
+    llvm::Value* generate_division_expression(const Division_expression* e);
+    llvm::Value* generate_reciprocal_expression(const Reciprocal_expression* e);
     
     // Relational expressions
     llvm::Value* generate_equal_to_expression(const Equal_to_expression* e);
@@ -105,6 +115,11 @@ namespace beaker
     /// Generate the statement `s`.
     void generate_statement(const Statement* s);
     void generate_block_statement(const Block_statement* s);
+    void generate_when_statement(const When_statement* s);
+    void generate_if_statement(const If_statement* s);
+    void generate_while_statement(const While_statement* s);
+    void generate_break_statement(const Break_statement* s);
+    void generate_continue_statement(const Continue_statement* s);
     void generate_return_statement(const Return_statement* s);
     void generate_expression_statement(const Expression_statement* s);
     void generate_declaration_statement(const Declaration_statement* s);

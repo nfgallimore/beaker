@@ -1,0 +1,5 @@
+
+func f1(var x : int) -> int {
+  while (x != 0)
+    x = x - 1;
+}

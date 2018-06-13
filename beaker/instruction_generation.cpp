@@ -1,20 +1,5 @@
 #include "instruction_generation.hpp"
 #include "function_generation.hpp"
-#include "type.hpp"
-#include "expression.hpp"
-#include "conversion.hpp"
-#include "initializer.hpp"
-#include "statement.hpp"
-#include "declaration.hpp"
-
-#include <llvm/IR/LLVMContext.h>
-#include <llvm/IR/Module.h>
-#include <llvm/IR/Function.h>
-#include <llvm/IR/IRBuilder.h>
-#include <llvm/IR/IRBuilder.h>
-#include <llvm/Support/raw_ostream.h>
-
-#include <iostream>
 
 namespace beaker
 {

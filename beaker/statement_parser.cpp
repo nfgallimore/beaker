@@ -83,7 +83,7 @@ namespace beaker
     Expression* e = parse_expression();
     Token rparen = match(Token::rparen);
     Statement* s1 = parse_statement();
-    if (Token kw2 = match(Token::else_kw)) {
+    if (Token kw2 = match_if(Token::else_kw)) {
       Statement* s2 = parse_statement();
       return m_act.on_if_statement(e, s1, s2, kw1, lparen, rparen, kw2);
     }

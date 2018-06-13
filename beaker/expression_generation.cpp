@@ -1,6 +1,8 @@
 #include "instruction_generation.hpp"
 #include "expression.hpp"
+#include "arithmetic_expression.hpp"
 #include "relational_expression.hpp"
+#include "logical_expression.hpp"
 #include "conversion.hpp"
 #include "initializer.hpp"
 
@@ -31,12 +33,21 @@ namespace beaker
 
     // arithmetic expressions
     case Expression::add_kind:
+      return generate_addition_expression(static_cast<const Addition_expression*>(e));
     case Expression::sub_kind:
-    case Expression::mul_kind:
-    case Expression::quo_kind:
-    case Expression::rem_kind:
+      return generate_subtraction_expression(static_cast<const Subtraction_expression*>(e));
     case Expression::neg_kind:
+      return generate_negation_expression(static_cast<const Negation_expression*>(e));
+    case Expression::mul_kind:
+      return generate_multiplication_expression(static_cast<const Multiplication_expression*>(e));
+    case Expression::quo_kind:
+      return generate_quotient_expression(static_cast<const Quotient_expression*>(e));
+    case Expression::rem_kind:
+      return generate_remainder_expression(static_cast<const Remainder_expression*>(e));
+    case Expression::div_kind:
+      return generate_division_expression(static_cast<const Division_expression*>(e));
     case Expression::rec_kind:
+      return generate_reciprocal_expression(static_cast<const Reciprocal_expression*>(e));
 
     // bitwise expressions
     case Expression::bit_and_kind:
@@ -51,6 +62,7 @@ namespace beaker
     case Expression::and_kind:
     case Expression::or_kind:
     case Expression::not_kind:
+      break;
 
     // relational expressions
     case Expression::eq_kind:
@@ -107,6 +119,83 @@ namespace beaker
   {
     return lookup(e->get_declaration());
   }
+
+  // Arithmetic expressions
+
+  // FIXME: Handle unsigned and floating point expressions.
+  llvm::Value*
+  Instruction_generator::generate_addition_expression(const Addition_expression* e)
+  {
+    llvm::Value* lhs = generate_expression(e->get_lhs());
+    llvm::Value* rhs = generate_expression(e->get_rhs());
+    llvm::IRBuilder<> ir(get_current_block());
+    return ir.CreateNSWAdd(lhs, rhs);
+  }
+
+  // FIXME: Handle unsigned and floating point expressions.
+  llvm::Value*
+  Instruction_generator::generate_subtraction_expression(const Subtraction_expression* e)
+  {
+    llvm::Value* lhs = generate_expression(e->get_lhs());
+    llvm::Value* rhs = generate_expression(e->get_rhs());
+    llvm::IRBuilder<> ir(get_current_block());
+    return ir.CreateNSWSub(lhs, rhs);
+  }
+
+  // FIXME: Implement me.
+  llvm::Value*
+  Instruction_generator::generate_negation_expression(const Negation_expression* e)
+  {
+    assert(false);
+  }
+
+  // FIXME: Handle unsigned and floating point expressions.
+  llvm::Value*
+  Instruction_generator::generate_multiplication_expression(const Multiplication_expression* e)
+  {
+    llvm::Value* lhs = generate_expression(e->get_lhs());
+    llvm::Value* rhs = generate_expression(e->get_rhs());
+    llvm::IRBuilder<> ir(get_current_block());
+    return ir.CreateNSWMul(lhs, rhs);
+  }
+
+  // FIXME: Handle unsigned expressions.
+  llvm::Value*
+  Instruction_generator::generate_quotient_expression(const Quotient_expression* e)
+  {
+    llvm::Value* lhs = generate_expression(e->get_lhs());
+    llvm::Value* rhs = generate_expression(e->get_rhs());
+    llvm::IRBuilder<> ir(get_current_block());
+    return ir.CreateSDiv(lhs, rhs);
+  }
+
+  // FIXME: Handle unsigned expressions.
+  llvm::Value*
+  Instruction_generator::generate_remainder_expression(const Remainder_expression* e)
+  {
+    llvm::Value* lhs = generate_expression(e->get_lhs());
+    llvm::Value* rhs = generate_expression(e->get_rhs());
+    llvm::IRBuilder<> ir(get_current_block());
+    return ir.CreateSRem(lhs, rhs);
+  }
+
+  llvm::Value*
+  Instruction_generator::generate_division_expression(const Division_expression* e)
+  {
+    llvm::Value* lhs = generate_expression(e->get_lhs());
+    llvm::Value* rhs = generate_expression(e->get_rhs());
+    llvm::IRBuilder<> ir(get_current_block());
+    return ir.CreateFDiv(lhs, rhs);
+  }
+
+  // FIXME: Implement me.
+  llvm::Value*
+  Instruction_generator::generate_reciprocal_expression(const Reciprocal_expression* e)
+  {
+    assert(false);
+  }
+
+  // Relational expressions
 
   /// \todo Handle floating point types.
   llvm::Value*

@@ -22,6 +22,7 @@ namespace beaker
       mul_kind,
       quo_kind,
       rem_kind,
+      div_kind,
       neg_kind,
       rec_kind,
 

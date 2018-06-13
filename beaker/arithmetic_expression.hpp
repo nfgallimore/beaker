@@ -13,6 +13,7 @@ namespace beaker
     { }
   };
 
+
   /// Represents subtraction expressions.
   class Subtraction_expression : public Binary_operator
   {
@@ -21,6 +22,17 @@ namespace beaker
       : Binary_operator(sub_kind, t, lhs, rhs, op)
     { }
   };
+
+
+  /// Represents the computation of the additive inverse.
+  class Negation_expression : public Unary_operator
+  {
+  public:
+    Negation_expression(Type* t, Expression* e, const Token& op)
+      : Unary_operator(neg_kind, t, e, op)
+    { }
+  };
+
 
   /// Represents multiplication expressions.
   class Multiplication_expression : public Binary_operator
@@ -31,7 +43,8 @@ namespace beaker
     { }
   };
 
-  /// Represents quotient computations.
+  /// Represents quotient computations. The operands of quotient expressions
+  /// are euclidean rings (i.e., integers).
   class Quotient_expression : public Binary_operator
   {
   public:
@@ -40,7 +53,9 @@ namespace beaker
     { }
   };
 
-  /// Represents remainder computations.
+
+  /// Represents remainder computations. The operands of quotient expressions
+  /// are euclidean rings (i.e., integers).
   class Remainder_expression : public Binary_operator
   {
   public:
@@ -49,14 +64,20 @@ namespace beaker
     { }
   };
 
-  /// Represents the computation of the additive inverse.
-  class Negation_expression : public Unary_operator
+
+  /// Represents closed division. The operands of division are fields (e.g.,
+  /// reals or floating point values).
+  ///
+  /// \todo Allow an alternative spelling for integer operands that computes
+  /// the divmod operation?
+  class Division_expression : public Binary_operator
   {
   public:
-    Negation_expression(Type* t, Expression* e, const Token& op)
-      : Unary_operator(neg_kind, t, e, op)
+    Division_expression(Type* t, Expression* lhs, Expression* rhs, const Token& op)
+      : Binary_operator(rem_kind, t, lhs, rhs, op)
     { }
   };
+
 
   /// Represents the computation of the multiplicative inverse.
   class Reciprocal_expression : public Unary_operator

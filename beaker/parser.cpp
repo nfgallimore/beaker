@@ -78,7 +78,8 @@ namespace beaker
       return consume();
 
     std::stringstream ss;
-    ss << "syntax error";
+    ss << "expected '" << Token::get_token_spelling(n)
+       << "' but got '" << peek() << "'";
     throw std::runtime_error(ss.str());
   }
 

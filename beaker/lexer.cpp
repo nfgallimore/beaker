@@ -295,7 +295,10 @@ namespace beaker
         return lex_monograph(Token::bar);
 
       case '!':
-        return lex_monograph(Token::bang);
+        if (peek(1) == '=')
+          return lex_digraph(Token::bang_equal);
+        else
+          return lex_monograph(Token::bang);
 
       case '^':
         return lex_monograph(Token::caret);

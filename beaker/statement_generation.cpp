@@ -22,11 +22,15 @@ namespace beaker
     case Statement::block_kind:
       return generate_block_statement(static_cast<const Block_statement*>(s));
     case Statement::when_kind:
+      return generate_when_statement(static_cast<const When_statement*>(s));
     case Statement::if_kind:
+      return generate_if_statement(static_cast<const If_statement*>(s));
     case Statement::while_kind:
+      return generate_while_statement(static_cast<const While_statement*>(s));
     case Statement::break_kind:
+      return generate_break_statement(static_cast<const Break_statement*>(s));
     case Statement::cont_kind:
-      break;
+      return generate_continue_statement(static_cast<const Continue_statement*>(s));
     case Statement::ret_kind:
       return generate_return_statement(static_cast<const Return_statement*>(s));
     case Statement::expr_kind:
@@ -45,6 +49,95 @@ namespace beaker
     for (Statement* sub : s->get_statements())
       generate_statement(sub);
   }
+
+  void
+  Instruction_generator::generate_when_statement(const When_statement* s)
+  {
+    llvm::BasicBlock* true_block = make_block("when.true");
+    llvm::BasicBlock* end_block = make_block("when.end");
+
+    // Emit the condition and the branch.
+    llvm::Value* v = generate_expression(s->get_condition());
+    llvm::IRBuilder<> ir1(get_current_block());
+    ir1.CreateCondBr(v, true_block, end_block);
+
+    // Emit the true block and jump to end.
+    emit_block(true_block);
+    generate_statement(s->get_true_branch());
+    llvm::IRBuilder<> ir2(get_current_block());
+    ir2.CreateBr(end_block);
+
+    // Make the end block active.
+    emit_block(end_block);
+  }
+
+  void
+  Instruction_generator::generate_if_statement(const If_statement* s)
+  {
+    llvm::BasicBlock* true_block = make_block("if.true");
+    llvm::BasicBlock* false_block = make_block("if.false");
+    llvm::BasicBlock* end_block = make_block("if.end");
+
+    // Emit the condition and the branch.
+    llvm::Value* v = generate_expression(s->get_condition());
+    llvm::IRBuilder<> ir1(get_current_block());
+    ir1.CreateCondBr(v, true_block, false_block);
+
+    // Emit the true block and jump to end.
+    emit_block(true_block);
+    generate_statement(s->get_true_branch());
+    llvm::IRBuilder<> ir2(get_current_block());
+    ir2.CreateBr(end_block);
+
+    // Emit the false block and jump to end.
+    emit_block(false_block);
+    generate_statement(s->get_false_branch());
+    llvm::IRBuilder<> ir3(get_current_block());
+    ir3.CreateBr(end_block);
+
+    // Make the end block active.
+    emit_block(end_block);
+  }
+
+  void
+  Instruction_generator::generate_while_statement(const While_statement* s)
+  {
+    llvm::BasicBlock* if_block = make_block("while.if");
+    llvm::BasicBlock* do_block = make_block("while.do");
+    llvm::BasicBlock* end_block = make_block("while.end");
+
+    // Emit a jump to the if block.
+    llvm::IRBuilder<> ir1(get_current_block());
+    ir1.CreateBr(if_block);
+
+    // Emit the condition and conditional branch.
+    emit_block(if_block);
+    llvm::Value* cond = generate_expression(s->get_condition());
+    llvm::IRBuilder<> ir2(get_current_block());
+    ir2.CreateCondBr(cond, do_block, end_block);
+
+    // Emit the loop body and jump to the top.
+    emit_block(do_block);
+    generate_statement(s->get_body());
+    llvm::IRBuilder<> ir3(get_current_block());
+    ir3.CreateBr(if_block);
+
+    // Make the end block active.
+    emit_block(end_block);
+  }
+
+  void
+  Instruction_generator::generate_break_statement(const Break_statement* s)
+  {
+
+  }
+
+  void
+  Instruction_generator::generate_continue_statement(const Continue_statement* s)
+  {
+
+  }
+
 
   void
   Instruction_generator::generate_return_statement(const Return_statement* s)
@@ -130,18 +223,18 @@ namespace beaker
     llvm::BasicBlock* ok = make_block("ok");
     llvm::BasicBlock* fail = make_block("fail");
 
-    llvm::IRBuilder<> ir(get_current_block());
-    ir.CreateCondBr(cond, ok, fail);
+    llvm::IRBuilder<> ir1(get_current_block());
+    ir1.CreateCondBr(cond, ok, fail);
 
     // FIXME: Put intrinsics into the module.
     //
     // FIXME: Emit debugtrap only in debug mode. Or, however assertions end
     // up working at the end of the day.
     emit_block(fail);
-    ir.SetInsertPoint(fail);
+    llvm::IRBuilder<> ir2(fail);
     llvm::Function* fn = get_module_context().get_debugtrap_intrinsic();
-    ir.CreateCall(fn, {});
-    ir.CreateUnreachable();
+    ir2.CreateCall(fn, {});
+    ir2.CreateUnreachable();
 
     // Make this block the current one.
     emit_block(ok);
