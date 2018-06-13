@@ -63,11 +63,21 @@ namespace beaker
                                                   llvm::Type* type, 
                                                   llvm::Constant* init);
 
-    /// Creates the global variable llvm.global.ctors.
+    // Intrinsics
+
+    /// Creates the global variable llvm.global.ctors with the given
+    /// initializer.
     llvm::GlobalVariable* make_llvm_global_ctors(llvm::Constant* init);
 
-    /// Creates the global variable llvm.global.dtors.
+    /// Creates the global variable llvm.global.dtors with the given
+    /// initializer.
     llvm::GlobalVariable* make_llvm_global_dtors(llvm::Constant* init);
+
+    /// Returns the llvm.trap intrinsic.
+    llvm::Function* get_trap_intrinsic();
+
+    /// Returns the llvm.debugtrap intrinsic.
+    llvm::Function* get_debugtrap_intrinsic();
 
     // Generation
 

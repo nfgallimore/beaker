@@ -1,4 +1,5 @@
 #include "instruction_generation.hpp"
+#include "module_generation.hpp"
 #include "expression.hpp"
 #include "statement.hpp"
 #include "declaration.hpp"
@@ -138,8 +139,7 @@ namespace beaker
     // up working at the end of the day.
     emit_block(fail);
     ir.SetInsertPoint(fail);
-    llvm::Function* fn = 
-      llvm::Intrinsic::getDeclaration(get_llvm_module(), llvm::Intrinsic::debugtrap);
+    llvm::Function* fn = get_module_context().get_debugtrap_intrinsic();
     ir.CreateCall(fn, {});
     ir.CreateUnreachable();
 

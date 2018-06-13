@@ -95,6 +95,18 @@ namespace beaker
     return make_appending_variable(name, type, init);
   }
 
+  llvm::Function*
+  Module_context::get_trap_intrinsic()
+  {
+    return llvm::Intrinsic::getDeclaration(m_llvm, llvm::Intrinsic::trap);
+  }
+
+  llvm::Function*
+  Module_context::get_debugtrap_intrinsic()
+  {
+    return llvm::Intrinsic::getDeclaration(m_llvm, llvm::Intrinsic::debugtrap);
+  }
+
   std::string
   Module_context::generate_external_name(const Named_declaration* d)
   {
